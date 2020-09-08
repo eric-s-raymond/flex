@@ -1383,8 +1383,11 @@ void readin (void)
 				 ("Variable trailing context rules entail a large performance penalty\n"));
 	}
 
-	if (reject)
+	if (reject) {
 		real_reject = true;
+		buf_m4_define( &m4defs_buf, "M4_REAL_REJECT", NULL);
+
+	}
 
 	if (variable_trailing_context_rules)
 		reject = true;

@@ -517,15 +517,15 @@ void gen_find_action (void)
 			backend->assign("YY_G(yy_looking_for_trail_begin)", "yy_act & ~YY_TRAILING_MASK");
 			backend->statement("YY_G(yy_looking_for_trail_begin) |= YY_TRAILING_HEAD_MASK");
 
-			if (real_reject) {
-				/* Remember matched text in case we back up
-				 * due to REJECT.
-				 */
-				backend->assign("YY_G(yy_full_match)", "yy_cp");
-				backend->assign("YY_G(yy_full_state)", "YY_G(yy_state_ptr)");
-				backend->assign("YY_G(yy_full_lp)", "YY_G(yy_lp)");
-			}
-
+			outn ("m4_ifdef( [[M4_REAL_REJECT]],[[");
+			/* Remember matched text in case we back up
+			 * due to REJECT.
+			 */
+			backend->assign("YY_G(yy_full_match)", "yy_cp");
+			backend->assign("YY_G(yy_full_state)", "YY_G(yy_state_ptr)");
+			backend->assign("YY_G(yy_full_lp)", "YY_G(yy_lp)");
+			outn ("]])\n");
+			
 			indent_puts (backend->close_block);
 			--indent_level;
 
