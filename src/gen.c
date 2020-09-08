@@ -464,12 +464,12 @@ void gen_find_action (void)
 
 	if (fullspd) {
 		do_indent (); backend->linecomment("generated code for fullspd option begins");
-		backend->assign("yy_act", "yy_current_state[-1].yy_nxt");
+		indent_puts("M4_FIND_ACTION_FULLSPD");
 		do_indent (); backend->linecomment("generated code for fullspd option ends");
 	}
 	else if (fulltbl) {
 		do_indent (); backend->linecomment("generated code for fulltbl option begins");
-		backend->assign("yy_act", "yy_accept[yy_current_state]");
+		indent_puts("M4_FIND_ACTION_FULLTBL");
 		do_indent (); backend->linecomment("generated code for fulltbl option ends");
 	}
 	else if (reject) {
@@ -575,7 +575,7 @@ void gen_find_action (void)
 
 	else {			/* compressed */
 		do_indent (); backend->linecomment("generated code for compressed option begins");
-		outn("M4_COMPRESSED_FIND_ACTION");
+		outn("M4_FIND_ACTION_COMPRESSED");
 		do_indent (); backend->linecomment("generated code for compressed option ends");
 	}
 }
