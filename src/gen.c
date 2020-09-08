@@ -433,20 +433,20 @@ void gen_find_action (void)
 	 * 1. Target language uses [] for indexing.
 	 * 2. Target language uses . to reach structure members. (But not ->.)
 	 * 3. YY_G() expands to a location that is assignable.
-	 * 4, Label syntax is C-like - identifier followed by colon.
-	 * 5. The following C infix operators have their usual
+	 * 4. The following C infix operators have their usual
 	 *    meanings: && || == != < & | ~ &= |= in cond() argyments and
 	 *    second arguments of assign(), and your back end must
 	 *    translate them itself.
-	 * 6. All conditionals and loops are attached to a block
+	 * 5. All conditionals and loops are attached to a block
 	 *    with begin and end delimiters, not just a bare statement.
- 	 * 7. Postincrement and post-decrement statements are allowed;
+ 	 * 6. Postincrement and post-decrement statements are allowed;
  	 *    preincrement and predecrement are not.  Neither may be used 
  	 *    in expressions
-	 * 8. "else", "break" and  "goto" are legal atatements.
-	 * 9. Pointer types exist abd are defeferenced with prefix "*".
+	 * 7. "else", "break" and  "goto" are legal syntax elements
+	 *    that mean what they do in C.
+	 * 8. Pointer types exist and are defeferenced with prefix "*".
 	 *    Eventually this assumption needs to be removed if we're
-	 *    going to target anything other than C/C++/GO.  Uses of
+	 *    going to target anything other than C/C++/Go.  Uses of
 	 *    pointers that will be need yo be fixed up are marked
 	 *    with a comment containing "POINTER".
  	 *
@@ -474,14 +474,13 @@ void gen_find_action (void)
 	}
 	else if (reject) {
 		do_indent (); backend->linecomment("generated code for reject option begins");
-		backend->statement("YY_G(yy_state_ptr)--");
-		backend->assign("yy_current_state", "*YY_G(yy_state_ptr)");	// POINTER
-		backend->assign("YY_G(yy_lp)", "yy_accept[yy_current_state]");
-
+		outn("M4_REJECT_PROLOG");
+		do_indent (); backend->linecomment("generated code for reject prolog ends");
+ 
 		if (!variable_trailing_context_rules)
 			outn ("m4_ifdef( [[M4_YY_USES_REJECT]],\n[[");
 		if(reject_really_used) {
-			out ("find_rule: ");
+			out ("M4_DECLARE_FIND_RULE_LABEL");
 			backend->linecomment("we branch to this label when backing up");
 		}
 		if (!variable_trailing_context_rules)
@@ -498,74 +497,15 @@ void gen_find_action (void)
 		backend->assign("yy_act", "yy_acclist[YY_G(yy_lp)]");
 
 		if (variable_trailing_context_rules) {
-			backend->cond("(yy_act & YY_TRAILING_HEAD_MASK) != 0 || YY_G(yy_looking_for_trail_begin)");
-			++indent_level;
-
-			backend->cond("yy_act == YY_G(yy_looking_for_trail_begin)");
-			++indent_level;
-			backend->assign("YY_G(yy_looking_for_trail_begin)", "0");
-			backend->statement("yy_act &= ~YY_TRAILING_HEAD_MASK");
-			backend->statement("break");
-			indent_puts (backend->close_block);
-			--indent_level;
-
-			indent_puts (backend->close_block);
-			--indent_level;
-
-			backend->elsecond("( yy_act & YY_TRAILING_MASK) != 0");
-			++indent_level;
-			backend->assign("YY_G(yy_looking_for_trail_begin)", "yy_act & ~YY_TRAILING_MASK");
-			backend->statement("YY_G(yy_looking_for_trail_begin) |= YY_TRAILING_HEAD_MASK");
-
-			outn ("m4_ifdef( [[M4_REAL_REJECT]],[[");
-			/* Remember matched text in case we back up
-			 * due to REJECT.
-			 */
-			backend->assign("YY_G(yy_full_match)", "yy_cp");
-			backend->assign("YY_G(yy_full_state)", "YY_G(yy_state_ptr)");
-			backend->assign("YY_G(yy_full_lp)", "YY_G(yy_lp)");
-			outn ("]])\n");
-			
-			indent_puts (backend->close_block);
-			--indent_level;
-
-			indent_puts ("else");
-			++indent_level;
-			indent_puts (backend->open_block);
-			backend->assign("YY_G(yy_full_match)", "yy_cp");
-			backend->assign("YY_G(yy_full_state)", "YY_G(yy_state_ptr)");
-			backend->assign("YY_G(yy_full_lp)", "YY_G(yy_lp)");
-			backend->statement("break");
-			indent_puts (backend->close_block);
-			--indent_level;
-
-			backend->statement("YY_G(yy_lp)++");
-			backend->statement("goto find_rule");
-		}
-
-		else {
-			/* Remember matched text in case we back up due to
-			 * trailing context plus REJECT.
-			 */
-			++indent_level;
-			indent_puts (backend->open_block);
-			backend->assign("YY_G(yy_full_match)", "yy_cp");
-			backend->statement("break");
-			indent_puts (backend->close_block);
-			--indent_level;
+			outn ("REJECT_BODY");
+		} else {
+			outn("M4_REJECT_NO_TRAILING_CONTEXT");
 		}
 
 		indent_puts (backend->close_block);
 		--indent_level;
 
-		backend->statement("yy_cp--");
-
-		/* We could consolidate the following two lines with those at
-		 * the beginning, but at the cost of complaints that we're
-		 * branching inside a loop.
-		 */
-		backend->assign("yy_current_state", "*--YY_G(yy_state_ptr)");	// POINTER
-		backend->assign("YY_G(yy_lp)", "yy_accept[yy_current_state]");
+		outn("M4_REJECT_LOOP_TRAILER");
 
 		indent_puts (backend->close_block);
 
@@ -574,9 +514,9 @@ void gen_find_action (void)
 	}
 
 	else {			/* compressed */
-		do_indent (); backend->linecomment("generated code for compressed option begins");
+		do_indent (); backend->linecomment("generated code for compressed tables begins");
 		outn("M4_FIND_ACTION_COMPRESSED");
-		do_indent (); backend->linecomment("generated code for compressed option ends");
+		do_indent (); backend->linecomment("generated code for compressed tables ends");
 	}
 }
 
