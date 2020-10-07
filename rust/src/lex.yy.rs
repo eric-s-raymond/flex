@@ -27,11 +27,15 @@
 /* M4_MODE_PREFIX = yy */
 /* END of m4 controls */
 
+extern crate libc;
+
 const FLEX_SCANNER: bool = true;
 const MAJOR_VERSION: usize = 2;
 const MINOR_VERSION: usize = 6;
 const SUBMINOR_VERSION: usize = 4;
 const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
+
+type Result<T> = std::result::Result<T, &'static str>;
 
 pub struct Scan<T> {
     /// User-defined. Not touched by flex.
@@ -116,6 +120,84 @@ impl<T> Scan<T> {
         }
     }
 
+    /** Done after the current pattern has been matched and before the
+      * corresponding action - sets up yytext.
+      */
+    fn do_before_action(&self, yy_bp: usize, yy_cp: usize) {
+        self.yytext_r = yy_bp;
+        self.yyleng_r = yy_cp - yy_bp;
+        self.yy_hold_char = self.yy_c_buf_p[yy_cp];
+        self.yy_c_buf_p[yy_cp] = '\0' as u8;
+        //self.yy_c_buf_p = yy_cp;
+    }
+
+// /* Accessor methods to globals.
+//    These are made visible to non-reentrant scanners for convenience. */
+//
+// int yylex_destroy ( yyscan_t yyscanner );
+//
+// int yyget_debug ( yyscan_t yyscanner );
+//
+// void yyset_debug ( int debug_flag , yyscan_t yyscanner );
+//
+// YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
+//
+// void yyset_extra ( YY_EXTRA_TYPE user_defined , yyscan_t yyscanner );
+//
+// FILE *yyget_in ( yyscan_t yyscanner );
+//
+// void yyset_in  ( FILE * _in_str , yyscan_t yyscanner );
+//
+// FILE *yyget_out ( yyscan_t yyscanner );
+//
+// void yyset_out  ( FILE * _out_str , yyscan_t yyscanner );
+//
+// 			int yyget_leng ( yyscan_t yyscanner );
+//
+// char *yyget_text ( yyscan_t yyscanner );
+//
+// int yyget_lineno ( yyscan_t yyscanner );
+//
+// void yyset_lineno ( int _line_number , yyscan_t yyscanner );
+//
+// int yyget_column  ( yyscan_t yyscanner );
+//
+// void yyset_column ( int _column_no , yyscan_t yyscanner );
+
+    /** Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
+      * is returned in "result".
+      */
+    fn input(&mut self, buf: &mut Buffer, max_size: usize) -> Result<usize> {
+        if self.current_buffer_unchecked().yy_is_interactive {
+            let c: char = '*';
+            let n: libc::c_int;
+            for n in 0..max_size {
+                let c = unsafe { libc::fgetc(&mut self.yyin_r) };
+                if c != libc::EOF && c != '\n' as libc::c_int {
+                    buf[n] = c as u8
+                }
+                if c == '\n' as libc::c_int {
+                    n += 1;
+                    buf[n] = c as u8;
+                }
+                if c == libc::EOF {
+                    return Err("input in flex scanner failed");
+                }
+            }
+            Ok(n as usize)
+        } else {
+            unsafe { *libc::__errno_location() = 0; }
+            let result: usize = 0;
+            while result == 0 {
+                result = unsafe { libc::fread(buf, 1, max_size, &mut self.yyin_r) };
+                if unsafe { libc::ferror(&mut self.yyin_r) } != libc::EINTR {
+                    return Result::Err("input in flex scanner failed");
+                }
+                unsafe { *libc::__errno_location() = 0; }
+                unsafe { libc::clearerr(&mut self.yyin_r); }
+            }
+            Ok(result)
+        }
     }
 }
 
@@ -248,233 +330,129 @@ struct BufferState {
 
 // /* Begin user sect3 */
 
-// #define yywrap(yyscanner) (/*CONSTCOND*/1)
+fn yywrap<T>(scanner: &Scan<T>) -> usize {
+    1
+}
+const YY_SKIP_YYWRAP: bool = true;
 
-// #define YY_SKIP_YYWRAP
+type State = i16;
 
-// typedef flex_uint8_t YY_CHAR;
+/* %% [1.5] DFA */
+/* START of m4 controls */
+/* M4_MODE_NO_NULTRANS */
+/* M4_MODE_NO_NULTRANS_FULLTBL */
+/* M4_MODE_NO_NULTRANS_FULLSPD */
+/* END of m4 controls */
 
-// typedef int yy_state_type;
+/* START of Flex-generated definitions */
+const NUM_RULES: usize = 4;
+const END_OF_BUFFER: usize = 5;
+const JAMBASE: usize = 7;
+const JAMSTATE: usize = 9;
+const NUL_EC: usize = 1;
+type Offset = i16;
+ /* END of Flex-generated definitions */
 
-// /* Watch out: yytext_ptr is a variable when yytext is an array,
-//  * but it's a macro when yytext is a pointer.
-//  */
+struct TransInfo {
+    /* We require that yy_verify and yy_nxt must be of the same size int. */
 
-// #define yytext_ptr yytext_r
+    /* We generate a bogus 'struct yy_trans_info' data type
+     * so we can guarantee that it is always declared in the skel.
+     * This is so we can compile "sizeof(struct yy_trans_info)"
+     * in any scanner.
+     */
+    yy_verify: i32,
+    yy_nxt: i32,
+}
 
-// /* %% [1.5] DFA */
-// /* START of m4 controls */
-// /* M4_MODE_NO_NULTRANS */
-// /* M4_MODE_NO_NULTRANS_FULLTBL */
-// /* M4_MODE_NO_NULTRANS_FULLSPD */
-// /* END of m4 controls */
+/* %% [2.0] data tables for the DFA are inserted here */
+const yy_accept: [i16; 10] = [   0,
+          0,    0,    5,    1,    2,    3,    1,    2,    0
+];
 
-// /* START of Flex-generated definitions */
-// #define YY_NUM_RULES 4
-// #define YY_END_OF_BUFFER 5
-// #define YY_JAMBASE 7
-// #define YY_JAMSTATE 9
-// #define YY_NUL_EC 1
-// #define YY_OFFSET_TYPE flex_int16_t
-// /* END of Flex-generated definitions */
+const yy_base: [i16; 12] = [   0,
+         0,    0,    6,    0,    0,    7,    0,    0,    7,    4,
+         2
+];
 
-// static yy_state_type yy_get_previous_state ( yyscan_t yyscanner );
-// static yy_state_type yy_try_NUL_trans ( yy_state_type current_state  , yyscan_t yyscanner);
-// static int yy_get_next_buffer ( yyscan_t yyscanner );
-// static void yynoreturn yy_fatal_error ( const char* msg , yyscan_t yyscanner );
+const yy_def: [i16; 12] = [   0,
+         9,    1,    9,   10,   11,    9,   10,   11,    0,    9,
+         9
+];
 
-// struct yy_trans_info
-// 	{
-// 	/* We require that yy_verify and yy_nxt must be of the same size int. */
+const yy_nxt: [i16; 11] = [   0,
+         4,    5,    6,    8,    7,    9,    3,    9,    9,    9
+];
 
-// 	/* We generate a bogus 'struct yy_trans_info' data type
-// 	 * so we can guarantee that it is always declared in the skel.
-// 	 * This is so we can compile "sizeof(struct yy_trans_info)"
-// 	 * in any scanner.
-// 	 */
-// 	flex_int32_t yy_verify;
-// 	flex_int32_t yy_nxt;
+const yy_chk: [i16; 11] = [   0,
+         1,    1,    1,   11,   10,    3,    9,    9,    9,    9
+];
+/* footprint: 372 bytes */
 
-// 	};
+/* m4 controls begin */
+/* M4_MODE_HAS_BACKING_UP */
+/* M4_MODE_NEED_YY_CP */
+/* m4 controls end */
 
-// /* Done after the current pattern has been matched and before the
-//  * corresponding action - sets up yytext.
-//  */
-// #define YY_DO_BEFORE_ACTION \
-// 	yyg->yytext_ptr = yy_bp; \
-// 	 \
-// 	yyleng = (int) (yy_cp - yy_bp); \
-// 	 \
-// 	yyg->yy_hold_char = *yy_cp; \
-// 	*yy_cp = '\0'; \
-//  \
-// 	yyg->yy_c_buf_p = yy_cp;
+/* Character equivalence-class mapping */
+const yy_ec: [u8; 256] = [ 0,
+         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 
-// /* %% [2.0] data tables for the DFA are inserted here */
-// static const flex_int16_t yy_accept[10] = {   0,
-//          0,    0,    5,    1,    2,    3,    1,    2,    0
-// };
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 
-// static const flex_int16_t yy_base[12] = {   0,
-//          0,    0,    6,    0,    0,    7,    0,    0,    7,    4,
-//          2
-// };
-// static const flex_int16_t yy_def[12] = {   0,
-//          9,    1,    9,   10,   11,    9,   10,   11,    0,    9,
-//          9
-// };
-// static const flex_int16_t yy_nxt[11] = {   0,
-//          4,    5,    6,    8,    7,    9,    3,    9,    9,    9
-// };
-// static const flex_int16_t yy_chk[11] = {   0,
-//          1,    1,    1,   11,   10,    3,    9,    9,    9,    9
-// };
-// /* footprint: 372 bytes */
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+         1,    1,    1,    1,    1
+];
 
-// /* m4 controls begin */
-// /* M4_MODE_HAS_BACKING_UP */
-// /* M4_MODE_NEED_YY_CP */
-// /* m4 controls end */
+/* Character meta-equivalence-class mappings */
+const yy_meta: [u8; 4] = [ 0,
+         1,    2,    3
+];
 
-// /* Character equivalence-class mapping */
-// static const YY_CHAR yy_ec[256] = { 0,
-//          1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-//          1,    1,    1,    1,    1
-// };
+/** The intent behind this definition is that it'll catch
+  * any uses of REJECT which flex missed.
+  */
+macro_rules! REJECT {
+    ( ($whatever:tt)* ) => { panic!("reject used but not detected"); }
+}
 
-// /* Character meta-equivalence-class mappings */
-// static const YY_CHAR yy_meta[4] = { 0,
-//          1,    2,    3
-// };
-//
-// /* The intent behind this definition is that it'll catch
-//  * any uses of REJECT which flex missed.
-//  */
-// #define REJECT reject_used_but_not_detected
-//
-// #define yymore() yymore_used_but_not_detected
-// #define YY_MORE_ADJ 0
-// #define YY_RESTORE_YY_MORE_OFFSET
-//
-// /* %% [3.0] static declarations conditional on mode switches go here */
-// #line 1 "wc1.l"
-// /* First cut at a flex-based "wc" tool. */
-// #line 478 "lex.yy.c"
-//
-// #define INITIAL 0
-//
-// #ifndef YY_NO_UNISTD_H
-// /* Special case for "unistd.h", since it is non-ANSI. We include it way
-//  * down here because we want the user's section 1 to have been scanned first.
-//  * The user has a chance to override it with an option.
-//  */
-// #include <unistd.h>
-// #endif
-//
-// #ifndef YY_EXTRA_TYPE
-// #define YY_EXTRA_TYPE void *
-// #endif
-//
-// /* Holds the entire state of the reentrant scanner. */
-// struct yyguts_t {
-// 	/* User-defined. Not touched by flex. */
-// 	YY_EXTRA_TYPE yyextra_r;
-//
-// 	/* The rest are the same as the globals declared in the non-reentrant scanner. */
-// 	FILE *yyin_r, *yyout_r;
-// 	size_t yy_buffer_stack_top; /**< index of top of stack. */
-// 	size_t yy_buffer_stack_max; /**< capacity of stack. */
-// 	YY_BUFFER_STATE * yy_buffer_stack; /**< Stack as an array. */
-// 	char yy_hold_char;
-// 	int yy_n_chars;
-// 	int yyleng_r;
-// 	char *yy_c_buf_p;
-// 	int yy_init;
-// 	int yy_start;
-// 	int yy_did_buffer_switch_on_eof;
-// 	int yy_start_stack_ptr;
-// 	int yy_start_stack_depth;
-// 	int *yy_start_stack;
-// 	yy_state_type yy_last_accepting_state;
-// 	char* yy_last_accepting_cpos;
-//
-// 	int yylineno_r;
-// 	int yy_flex_debug_r;
-//
-// 	char *yytext_r;
-// 	int yy_more_flag;
-// 	int yy_more_len;
-//
-// }; /* end struct yyguts_t */
-//
-// static int yy_init_globals ( yyscan_t yyscanner );
-//
-// int yylex_init (yyscan_t* scanner);
-//
-// int yylex_init_extra ( YY_EXTRA_TYPE user_defined, yyscan_t* scanner);
-//
-// /* Accessor methods to globals.
-//    These are made visible to non-reentrant scanners for convenience. */
-//
-// int yylex_destroy ( yyscan_t yyscanner );
-//
-// int yyget_debug ( yyscan_t yyscanner );
-//
-// void yyset_debug ( int debug_flag , yyscan_t yyscanner );
-//
-// YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
-//
-// void yyset_extra ( YY_EXTRA_TYPE user_defined , yyscan_t yyscanner );
-//
-// FILE *yyget_in ( yyscan_t yyscanner );
-//
-// void yyset_in  ( FILE * _in_str , yyscan_t yyscanner );
-//
-// FILE *yyget_out ( yyscan_t yyscanner );
-//
-// void yyset_out  ( FILE * _out_str , yyscan_t yyscanner );
-//
-// 			int yyget_leng ( yyscan_t yyscanner );
-//
-// char *yyget_text ( yyscan_t yyscanner );
-//
-// int yyget_lineno ( yyscan_t yyscanner );
-//
-// void yyset_lineno ( int _line_number , yyscan_t yyscanner );
-//
-// int yyget_column  ( yyscan_t yyscanner );
-//
-// void yyset_column ( int _column_no , yyscan_t yyscanner );
-//
-// /* Macros after this point can all be overridden by user definitions in
-//  * section 1.
-//  */
+macro_rules! yymore {
+    ( ($whatever:tt)* ) => { panic("yymore used but not detected"); }
+}
+
+const MORE_ADJ: usize = 0;
+const RESTORE_MORE_OFFSET: bool = false;
+
+/* %% [3.0] static declarations conditional on mode switches go here */
+/* First cut at a flex-based "wc" tool. */
+
+const INITIAL: State = 0;
+
+/* Macros after this point can all be overridden by user definitions in
+ * section 1.
+ */
 //
 // #ifndef YY_SKIP_YYWRAP
 // #ifdef __cplusplus
@@ -524,46 +502,7 @@ struct BufferState {
 //  */
 // #define ECHO do { if (fwrite( yytext, (size_t) yyleng, 1, yyout )) {} } while (0)
 // #endif
-//
-// /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
-//  * is returned in "result".
-//  */
-// #ifndef YY_INPUT
-// #define YY_INPUT(buf,result,max_size) \
-//  \
-//  \
-// 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
-// 		{ \
-// 		int c = '*'; \
-// 		int n; \
-// 		for ( n = 0; n < max_size && \
-// 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
-// 			buf[n] = (char) c; \
-// 		if ( c == '\n' ) \
-// 			buf[n++] = (char) c; \
-// 		if ( c == EOF && ferror( yyin ) ) \
-// 			YY_FATAL_ERROR( "input in flex scanner failed" ); \
-// 		result = n; \
-// 		} \
-// 	else \
-// 		{ \
-// 		errno=0; \
-// 		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, yyin)) == 0 && ferror(yyin)) \
-// 			{ \
-// 			if( errno != EINTR) \
-// 				{ \
-// 				YY_FATAL_ERROR( "input in flex scanner failed" ); \
-// 				break; \
-// 				} \
-// 			errno=0; \
-// 			clearerr(yyin); \
-// 			} \
-// 		}\
-//  \
-// \
-//
-// #endif
-//
+
 // /* No semi-colon after return; correct usage is to write "yyterminate();" -
 //  * we don't want an extra ';' after the "return" because that will cause
 //  * some compilers to complain about unreachable statements.
