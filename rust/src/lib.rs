@@ -1,5 +1,8 @@
+#[allow(unused_macros)]
+
 #[path="lex.yy.rs"]
 mod lex;
+
 #[cfg(test)]
 mod tests {
     #[test]
