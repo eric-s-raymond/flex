@@ -245,227 +245,231 @@ impl<T> Scan<T> {
                 // Generate the code to find the next match.
 
                 'yy_match: loop {
-                    let c: u8 = yy_ec[yy_cp as usize];
-                    // Save the backing-up info \before/ computing the
-                    // next state because we always compute one more state
-                    // than needed - we always proceed until we reach a
-                    // jam state
+                    loop {
+                        let c: u8 = yy_ec[yy_cp as usize];
+                        // Save the backing-up info \before/ computing the
+                        // next state because we always compute one more state
+                        // than needed - we always proceed until we reach a
+                        // jam state
 
-                    // Generate code to keep backing-up information.
+                        // Generate code to keep backing-up information.
 
-                    if yy_accept[current_state as usize] != 0 {
-                        self.yy_last_accepting_state = current_state;
-                        self.yy_last_accepting_cpos = yy_cp;
-                    }
+                        if yy_accept[current_state as usize] != 0 {
+                            self.yy_last_accepting_state = current_state;
+                            self.yy_last_accepting_cpos = yy_cp;
+                        }
 
-                    while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
-                        current_state = yy_def[current_state as usize];
+                        while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
+                            current_state = yy_def[current_state as usize];
 
-                        // We've arranged it so that templates are never
-                        // chained to one another.  This means we can
-                        // afford to make a very simple test to see if we
-                        // need to convert to yy_c's meta-equivalence
-                        // class without worrying about erroneously
-                        // looking up the meta-equivalence class twice
+                            // We've arranged it so that templates are never
+                            // chained to one another.  This means we can
+                            // afford to make a very simple test to see if we
+                            // need to convert to yy_c's meta-equivalence
+                            // class without worrying about erroneously
+                            // looking up the meta-equivalence class twice
 
-                        // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
-                        if current_state > JAMSTATE + 1 {
-                            c = yy_meta[c as usize];
+                            // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
+                            if current_state > JAMSTATE + 1 {
+                                c = yy_meta[c as usize];
+                            }
+                        }
+
+                        current_state = yy_nxt[yy_base[current_state as usize] as usize + c as usize];
+
+                        yy_cp += 1;
+
+                        if yy_base[current_state as usize] != JAMBASE {
+                            break 'yy_match;
                         }
                     }
 
-                    current_state = yy_nxt[yy_base[current_state as usize] as usize + c as usize];
+                    'find_action: loop {
+                        // code to find the action number goes here
 
-                    yy_cp += 1;
+                        let yy_act = yy_accept[current_state as usize];
+                        if yy_act == 0 {
+                            // have to back up
+                            yy_cp = self.yy_last_accepting_cpos;
+                            current_state = self.yy_last_accepting_state;
+                            yy_act = yy_accept[current_state as usize];
+                        }
 
-                    if yy_base[current_state as usize] != JAMBASE {
-                        break 'yy_match;
-                    }
-                }
+                        'do_action: loop {
+                            match yy_act {
+                                0 => { // must back up
+                                    // undo the effects of YY_DO_BEFORE_ACTION
+                                    self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
 
-                'find_action: loop {
-                    // code to find the action number goes here
+                                    // Backing-up info for compressed tables
+                                    // is taken \after/ yy_cp has been
+                                    // incremented for the next state.
 
-                    let yy_act = yy_accept[current_state as usize];
-                    if yy_act == 0 {
-                        // have to back up
-                        yy_cp = self.yy_last_accepting_cpos;
-                        current_state = self.yy_last_accepting_state;
-                        yy_act = yy_accept[current_state as usize];
-                    }
+                                    yy_cp = self.yy_last_accepting_cpos;
 
-                    'do_action: loop {
-                        match yy_act {
-                            0 => { // must back up
-                                // undo the effects of YY_DO_BEFORE_ACTION
-                                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+                                    current_state = self.yy_last_accepting_state;
+                                    continue 'find_action;
+                                },
 
-                                // Backing-up info for compressed tables
-                                // is taken \after/ yy_cp has been
-                                // incremented for the next state.
+                                1 => {
+                                    // YY_RULE_SETUP
+                                    cc += self.yyleng_r;
+                                    wc += 1;
+                                },
 
-                                yy_cp = self.yy_last_accepting_cpos;
+                                2 => {
+                                    // YY_RULE_SETUP
+                                    cc += self.yyleng_r;
+                                },
 
-                                current_state = self.yy_last_accepting_state;
-                                continue 'find_action;
-                            },
+                                3 => {
+                                    // rule 3 can match eol
+                                    // YY_RULE_SETUP
+                                    lc += 1;
+                                    cc += 1;
+                                },
 
-                            1 => {
-                                // YY_RULE_SETUP
-                                cc += self.yyleng_r;
-                                wc += 1;
-                            },
-
-                            2 => {
-                                // YY_RULE_SETUP
-                                cc += self.yyleng_r;
-                            },
-
-                            3 => {
-                                // rule 3 can match eol
-                                // YY_RULE_SETUP
-                                lc += 1;
-                                cc += 1;
-                            },
-
-                            s if s == END_OF_BUFFER + INITIAL + 1 => {
-                                println!("{:8} {:8} {:8}", lc, wc, cc);
-                                return Ok(());
-                            }
-
-                            4 => {
-                                // YY_RULE_SETUP
-                                unsafe {
-                                    libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
-                                                 self.yyleng_r,
-                                                 1,
-                                                 &mut self.yyout_r);
-                                }
-                            }
-
-                            s if s == END_OF_BUFFER => {
-                                // Amount of text matched not including the EOB char.
-                                let amount_of_matched_text = yy_cp - self.yytext_r - 1;
-
-                                // Undo the effects of YY_DO_BEFORE_ACTION.
-                                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
-                                // YY_RESTORE_YY_MORE_OFFSET
-
-                                if self.current_buffer_unchecked().yy_buffer_status == BufferStatus::New {
-                                    // We're scanning a new file or input
-                                    // source.  It's possible that this
-                                    // happened because the user just
-                                    // pointed yyin at a new source and
-                                    // called yylex().  If so, then we
-                                    // have to assure consistency between
-                                    // YY_CURRENT_BUFFER and our globals.
-                                    // Here is the right place to do so,
-                                    // because this is the first action
-                                    // (other than possibly a back-up)
-                                    // that will match for the new input
-                                    // source.
-                                    self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
-                                    self.current_buffer_unchecked().yy_input_file = self.yyin_r;
-                                    self.current_buffer_unchecked().yy_buffer_status = BufferStatus::Normal;
+                                s if s == END_OF_BUFFER + INITIAL + 1 => {
+                                    println!("{:8} {:8} {:8}", lc, wc, cc);
+                                    return Ok(());
                                 }
 
-                                // Note that here we test for yy_c_buf_p
-                                // "<=" to the position of the first EOB
-                                // in the buffer, since yy_c_buf_p will
-                                // already have been incremented past the
-                                // NUL character (since all states make
-                                // transitions on EOB to the end-of-buffer
-                                // state).  Contrast this with the test in
-                                // input().
-                                if self.yy_c_buf_p <= self.yy_n_chars {
-                                    self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
-
-                                    current_state = self.get_previous_state();
-
-                                    // Okay, we're now positioned to make
-                                    // the NUL transition.  We couldn't
-                                    // have yy_get_previous_state() go
-                                    // ahead and do it for us because it
-                                    // doesn't know how to deal with the
-                                    // possibility of jamming (and we
-                                    // don't want to build jamming into it
-                                    // because then it will run more
-                                    // slowly).
-                                    let next_state = self.try_NUL_trans(current_state);
-
-                                    yy_bp = self.yytext_r + MORE_ADJ;
-
-                                    if next_state != 0 {
-                                        // Consume the NUL
-                                        yy_cp = self.yy_c_buf_p + 1;
-                                        current_state = next_state;
-                                        continue 'yy_match;
-                                    } else {
-                                        // Still need to initialize yy_cp,
-                                        // though yy_current_state was set
-                                        // up by yy_get_previous_state().
-                                        yy_cp = self.yy_c_buf_p;
-                                        continue 'find_action;
+                                4 => {
+                                    // YY_RULE_SETUP
+                                    unsafe {
+                                        libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
+                                                     self.yyleng_r,
+                                                     1,
+                                                     &mut self.yyout_r);
                                     }
-                                } else {
-                                    // not a NUL
-                                    match self.get_next_buffer() {
-                                        EOBAction::EndOfFile => {
-                                            self.yy_did_buffer_switch_on_eof = false;
+                                }
 
-                                            if self.wrap() {
-                                                // Note: because we've
-                                                // taken care in
-                                                // yy_get_next_buffer() to
-                                                // have set up yytext, we
-                                                // can now set up
-                                                // yy_c_buf_p so that if
-                                                // some total hoser (like
-                                                // flex itself) wants to
-                                                // call the scanner after
-                                                // we return the YY_NULL,
-                                                // it'll still work -
-                                                // another YY_NULL will
-                                                // get returned.
-                                                self.yy_c_buf_p = self.yytext_r + MORE_ADJ;
+                                s if s == END_OF_BUFFER => {
+                                    // Amount of text matched not including the EOB char.
+                                    let amount_of_matched_text = yy_cp - self.yytext_r - 1;
 
-                                                yy_act = END_OF_BUFFER + ((self.yy_start - 1) / 2) + 1;
-                                                continue 'do_action;
-                                            } else {
-                                                if !self.yy_did_buffer_switch_on_eof {
-                                                    // YY_NEW_FILE;
-                                                }
-                                            }
-                                        }
+                                    // Undo the effects of YY_DO_BEFORE_ACTION.
+                                    self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+                                    // YY_RESTORE_YY_MORE_OFFSET
 
-                                        EOBAction::ContinueScan => {
-                                            self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
+                                    if self.current_buffer_unchecked().yy_buffer_status == BufferStatus::New {
+                                        // We're scanning a new file or input
+                                        // source.  It's possible that this
+                                        // happened because the user just
+                                        // pointed yyin at a new source and
+                                        // called yylex().  If so, then we
+                                        // have to assure consistency between
+                                        // YY_CURRENT_BUFFER and our globals.
+                                        // Here is the right place to do so,
+                                        // because this is the first action
+                                        // (other than possibly a back-up)
+                                        // that will match for the new input
+                                        // source.
+                                        self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
+                                        self.current_buffer_unchecked().yy_input_file = self.yyin_r;
+                                        self.current_buffer_unchecked().yy_buffer_status = BufferStatus::Normal;
+                                    }
 
-                                            current_state = self.get_previous_state();
+                                    // Note that here we test for yy_c_buf_p
+                                    // "<=" to the position of the first EOB
+                                    // in the buffer, since yy_c_buf_p will
+                                    // already have been incremented past the
+                                    // NUL character (since all states make
+                                    // transitions on EOB to the end-of-buffer
+                                    // state).  Contrast this with the test in
+                                    // input().
+                                    if self.yy_c_buf_p <= self.yy_n_chars {
+                                        self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
 
+                                        current_state = self.get_previous_state();
+
+                                        // Okay, we're now positioned to make
+                                        // the NUL transition.  We couldn't
+                                        // have yy_get_previous_state() go
+                                        // ahead and do it for us because it
+                                        // doesn't know how to deal with the
+                                        // possibility of jamming (and we
+                                        // don't want to build jamming into it
+                                        // because then it will run more
+                                        // slowly).
+                                        let next_state = self.try_NUL_trans(current_state);
+
+                                        yy_bp = self.yytext_r + MORE_ADJ;
+
+                                        if next_state != 0 {
+                                            // Consume the NUL
+                                            yy_cp = self.yy_c_buf_p + 1;
+                                            current_state = next_state;
+                                            continue 'yy_match;
+                                        } else {
+                                            // Still need to initialize yy_cp,
+                                            // though yy_current_state was set
+                                            // up by yy_get_previous_state().
                                             yy_cp = self.yy_c_buf_p;
-                                            yy_bp = self.yytext_r + MORE_ADJ;
-                                            continue 'my_match;
-                                        }
-
-                                        EOBAction::LastMatch => {
-                                            self.yy_c_buf_p = self.yy_n_chars;
-
-                                            current_state = self.get_previous_state();
-
-                                            yy_cp = self.yy_c_buf_p;
-                                            yy_bp = self.yytext_r + MORE_ADJ;
                                             continue 'find_action;
                                         }
+                                    } else {
+                                        // not a NUL
+                                        match self.get_next_buffer() {
+                                            EOBAction::EndOfFile => {
+                                                self.yy_did_buffer_switch_on_eof = false;
+
+                                                if self.wrap() {
+                                                    // Note: because we've
+                                                    // taken care in
+                                                    // yy_get_next_buffer() to
+                                                    // have set up yytext, we
+                                                    // can now set up
+                                                    // yy_c_buf_p so that if
+                                                    // some total hoser (like
+                                                    // flex itself) wants to
+                                                    // call the scanner after
+                                                    // we return the YY_NULL,
+                                                    // it'll still work -
+                                                    // another YY_NULL will
+                                                    // get returned.
+                                                    self.yy_c_buf_p = self.yytext_r + MORE_ADJ;
+
+                                                    yy_act = END_OF_BUFFER + ((self.yy_start - 1) / 2) + 1;
+                                                    continue 'do_action;
+                                                } else {
+                                                    if !self.yy_did_buffer_switch_on_eof {
+                                                        // YY_NEW_FILE;
+                                                    }
+                                                }
+                                            }
+
+                                            EOBAction::ContinueScan => {
+                                                self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
+
+                                                current_state = self.get_previous_state();
+
+                                                yy_cp = self.yy_c_buf_p;
+                                                yy_bp = self.yytext_r + MORE_ADJ;
+                                                continue 'yy_match;
+                                            }
+
+                                            EOBAction::LastMatch => {
+                                                self.yy_c_buf_p = self.yy_n_chars;
+
+                                                current_state = self.get_previous_state();
+
+                                                yy_cp = self.yy_c_buf_p;
+                                                yy_bp = self.yytext_r + MORE_ADJ;
+                                                continue 'find_action;
+                                            }
+                                        }
                                     }
                                 }
-                            }
 
-                            _ => {
-                                return Err("fatal flex scanner internal error--no action found");
+                                _ => {
+                                    return Err("fatal flex scanner internal error--no action found");
+                                }
                             }
                         }
                     }
+
+                    break 'yy_match;
                 }
             }
         }
