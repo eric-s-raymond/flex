@@ -53,9 +53,9 @@ pub struct Scan<T> {
     yy_hold_char: u8,
     yy_n_chars: usize,
     yyleng_r: usize,
-    yy_c_buf_p: Vec<u8>,
+    yy_c_buf_p: usize,
     yy_init: bool,
-    yy_start: bool,
+    yy_start: State,
     yy_did_buffer_switch_on_eof: bool,
     yy_start_stack_ptr: usize,
     yy_start_stack_depth: usize,
@@ -93,7 +93,7 @@ impl<T> Scan<T> {
     fn set_interactive(&mut self, is_interactive: bool) {
         if let None = self.yy_buffer_stack {
             self.ensure_buffer_stack();
-            self.yy_buffer_stack = yy_create_buffer(self.yyin_r, BUF_SIZE, self);
+            self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer() {
             buf.yy_is_interactive = is_interactive;
@@ -103,7 +103,7 @@ impl<T> Scan<T> {
     fn set_bol(&mut self, at_bol: bool) {
         if let None = self.yy_buffer_stack {
             self.ensure_buffer_stack();
-            self.yy_buffer_stack = yy_create_buffer(self.yyin_r, BUF_SIZE, self);
+            self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer() {
             buf.yy_at_bol = at_bol;
@@ -126,8 +126,8 @@ impl<T> Scan<T> {
     fn do_before_action(&self, yy_bp: usize, yy_cp: usize) {
         self.yytext_r = yy_bp;
         self.yyleng_r = yy_cp - yy_bp;
-        self.yy_hold_char = self.yy_c_buf_p[yy_cp];
-        self.yy_c_buf_p[yy_cp] = '\0' as u8;
+        self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[yy_cp];
+        self.current_buffer_unchecked().yy_ch_buf[yy_cp] = '\0' as u8;
         //self.yy_c_buf_p = yy_cp;
     }
 
@@ -164,21 +164,21 @@ impl<T> Scan<T> {
 //
 // void yyset_column ( int _column_no , yyscan_t yyscanner );
 
-    /** Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
-      * is returned in "result".
+    /** Gets input and stuffs it into "buf".  Returns number of
+      * characters read.
       */
-    fn input(&mut self, buf: &mut Buffer, max_size: usize) -> Result<usize> {
+    fn input(&mut self, buf: &mut BufferState, max_size: usize) -> Result<usize> {
         if self.current_buffer_unchecked().yy_is_interactive {
             let c: char = '*';
             let n: libc::c_int;
             for n in 0..max_size {
                 let c = unsafe { libc::fgetc(&mut self.yyin_r) };
                 if c != libc::EOF && c != '\n' as libc::c_int {
-                    buf[n] = c as u8
+                    buf.yy_ch_buf[n] = c as u8
                 }
                 if c == '\n' as libc::c_int {
                     n += 1;
-                    buf[n] = c as u8;
+                    buf.yy_ch_buf[n] = c as u8;
                 }
                 if c == libc::EOF {
                     return Err("input in flex scanner failed");
@@ -189,7 +189,7 @@ impl<T> Scan<T> {
             unsafe { *libc::__errno_location() = 0; }
             let result: usize = 0;
             while result == 0 {
-                result = unsafe { libc::fread(buf, 1, max_size, &mut self.yyin_r) };
+                result = unsafe { libc::fread(buf as *mut _ as *mut libc::c_void, 1, max_size, &mut self.yyin_r) };
                 if unsafe { libc::ferror(&mut self.yyin_r) } != libc::EINTR {
                     return Result::Err("input in flex scanner failed");
                 }
@@ -198,6 +198,307 @@ impl<T> Scan<T> {
             }
             Ok(result)
         }
+    }
+
+/** The main scanner function which does all the work.
+  */
+// YY_DECL {
+    fn lex<D>(&mut self, user_data: &mut D) -> Result<()> {
+        let yy_cp: usize = 0;
+        let yy_bp: usize = 0;
+
+        if !self.yy_init {
+            self.yy_init = true;
+
+            if self.yy_start != 0 {
+                self.yy_start = 1; // first start state
+            }
+            self.ensure_buffer_stack();
+            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+
+            self.load_buffer_state();
+        }
+
+        // open scope of user declarations
+        {
+            let cc: usize = 0;
+            let wc: usize = 0;
+            let lc: usize = 0;
+
+            loop {
+                /* loops until end-of-file is reached */
+                yy_cp = self.yy_c_buf_p;
+
+                // Support of yytext.
+                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+
+                // yy_bp points to the position in yy_ch_buf of the start
+                // of the current run.
+                yy_bp = yy_cp;
+
+                // Generate the code to find the start state.
+
+                let current_state: State = self.yy_start;
+
+                // Set up for storing up states.
+
+                // Generate the code to find the next match.
+
+                'yy_match: loop {
+                    let c: u8 = yy_ec[yy_cp as usize];
+                    // Save the backing-up info \before/ computing the
+                    // next state because we always compute one more state
+                    // than needed - we always proceed until we reach a
+                    // jam state
+
+                    // Generate code to keep backing-up information.
+
+                    if yy_accept[current_state as usize] != 0 {
+                        self.yy_last_accepting_state = current_state;
+                        self.yy_last_accepting_cpos = yy_cp;
+                    }
+
+                    while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
+                        current_state = yy_def[current_state as usize];
+
+                        // We've arranged it so that templates are never
+                        // chained to one another.  This means we can
+                        // afford to make a very simple test to see if we
+                        // need to convert to yy_c's meta-equivalence
+                        // class without worrying about erroneously
+                        // looking up the meta-equivalence class twice
+
+                        // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
+                        if current_state > JAMSTATE + 1 {
+                            c = yy_meta[c as usize];
+                        }
+                    }
+
+                    current_state = yy_nxt[yy_base[current_state as usize] as usize + c as usize];
+
+                    yy_cp += 1;
+
+                    if yy_base[current_state as usize] != JAMBASE {
+                        break 'yy_match;
+                    }
+                }
+
+                'find_action: loop {
+                    // code to find the action number goes here
+
+                    let yy_act = yy_accept[current_state as usize];
+                    if yy_act == 0 {
+                        // have to back up
+                        yy_cp = self.yy_last_accepting_cpos;
+                        current_state = self.yy_last_accepting_state;
+                        yy_act = yy_accept[current_state as usize];
+                    }
+
+                    'do_action: loop {
+                        match yy_act {
+                            0 => { // must back up
+                                // undo the effects of YY_DO_BEFORE_ACTION
+                                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+
+                                // Backing-up info for compressed tables
+                                // is taken \after/ yy_cp has been
+                                // incremented for the next state.
+
+                                yy_cp = self.yy_last_accepting_cpos;
+
+                                current_state = self.yy_last_accepting_state;
+                                continue 'find_action;
+                            },
+
+                            1 => {
+                                // YY_RULE_SETUP
+                                cc += self.yyleng_r;
+                                wc += 1;
+                            },
+
+                            2 => {
+                                // YY_RULE_SETUP
+                                cc += self.yyleng_r;
+                            },
+
+                            3 => {
+                                // rule 3 can match eol
+                                // YY_RULE_SETUP
+                                lc += 1;
+                                cc += 1;
+                            },
+
+                            s if s == END_OF_BUFFER + INITIAL + 1 => {
+                                println!("{:8} {:8} {:8}", lc, wc, cc);
+                                return Ok(());
+                            }
+
+                            4 => {
+                                // YY_RULE_SETUP
+                                unsafe {
+                                    libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
+                                                 self.yyleng_r,
+                                                 1,
+                                                 &mut self.yyout_r);
+                                }
+                            }
+
+                            s if s == END_OF_BUFFER => {
+                                // Amount of text matched not including the EOB char.
+                                let amount_of_matched_text = yy_cp - self.yytext_r - 1;
+
+                                // Undo the effects of YY_DO_BEFORE_ACTION.
+                                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+                                // YY_RESTORE_YY_MORE_OFFSET
+
+                                if self.current_buffer_unchecked().yy_buffer_status == BufferStatus::New {
+                                    // We're scanning a new file or input
+                                    // source.  It's possible that this
+                                    // happened because the user just
+                                    // pointed yyin at a new source and
+                                    // called yylex().  If so, then we
+                                    // have to assure consistency between
+                                    // YY_CURRENT_BUFFER and our globals.
+                                    // Here is the right place to do so,
+                                    // because this is the first action
+                                    // (other than possibly a back-up)
+                                    // that will match for the new input
+                                    // source.
+                                    self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
+                                    self.current_buffer_unchecked().yy_input_file = self.yyin_r;
+                                    self.current_buffer_unchecked().yy_buffer_status = BufferStatus::Normal;
+                                }
+
+                                // Note that here we test for yy_c_buf_p
+                                // "<=" to the position of the first EOB
+                                // in the buffer, since yy_c_buf_p will
+                                // already have been incremented past the
+                                // NUL character (since all states make
+                                // transitions on EOB to the end-of-buffer
+                                // state).  Contrast this with the test in
+                                // input().
+                                if self.yy_c_buf_p <= self.yy_n_chars {
+                                    self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
+
+                                    current_state = self.get_previous_state();
+
+                                    // Okay, we're now positioned to make
+                                    // the NUL transition.  We couldn't
+                                    // have yy_get_previous_state() go
+                                    // ahead and do it for us because it
+                                    // doesn't know how to deal with the
+                                    // possibility of jamming (and we
+                                    // don't want to build jamming into it
+                                    // because then it will run more
+                                    // slowly).
+                                    let next_state = self.try_NUL_trans(current_state);
+
+                                    yy_bp = self.yytext_r + MORE_ADJ;
+
+                                    if next_state != 0 {
+                                        // Consume the NUL
+                                        yy_cp = self.yy_c_buf_p + 1;
+                                        current_state = next_state;
+                                        continue 'yy_match;
+                                    } else {
+                                        // Still need to initialize yy_cp,
+                                        // though yy_current_state was set
+                                        // up by yy_get_previous_state().
+                                        yy_cp = self.yy_c_buf_p;
+                                        continue 'find_action;
+                                    }
+                                } else {
+                                    // not a NUL
+                                    match self.get_next_buffer() {
+                                        EOBAction::EndOfFile => {
+                                            self.yy_did_buffer_switch_on_eof = false;
+
+                                            if self.wrap() {
+                                                // Note: because we've
+                                                // taken care in
+                                                // yy_get_next_buffer() to
+                                                // have set up yytext, we
+                                                // can now set up
+                                                // yy_c_buf_p so that if
+                                                // some total hoser (like
+                                                // flex itself) wants to
+                                                // call the scanner after
+                                                // we return the YY_NULL,
+                                                // it'll still work -
+                                                // another YY_NULL will
+                                                // get returned.
+                                                self.yy_c_buf_p = self.yytext_r + MORE_ADJ;
+
+                                                yy_act = END_OF_BUFFER + ((self.yy_start - 1) / 2) + 1;
+                                                continue 'do_action;
+                                            } else {
+                                                if !self.yy_did_buffer_switch_on_eof {
+                                                    // YY_NEW_FILE;
+                                                }
+                                            }
+                                        }
+
+                                        EOBAction::ContinueScan => {
+                                            self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
+
+                                            current_state = self.get_previous_state();
+
+                                            yy_cp = self.yy_c_buf_p;
+                                            yy_bp = self.yytext_r + MORE_ADJ;
+                                            continue 'my_match;
+                                        }
+
+                                        EOBAction::LastMatch => {
+                                            self.yy_c_buf_p = self.yy_n_chars;
+
+                                            current_state = self.get_previous_state();
+
+                                            yy_cp = self.yy_c_buf_p;
+                                            yy_bp = self.yytext_r + MORE_ADJ;
+                                            continue 'find_action;
+                                        }
+                                    }
+                                }
+                            }
+
+                            _ => {
+                                return Err("fatal flex scanner internal error--no action found");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn get_previous_state(&self) -> State {
+        unimplemented!();
+    }
+
+    fn wrap(&mut self) -> bool {
+        unimplemented!();
+    }
+
+    fn create_buffer(&mut self, source: libc::FILE, size: usize) -> BufferState {
+        unimplemented!();
+    }
+
+    fn push_new_buffer(&mut self, source: libc::FILE, size: usize) {
+        if let Some(stack) = self.yy_buffer_stack {
+            stack.push(self.create_buffer(source, size));
+        }
+    }
+
+    fn get_next_buffer(&self) -> EOBAction {
+        unimplemented!();
+    }
+
+    fn load_buffer_state(&mut self) {
+        unimplemented!();
+    }
+
+    fn try_NUL_trans(&self, current_state: State) -> State {
+        unimplemented!();
     }
 }
 
@@ -236,7 +537,15 @@ const BUF_SIZE: usize = 32768;
  */
 const STATE_BUF_SIZE: usize = (BUF_SIZE + 2) * std::mem::size_of::<State>();
 
+#[derive(PartialEq, Eq)]
 enum EndOfBufferAction {
+    ContinueScan,
+    EndOfFile,
+    LastMatch,
+}
+
+#[derive(PartialEq, Eq)]
+enum EOBAction {
     ContinueScan,
     EndOfFile,
     LastMatch,
@@ -263,6 +572,7 @@ macro_rules! unput {
     ( $c:expr ) => { yyunput(c, yyg.yytext_ptr, yycanner); };
 }
 
+#[derive(PartialEq, Eq)]
 enum BufferStatus {
     New,
     Normal,
@@ -282,7 +592,7 @@ enum BufferStatus {
 struct BufferState {
     yy_input_file: libc::FILE,
     /// input buffer
-    yy_ch_buf: String,
+    yy_ch_buf: Vec<u8>,
     /// current position in input buffer
     yy_buf_pos: usize,
 
@@ -345,11 +655,11 @@ type State = i16;
 /* END of m4 controls */
 
 /* START of Flex-generated definitions */
-const NUM_RULES: usize = 4;
-const END_OF_BUFFER: usize = 5;
-const JAMBASE: usize = 7;
-const JAMSTATE: usize = 9;
-const NUL_EC: usize = 1;
+const NUM_RULES: State = 4;
+const END_OF_BUFFER: State = 5;
+const JAMBASE: State = 7;
+const JAMSTATE: State = 9;
+const NUL_EC: State = 1;
 type Offset = i16;
  /* END of Flex-generated definitions */
 
@@ -453,55 +763,6 @@ const INITIAL: State = 0;
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
  */
-//
-// #ifndef YY_SKIP_YYWRAP
-// #ifdef __cplusplus
-// extern "C" int yywrap ( yyscan_t yyscanner );
-// #else
-// extern int yywrap ( yyscan_t yyscanner );
-// #endif
-// #endif
-//
-// #ifndef YY_NO_UNPUT
-//
-//     static void yyunput ( int c, char *buf_ptr  , yyscan_t yyscanner);
-//
-// #endif
-//
-// #ifndef yytext_ptr
-// static void yy_flex_strncpy ( char *, const char *, int , yyscan_t yyscanner);
-// #endif
-//
-// #ifdef YY_NEED_STRLEN
-// static int yy_flex_strlen ( const char * , yyscan_t yyscanner);
-// #endif
-//
-// #ifndef YY_NO_INPUT
-// #ifdef __cplusplus
-// static int yyinput ( yyscan_t yyscanner );
-// #else
-// static int input ( yyscan_t yyscanner );
-// #endif
-//
-// #endif
-//
-// /* Amount of stuff to slurp up with each read. */
-// #ifndef YY_READ_BUF_SIZE
-// #ifdef __ia64__
-// /* On IA-64, the buffer size is 16k, not 8k */
-// #define YY_READ_BUF_SIZE 16384
-// #else
-// #define YY_READ_BUF_SIZE 8192
-// #endif /* __ia64__ */
-// #endif
-//
-// /* Copy whatever the last rule matched to the standard output. */
-// #ifndef ECHO
-// /* This used to be an fputs(), but since the string might contain NUL's,
-//  * we now use fwrite().
-//  */
-// #define ECHO do { if (fwrite( yytext, (size_t) yyleng, 1, yyout )) {} } while (0)
-// #endif
 
 // /* No semi-colon after return; correct usage is to write "yyterminate();" -
 //  * we don't want an extra ';' after the "return" because that will cause
@@ -511,29 +772,11 @@ const INITIAL: State = 0;
 // #define yyterminate() return YY_NULL
 // #endif
 //
-// /* Number of entries by which start-condition stack grows. */
-// #ifndef YY_START_STACK_INCR
-// #define YY_START_STACK_INCR 25
-// #endif
-//
-// /* Report a fatal error. */
-// #ifndef YY_FATAL_ERROR
-// #define YY_FATAL_ERROR(msg) yy_fatal_error( msg , yyscanner)
-// #endif
-//
-// /* end tables serialization structures and prototypes */
-//
-// /* Default declaration of generated scanner - a define so the user can
-//  * easily add parameters.
-//  */
-// #ifndef YY_DECL
-// #define YY_DECL_IS_OURS 1
-//
-// extern int yylex (yyscan_t yyscanner);
-//
-// #define YY_DECL int yylex (yyscan_t yyscanner)
-// #endif /* !YY_DECL */
-//
+/** Number of entries by which start-condition stack grows. */
+const START_STACK_INCR: usize = 25;
+
+/* end tables serialization structures and prototypes */
+
 // /* Code executed at the beginning of each rule, after yytext and yyleng
 //  * have been set up.
 //  */
@@ -548,293 +791,7 @@ const INITIAL: State = 0;
 //
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
-//
-// /** The main scanner function which does all the work.
-//  */
-// YY_DECL {
-// 	yy_state_type yy_current_state;
-// 	char *yy_cp, *yy_bp;
-// 	int yy_act;
-//     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	if ( !yyg->yy_init ) {
-// 		yyg->yy_init = 1;
-//
-// #ifdef YY_USER_INIT
-// 		YY_USER_INIT;
-// #endif
-//
-// 		if ( ! yyg->yy_start ) {
-// 			yyg->yy_start = 1;	/* first start state */
-// 		}
-// 		if ( ! yyin ) {
-// 			yyin = stdin;
-// 		}
-// 		if ( ! yyout ) {
-// 			yyout = stdout;
-// 		}
-// 		if ( ! YY_CURRENT_BUFFER ) {
-// 			yyensure_buffer_stack (yyscanner);
-// 			YY_CURRENT_BUFFER_LVALUE =
-// 				yy_create_buffer( yyin, YY_BUF_SIZE , yyscanner);
-// 		}
-//
-// 		yy_load_buffer_state( yyscanner );
-// 	}
-//
-// 	/* open scope of user declarationns */
-// 	{
-// /* %% [4.0] user's declarations go here */
-// #line 7 "wc1.l"
-//
-// #line 9 "wc1.l"
-// 	int cc = 0, wc = 0, lc = 0;
-//
-// #line 744 "lex.yy.c"
-//
-// 		while ( /*CONSTCOND*/1 ) {		/* loops until end-of-file is reached */
-//
-// 			yy_cp = yyg->yy_c_buf_p;
-//
-// 			/* Support of yytext. */
-// 			*yy_cp = yyg->yy_hold_char;
-//
-// 			/* yy_bp points to the position in yy_ch_buf of the start of
-// 			 * the current run.
-// 			 */
-// 			yy_bp = yy_cp;
-//
-// 	/* Generate the code to find the start state. */
-//
-// 			yy_current_state = yyg->yy_start;
-//
-// 			/* Set up for storing up states. */
-//
-// 	yy_match:
-// 			/* Generate the code to find the next match. */
-//
-// 			do {
-//
-// 	YY_CHAR yy_c = *(yy_ec+YY_SC_TO_UI(*yy_cp));
-// 	/* Save the backing-up info \before/ computing the next state
-// 	 * because we always compute one more state than needed - we
-// 	 * always proceed until we reach a jam state
-// 	 */
-//
-// 		/* Generate code to keep backing-up information. */
-//
-// 		if ( yy_accept[yy_current_state] )
-//
-// 			{
-// 			yyg->yy_last_accepting_state = yy_current_state;
-// 			yyg->yy_last_accepting_cpos = yy_cp;
-// 			}
-//
-// 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-// 		{
-// 		yy_current_state = (int) yy_def[yy_current_state];
-//
-// 		/* We've arranged it so that templates are never chained
-// 		 * to one another.  This means we can afford to make a
-// 		 * very simple test to see if we need to convert to
-// 		 * yy_c's meta-equivalence class without worrying
-// 		 * about erroneously looking up the meta-equivalence
-// 		 * class twice
-// 		 */
-//
-// 		/* lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates */
-// 		if (yy_current_state >= YY_JAMSTATE + 1)
-// 			yy_c = yy_meta[yy_c];
-//
-// 		}
-// 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-//
-// 				++yy_cp;
-//
-// 			}
-// 			while ( yy_base[yy_current_state] != YY_JAMBASE );
-//
-// 	yy_find_action:
-// 			/* code to find the action number goes here */
-//
-// 		yy_act = yy_accept[yy_current_state];
-// 			if ( yy_act == 0 ) { /* have to back up */
-// 				yy_cp = yyg->yy_last_accepting_cpos;
-// 				yy_current_state = yyg->yy_last_accepting_state;
-// 				yy_act = yy_accept[yy_current_state];
-// 			}
-//
-// 			YY_DO_BEFORE_ACTION;
-//
-// 		do_action:	/* This label is used only to access EOF actions. */
-//
-// 			switch ( yy_act ) { /* beginning of action switch */
-//
-// 			case 0: /* must back up */
-// 				/* undo the effects of YY_DO_BEFORE_ACTION */
-// 				*yy_cp = yyg->yy_hold_char;
-//
-// 				/* /\* Backing-up info for compressed tables is taken \after/ */
-// 				/*  * yy_cp has been incremented for the next state. */
-// 				/*  *\/ */
-// 				yy_cp = yyg->yy_last_accepting_cpos;
-//
-// 				yy_current_state = yyg->yy_last_accepting_state;
-// 				goto yy_find_action;
-//
-// /* %% [5.0] user actions get inserted here */
-// case 1:
-// YY_RULE_SETUP
-// #line 11 "wc1.l"
-// cc += yyleng; ++wc;
-// 	YY_BREAK
-// case 2:
-// YY_RULE_SETUP
-// #line 13 "wc1.l"
-// cc += yyleng;
-// 	YY_BREAK
-// case 3:
-// /* rule 3 can match eol */
-// YY_RULE_SETUP
-// #line 15 "wc1.l"
-// ++lc; ++cc;
-// 	YY_BREAK
-// case YY_STATE_EOF(INITIAL):
-// #line 17 "wc1.l"
-// {
-// 		printf( "%8d %8d %8d\n", lc, wc, cc );
-// 		yyterminate();
-// 		}
-// 	YY_BREAK
-// case 4:
-// YY_RULE_SETUP
-// #line 21 "wc1.l"
-// ECHO;
-// 	YY_BREAK
-// #line 865 "lex.yy.c"
-// #line 866 "lex.yy.c"
-//
-// 			case YY_END_OF_BUFFER:
-// 			{
-// 				/* Amount of text matched not including the EOB char. */
-// 				int yy_amount_of_matched_text = (int) (yy_cp - yyg->yytext_ptr) - 1;
-//
-// 				/* Undo the effects of YY_DO_BEFORE_ACTION. */
-// 				*yy_cp = yyg->yy_hold_char;
-// 				YY_RESTORE_YY_MORE_OFFSET
-//
-// 				if ( YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_NEW ) {
-// 					/* We're scanning a new file or input source.  It's
-// 					 * possible that this happened because the user
-// 					 * just pointed yyin at a new source and called
-// 					 * yylex().  If so, then we have to assure
-// 					 * consistency between YY_CURRENT_BUFFER and our
-// 					 * globals.  Here is the right place to do so, because
-// 					 * this is the first action (other than possibly a
-// 					 * back-up) that will match for the new input source.
-// 					 */
-// 					yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-// 					YY_CURRENT_BUFFER_LVALUE->yy_input_file = yyin;
-// 					YY_CURRENT_BUFFER_LVALUE->yy_buffer_status = YY_BUFFER_NORMAL;
-// 				}
-//
-// 				/* Note that here we test for yy_c_buf_p "<=" to the position
-// 				 * of the first EOB in the buffer, since yy_c_buf_p will
-// 				 * already have been incremented past the NUL character
-// 				 * (since all states make transitions on EOB to the
-// 				 * end-of-buffer state).  Contrast this with the test
-// 				 * in input().
-// 				 */
-// 				if ( yyg->yy_c_buf_p <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] ) { /* This was really a NUL. */
-// 					yy_state_type yy_next_state;
-//
-// 					yyg->yy_c_buf_p = yyg->yytext_ptr + yy_amount_of_matched_text;
-//
-// 					yy_current_state = yy_get_previous_state( yyscanner );
-//
-// 					/* Okay, we're now positioned to make the NUL
-// 					 * transition.  We couldn't have
-// 					 * yy_get_previous_state() go ahead and do it
-// 					 * for us because it doesn't know how to deal
-// 					 * with the possibility of jamming (and we don't
-// 					 * want to build jamming into it because then it
-// 					 * will run more slowly).
-// 					 */
-//
-// 					yy_next_state = yy_try_NUL_trans( yy_current_state , yyscanner);
-//
-// 					yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
-//
-// 					if ( yy_next_state ) {
-// 						/* Consume the NUL. */
-// 						yy_cp = ++yyg->yy_c_buf_p;
-// 						yy_current_state = yy_next_state;
-// 						goto yy_match;
-// 					} else {
-//
-// 						/* Still need to initialize yy_cp, though
-// 						 * yy_current_state was set up by
-// 						 * yy_get_previous_state().
-// 						 */
-// 						yy_cp = yyg->yy_c_buf_p;
-//
-// 						goto yy_find_action;
-// 					}
-// 				} else {	/* not a NUL */
-// 					switch ( yy_get_next_buffer( yyscanner ) ) {
-// 					case EOB_ACT_END_OF_FILE:
-// 						yyg->yy_did_buffer_switch_on_eof = 0;
-//
-// 						if ( yywrap( yyscanner ) ) {
-// 							/* Note: because we've taken care in
-// 							 * yy_get_next_buffer() to have set up
-// 							 * yytext, we can now set up
-// 							 * yy_c_buf_p so that if some total
-// 							 * hoser (like flex itself) wants to
-// 							 * call the scanner after we return the
-// 							 * YY_NULL, it'll still work - another
-// 							 * YY_NULL will get returned.
-// 							 */
-// 							yyg->yy_c_buf_p = yyg->yytext_ptr + YY_MORE_ADJ;
-//
-// 							yy_act = YY_STATE_EOF(YY_START);
-// 							goto do_action;
-// 						} else {
-// 							if ( ! yyg->yy_did_buffer_switch_on_eof ) {
-// 								YY_NEW_FILE;
-// 							}
-// 						}
-// 						break;
-// 					case EOB_ACT_CONTINUE_SCAN:
-// 						yyg->yy_c_buf_p =
-// 							yyg->yytext_ptr + yy_amount_of_matched_text;
-//
-// 						yy_current_state = yy_get_previous_state( yyscanner );
-//
-// 						yy_cp = yyg->yy_c_buf_p;
-// 						yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
-// 						goto yy_match;
-//
-// 					case EOB_ACT_LAST_MATCH:
-// 						yyg->yy_c_buf_p =
-// 						&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars];
-//
-// 						yy_current_state = yy_get_previous_state( yyscanner );
-//
-// 						yy_cp = yyg->yy_c_buf_p;
-// 						yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
-// 						goto yy_find_action;
-// 					} /* end EOB inner switch */
-// 				} /* end if */
-// 				break;
-// 			} /* case YY_END_OF_BUFFER */
-// 			default:
-// 				YY_FATAL_ERROR("fatal flex scanner internal error--no action found" );
-// 			} /* end of action switch */
-// 		} /* end of scanning one token */
-// 	} /* end of user's declarations */
-// } /* end of yylex */
-//
+
 // /* yy_get_next_buffer - try to read in a new buffer
 //  *
 //  * Returns a code representing an action:
