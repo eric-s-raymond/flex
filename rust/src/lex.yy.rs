@@ -79,14 +79,24 @@ impl<T> Scan<T> {
      * Returns the top of the stack, or NULL.
      */
     fn current_buffer(&self) -> Option<&BufferState> {
-        self.yy_buffer_stack.map(|stack| &stack[self.yy_buffer_stack_top])
+        self.yy_buffer_stack.as_ref().map(|stack| &stack[self.yy_buffer_stack_top])
+    }
+
+    fn current_buffer_mut(&mut self) -> Option<&mut BufferState> {
+        let top = self.yy_buffer_stack_top;
+        self.yy_buffer_stack.as_mut().map(|stack| &mut stack[top])
     }
 
     /** Same as yy_current_buffer, but useful when we know that the buffer
      * stack is not None. For internal use only.
      */
     fn current_buffer_unchecked(&self) -> &BufferState {
-        &self.yy_buffer_stack.expect("no buffer stack")[self.yy_buffer_stack_top]
+        &self.yy_buffer_stack.as_ref().expect("no buffer stack")[self.yy_buffer_stack_top]
+    }
+
+    fn current_buffer_unchecked_mut(&mut self) -> &mut BufferState {
+        let top = self.yy_buffer_stack_top;
+        &mut self.yy_buffer_stack.as_mut().expect("no buffer stack")[top]
     }
     // #define YY_CURRENT_BUFFER_LVALUE yyg->yy_buffer_stack[yyg->yy_buffer_stack_top]
 
@@ -95,7 +105,7 @@ impl<T> Scan<T> {
             self.ensure_buffer_stack();
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
-        if let Some(buf) = self.current_buffer() {
+        if let Some(buf) = self.current_buffer_mut() {
             buf.yy_is_interactive = is_interactive;
         }
     }
@@ -105,7 +115,7 @@ impl<T> Scan<T> {
             self.ensure_buffer_stack();
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
-        if let Some(buf) = self.current_buffer() {
+        if let Some(buf) = self.current_buffer_mut() {
             buf.yy_at_bol = at_bol;
         }
     }
@@ -123,11 +133,11 @@ impl<T> Scan<T> {
     /** Done after the current pattern has been matched and before the
       * corresponding action - sets up yytext.
       */
-    fn do_before_action(&self, yy_bp: usize, yy_cp: usize) {
+    fn do_before_action(&mut self, yy_bp: usize, yy_cp: usize) {
         self.yytext_r = yy_bp;
         self.yyleng_r = yy_cp - yy_bp;
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[yy_cp];
-        self.current_buffer_unchecked().yy_ch_buf[yy_cp] = '\0' as u8;
+        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = '\0' as u8;
         //self.yy_c_buf_p = yy_cp;
     }
 
@@ -169,25 +179,29 @@ impl<T> Scan<T> {
       */
     fn input(&mut self, buf: &mut BufferState, max_size: usize) -> Result<usize> {
         if self.current_buffer_unchecked().yy_is_interactive {
-            let c: char = '*';
-            let n: libc::c_int;
+            let mut result: usize = 0;
             for n in 0..max_size {
                 let c = unsafe { libc::fgetc(&mut self.yyin_r) };
                 if c != libc::EOF && c != '\n' as libc::c_int {
                     buf.yy_ch_buf[n] = c as u8
                 }
                 if c == '\n' as libc::c_int {
-                    n += 1;
-                    buf.yy_ch_buf[n] = c as u8;
+                    // TODO(db48x): I think this loop iteration is
+                    // supposed to increment n an extra time
+                    buf.yy_ch_buf[n+1] = c as u8;
                 }
                 if c == libc::EOF {
-                    return Err("input in flex scanner failed");
+                    let err = unsafe { libc::ferror(&mut self.yyin_r as *mut libc::FILE) };
+                    if err != 0 {
+                        return Err("input in flex scanner failed");
+                    }
                 }
+                result = n;
             }
-            Ok(n as usize)
+            Ok(result as usize)
         } else {
             unsafe { *libc::__errno_location() = 0; }
-            let result: usize = 0;
+            let mut result: usize = 0;
             while result == 0 {
                 result = unsafe { libc::fread(buf as *mut _ as *mut libc::c_void, 1, max_size, &mut self.yyin_r) };
                 if unsafe { libc::ferror(&mut self.yyin_r) } != libc::EINTR {
@@ -200,15 +214,14 @@ impl<T> Scan<T> {
         }
     }
 
-/** The main scanner function which does all the work.
-  */
-// YY_DECL {
-    fn lex<D>(&mut self, user_data: &mut D) -> Result<()> {
-        let yy_cp: usize = 0;
-        let yy_bp: usize = 0;
-
+    /** The main scanner function which does all the work.
+     */
+    // YY_DECL {
+    fn lex<D>(&mut self, _user_data: &mut D) -> Result<()> {
         if !self.yy_init {
             self.yy_init = true;
+
+            // YY_USER_INIT
 
             if self.yy_start != 0 {
                 self.yy_start = 1; // first start state
@@ -221,24 +234,21 @@ impl<T> Scan<T> {
 
         // open scope of user declarations
         {
-            let cc: usize = 0;
-            let wc: usize = 0;
-            let lc: usize = 0;
+            let mut cc: usize = 0;
+            let mut wc: usize = 0;
+            let mut lc: usize = 0;
 
-            loop {
-                /* loops until end-of-file is reached */
-                yy_cp = self.yy_c_buf_p;
+            loop { /* loops until end-of-file is reached */
+                let mut yy_cp: usize = self.yy_c_buf_p;
+                // yy_bp points to the position in yy_ch_buf of the start of the current run.
+                let mut yy_bp: usize = yy_cp;
 
                 // Support of yytext.
-                self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
-
-                // yy_bp points to the position in yy_ch_buf of the start
-                // of the current run.
-                yy_bp = yy_cp;
+                self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = self.yy_hold_char;
 
                 // Generate the code to find the start state.
 
-                let current_state: State = self.yy_start;
+                let mut current_state: State = self.yy_start;
 
                 // Set up for storing up states.
 
@@ -246,11 +256,10 @@ impl<T> Scan<T> {
 
                 'yy_match: loop {
                     loop {
-                        let c: u8 = yy_ec[yy_cp as usize];
-                        // Save the backing-up info \before/ computing the
-                        // next state because we always compute one more state
-                        // than needed - we always proceed until we reach a
-                        // jam state
+                        let mut c: u8 = yy_ec[yy_cp as usize];
+                        // Save the backing-up info \before/ computing the next state because we
+                        // always compute one more state than needed - we always proceed until we
+                        // reach a jam state
 
                         // Generate code to keep backing-up information.
 
@@ -262,12 +271,10 @@ impl<T> Scan<T> {
                         while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
                             current_state = yy_def[current_state as usize];
 
-                            // We've arranged it so that templates are never
-                            // chained to one another.  This means we can
-                            // afford to make a very simple test to see if we
-                            // need to convert to yy_c's meta-equivalence
-                            // class without worrying about erroneously
-                            // looking up the meta-equivalence class twice
+                            // We've arranged it so that templates are never chained to one another.
+                            // This means we can afford to make a very simple test to see if we need
+                            // to convert to yy_c's meta-equivalence class without worrying about
+                            // erroneously looking up the meta-equivalence class twice
 
                             // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
                             if current_state > JAMSTATE + 1 {
@@ -279,15 +286,15 @@ impl<T> Scan<T> {
 
                         yy_cp += 1;
 
-                        if yy_base[current_state as usize] != JAMBASE {
-                            break 'yy_match;
+                        if yy_base[current_state as usize] == JAMBASE {
+                            break;
                         }
                     }
 
                     'find_action: loop {
                         // code to find the action number goes here
 
-                        let yy_act = yy_accept[current_state as usize];
+                        let mut yy_act = yy_accept[current_state as usize];
                         if yy_act == 0 {
                             // have to back up
                             yy_cp = self.yy_last_accepting_cpos;
@@ -295,15 +302,21 @@ impl<T> Scan<T> {
                             yy_act = yy_accept[current_state as usize];
                         }
 
+                        // YY_DO_BEFORE_ACTION
+                        self.yytext_r = yy_bp;
+                        self.yyleng_r = yy_cp - yy_bp;
+                        self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[yy_cp];
+                        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = '\0' as u8;
+                        self.yy_c_buf_p = yy_cp;
+
                         'do_action: loop {
                             match yy_act {
                                 0 => { // must back up
                                     // undo the effects of YY_DO_BEFORE_ACTION
-                                    self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+                                    self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = self.yy_hold_char;
 
-                                    // Backing-up info for compressed tables
-                                    // is taken \after/ yy_cp has been
-                                    // incremented for the next state.
+                                    // Backing-up info for compressed tables is taken \after/ yy_cp
+                                    // has been incremented for the next state.
 
                                     yy_cp = self.yy_last_accepting_cpos;
 
@@ -349,62 +362,51 @@ impl<T> Scan<T> {
                                     let amount_of_matched_text = yy_cp - self.yytext_r - 1;
 
                                     // Undo the effects of YY_DO_BEFORE_ACTION.
-                                    self.current_buffer_unchecked().yy_ch_buf[yy_cp] = self.yy_hold_char;
+                                    self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = self.yy_hold_char;
                                     // YY_RESTORE_YY_MORE_OFFSET
 
                                     if self.current_buffer_unchecked().yy_buffer_status == BufferStatus::New {
-                                        // We're scanning a new file or input
-                                        // source.  It's possible that this
-                                        // happened because the user just
-                                        // pointed yyin at a new source and
-                                        // called yylex().  If so, then we
-                                        // have to assure consistency between
-                                        // YY_CURRENT_BUFFER and our globals.
-                                        // Here is the right place to do so,
-                                        // because this is the first action
-                                        // (other than possibly a back-up)
-                                        // that will match for the new input
-                                        // source.
+                                        // We're scanning a new file or input source.  It's possible
+                                        // that this happened because the user just pointed yyin at
+                                        // a new source and called yylex().  If so, then we have to
+                                        // assure consistency between YY_CURRENT_BUFFER and our
+                                        // globals.  Here is the right place to do so, because this
+                                        // is the first action (other than possibly a back-up) that
+                                        // will match for the new input source.
                                         self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
-                                        self.current_buffer_unchecked().yy_input_file = self.yyin_r;
-                                        self.current_buffer_unchecked().yy_buffer_status = BufferStatus::Normal;
+                                        self.current_buffer_unchecked_mut().yy_input_file = self.yyin_r;
+                                        self.current_buffer_unchecked_mut().yy_buffer_status = BufferStatus::Normal;
                                     }
 
-                                    // Note that here we test for yy_c_buf_p
-                                    // "<=" to the position of the first EOB
-                                    // in the buffer, since yy_c_buf_p will
-                                    // already have been incremented past the
-                                    // NUL character (since all states make
-                                    // transitions on EOB to the end-of-buffer
-                                    // state).  Contrast this with the test in
-                                    // input().
-                                    if self.yy_c_buf_p <= self.yy_n_chars {
+                                    // Note that here we test for yy_c_buf_p "<=" to the position of
+                                    // the first EOB in the buffer, since yy_c_buf_p will already
+                                    // have been incremented past the NUL character (since all
+                                    // states make transitions on EOB to the end-of-buffer state).
+                                    // Contrast this with the test in input().
+                                    if self.yy_c_buf_p <= self.yy_n_chars { /* This was really a NUL. */
                                         self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
 
                                         current_state = self.get_previous_state();
 
-                                        // Okay, we're now positioned to make
-                                        // the NUL transition.  We couldn't
-                                        // have yy_get_previous_state() go
-                                        // ahead and do it for us because it
-                                        // doesn't know how to deal with the
-                                        // possibility of jamming (and we
-                                        // don't want to build jamming into it
-                                        // because then it will run more
-                                        // slowly).
+                                        // Okay, we're now positioned to make the NUL transition.
+                                        // we couldn't have yy_get_previous_state() go ahead and do
+                                        // it for us because it doesn't know how to deal with the
+                                        // possibility of jamming (and we don't want to build
+                                        // jamming into it because then it will run more slowly).
                                         let next_state = self.try_NUL_trans(current_state);
 
                                         yy_bp = self.yytext_r + MORE_ADJ;
 
                                         if next_state != 0 {
                                             // Consume the NUL
+                                            self.yy_c_buf_p += 1;
                                             yy_cp = self.yy_c_buf_p + 1;
                                             current_state = next_state;
                                             continue 'yy_match;
                                         } else {
-                                            // Still need to initialize yy_cp,
-                                            // though yy_current_state was set
-                                            // up by yy_get_previous_state().
+                                            // Still need to initialize yy_cp, though
+                                            // yy_current_state was set up by
+                                            // yy_get_previous_state().
                                             yy_cp = self.yy_c_buf_p;
                                             continue 'find_action;
                                         }
@@ -415,19 +417,13 @@ impl<T> Scan<T> {
                                                 self.yy_did_buffer_switch_on_eof = false;
 
                                                 if self.wrap() {
-                                                    // Note: because we've
-                                                    // taken care in
-                                                    // yy_get_next_buffer() to
-                                                    // have set up yytext, we
-                                                    // can now set up
-                                                    // yy_c_buf_p so that if
-                                                    // some total hoser (like
-                                                    // flex itself) wants to
-                                                    // call the scanner after
-                                                    // we return the YY_NULL,
-                                                    // it'll still work -
-                                                    // another YY_NULL will
-                                                    // get returned.
+                                                    // Note: because we've taken care in
+                                                    // yy_get_next_buffer() to have set up yytext,
+                                                    // we can now set up yy_c_buf_p so that if some
+                                                    // total hoser (like flex itself) wants to call
+                                                    // the scanner after we return the YY_NULL,
+                                                    // it'll still work - another YY_NULL will get
+                                                    // returned.
                                                     self.yy_c_buf_p = self.yytext_r + MORE_ADJ;
 
                                                     yy_act = END_OF_BUFFER + ((self.yy_start - 1) / 2) + 1;
@@ -435,6 +431,7 @@ impl<T> Scan<T> {
                                                 } else {
                                                     if !self.yy_did_buffer_switch_on_eof {
                                                         // YY_NEW_FILE;
+                                                        self.restart(self.yyin_r);
                                                     }
                                                 }
                                             }
@@ -466,7 +463,9 @@ impl<T> Scan<T> {
                                     return Err("fatal flex scanner internal error--no action found");
                                 }
                             }
+                            break;
                         }
+                        break;
                     }
 
                     break 'yy_match;
@@ -488,8 +487,11 @@ impl<T> Scan<T> {
     }
 
     fn push_new_buffer(&mut self, source: libc::FILE, size: usize) {
-        if let Some(stack) = self.yy_buffer_stack {
-            stack.push(self.create_buffer(source, size));
+        let buf = self.create_buffer(source, size);
+        if let Some(stack) = self.yy_buffer_stack.as_mut() {
+            stack.push(buf);
+        } else {
+            panic!("tried to push to empty stack");
         }
     }
 
@@ -502,6 +504,10 @@ impl<T> Scan<T> {
     }
 
     fn try_NUL_trans(&self, current_state: State) -> State {
+        unimplemented!();
+    }
+
+    fn restart(&mut self, source: libc::FILE) {
         unimplemented!();
     }
 }
