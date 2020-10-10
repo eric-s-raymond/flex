@@ -483,8 +483,106 @@ impl<T> Scan<T> {
         }
     }
 
-    fn get_previous_state(&self) -> State {
-        unimplemented!();
+    /* yy_get_next_buffer - try to read in a new buffer
+     *
+     * Returns a code representing an action:
+     *	EOB_ACT_LAST_MATCH -
+     *	EOB_ACT_CONTINUE_SCAN - continue scanning from current position
+     *	EOB_ACT_END_OF_FILE - end of file
+     */
+    fn get_next_buffer(&mut self) -> Result<Option<EOBAction>> {
+        if self.yy_c_buf_p > self.yy_n_chars + 1 {
+            Err("fatal flex scanner internal error--end of buffer missed")
+        } else if self.current_buffer_unchecked().yy_fill_buffer == false {
+            // Don't try to fill the buffer, so this is an EOF.
+            if self.yy_c_buf_p - self.yytext_r - MORE_ADJ == 1 {
+                // We matched a single character, the EOB, so treat this as a final EOF.
+                Ok(Some(EOBAction::EndOfFile))
+            } else {
+                // We matched some text prior to the EOB, first process it.
+                Ok(Some(EOBAction::LastMatch))
+            }
+        } else {
+            // Try to read more data.
+            // First move last chars to start of buffer.
+            let number_to_move = self.yy_c_buf_p - self.yytext_r - 1;
+            let range = self.yytext_r..self.yy_c_buf_p-1;
+            self.current_buffer_unchecked_mut().yy_ch_buf.copy_within(range, 0);
+            if self.current_buffer_unchecked().yy_buffer_status == BufferStatus::EOFPending {
+                // don't do the read, it's not guaranteed to return an EOF, just force an EOF
+                self.current_buffer_unchecked_mut().yy_n_chars = 0;
+                self.yy_n_chars = 0;
+            } else {
+                let mut num_to_read = self.current_buffer_unchecked().yy_buf_size - number_to_move - 1;
+                if num_to_read > READ_BUF_SIZE {
+                    num_to_read = READ_BUF_SIZE;
+                }
+                // Include room in for 2 EOB chars.
+                self.current_buffer_unchecked_mut().yy_ch_buf.reserve(num_to_read + 2);
+                let n_chars = self.yy_n_chars;
+                self.input(n_chars, num_to_read)?;
+                self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
+                self.yy_n_chars += number_to_move;
+            }
+
+            let n_chars = self.yy_n_chars;
+            self.current_buffer_unchecked_mut().yy_ch_buf[n_chars] = END_OF_BUFFER_CHAR;
+            self.current_buffer_unchecked_mut().yy_ch_buf[n_chars + 1] = END_OF_BUFFER_CHAR;
+            self.yytext_r = 0;
+
+            if self.yy_n_chars == 0 {
+                if number_to_move == MORE_ADJ {
+                    let source = self.yyin_r;
+                    self.restart(source);
+                    Ok(Some(EOBAction::EndOfFile))
+                } else {
+                    self.current_buffer_unchecked_mut().yy_buffer_status = BufferStatus::EOFPending;
+                    Ok(Some(EOBAction::LastMatch))
+                }
+            } else {
+                Ok(Some(EOBAction::ContinueScan))
+            }
+        }
+    }
+
+    /// get the state just before the EOB char was reached
+    fn get_previous_state(&mut self) -> State {
+        let mut current_state = self.yy_start;
+        // Set up for storing up states.
+        for cp in self.yytext_r + MORE_ADJ .. self.yy_c_buf_p {
+            // Generate the code to find the next state.
+            let mut c: u8 = if self.current_buffer_unchecked().yy_ch_buf[cp] == 0 {
+                NUL_EC
+            } else {
+                yy_ec[self.current_buffer_unchecked().yy_ch_buf[cp as usize] as usize]
+            };
+
+            // Save the backing-up info \before/ computing the next state because we always compute
+            // one more state than needed - we always proceed until we reach a jam state
+
+            // Generate code to keep backing-up information.
+
+            if yy_accept[current_state as usize] != 0 {
+                self.yy_last_accepting_state = current_state;
+                self.yy_last_accepting_cpos = cp;
+            }
+
+            while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
+                current_state = yy_def[current_state as usize];
+
+                // We've arranged it so that templates are never chained to one another.  This means
+                // we can afford to make a very simple test to see if we need to convert to yy_c's
+                // meta-equivalence class without worrying about erroneously looking up the
+                // meta-equivalence class twice.
+
+                // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
+                if current_state > JAMSTATE + 1 {
+                    c = yy_meta[c as usize];
+                }
+            }
+            current_state = yy_nxt[yy_base[current_state as usize] as usize + c as usize];
+        }
+        current_state
     }
 
     fn wrap(&mut self) -> bool {
@@ -502,10 +600,6 @@ impl<T> Scan<T> {
         } else {
             panic!("tried to push to empty stack");
         }
-    }
-
-    fn get_next_buffer(&self) -> EOBAction {
-        unimplemented!();
     }
 
     fn load_buffer_state(&mut self) {
@@ -680,7 +774,7 @@ const NUM_RULES: State = 4;
 const END_OF_BUFFER: State = 5;
 const JAMBASE: State = 7;
 const JAMSTATE: State = 9;
-const NUL_EC: State = 1;
+const NUL_EC: u8 = 1;
 type Offset = i16;
  /* END of Flex-generated definitions */
 
@@ -813,189 +907,7 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-// /* yy_get_next_buffer - try to read in a new buffer
-//  *
-//  * Returns a code representing an action:
-//  *	EOB_ACT_LAST_MATCH -
-//  *	EOB_ACT_CONTINUE_SCAN - continue scanning from current position
-//  *	EOB_ACT_END_OF_FILE - end of file
-//  */
-// static int yy_get_next_buffer (yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
-// 	char *source = yyg->yytext_ptr;
-// 	int number_to_move, i;
-// 	int ret_val;
 //
-// 	if ( yyg->yy_c_buf_p > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] ) {
-// 		YY_FATAL_ERROR( "fatal flex scanner internal error--end of buffer missed" );
-// 	}
-// 	if ( YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0 ) {
-// 		/* Don't try to fill the buffer, so this is an EOF. */
-// 		if ( yyg->yy_c_buf_p - yyg->yytext_ptr - YY_MORE_ADJ == 1 ) {
-// 			/* We matched a single character, the EOB, so
-// 			 * treat this as a final EOF.
-// 			 */
-// 			return EOB_ACT_END_OF_FILE;
-// 		} else {
-// 			/* We matched some text prior to the EOB, first
-// 			 * process it.
-// 			 */
-// 			return EOB_ACT_LAST_MATCH;
-// 		}
-// 	}
-//
-// 	/* Try to read more data. */
-//
-// 	/* First move last chars to start of buffer. */
-// 	number_to_move = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr - 1);
-//
-// 	for ( i = 0; i < number_to_move; ++i ) {
-// 		*(dest++) = *(source++);
-// 	}
-// 	if ( YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING ) {
-// 		/* don't do the read, it's not guaranteed to return an EOF,
-// 		 * just force an EOF
-// 		 */
-// 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars = 0;
-// 	} else {
-// 		int num_to_read =
-// 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
-//
-// 		while ( num_to_read <= 0 ) { /* Not enough room in the buffer - grow it. */
-//
-// 			/* just a shorter name for the current buffer */
-// 			YY_BUFFER_STATE b = YY_CURRENT_BUFFER_LVALUE;
-//
-// 			int yy_c_buf_p_offset =
-// 				(int) (yyg->yy_c_buf_p - b->yy_ch_buf);
-//
-// 			if ( b->yy_is_our_buffer ) {
-// 				int new_size = b->yy_buf_size * 2;
-//
-// 				if ( new_size <= 0 ) {
-// 					b->yy_buf_size += b->yy_buf_size / 8;
-// 				} else {
-// 					b->yy_buf_size *= 2;
-// 				}
-// 				b->yy_ch_buf = (char *)
-// 					/* Include room in for 2 EOB chars. */
-// 					yyrealloc( (void *) b->yy_ch_buf,
-// 							 (yy_size_t) (b->yy_buf_size + 2) , yyscanner );
-// 			} else {
-// 				/* Can't grow it, we don't own it. */
-// 				b->yy_ch_buf = NULL;
-// 			}
-// 			if ( ! b->yy_ch_buf ) {
-// 				YY_FATAL_ERROR(
-// 				"fatal error - scanner input buffer overflow" );
-// 			}
-// 			yyg->yy_c_buf_p = &b->yy_ch_buf[yy_c_buf_p_offset];
-//
-// 			num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size -
-// 						number_to_move - 1;
-//
-// 		}
-//
-// 		if ( num_to_read > YY_READ_BUF_SIZE ) {
-// 			num_to_read = YY_READ_BUF_SIZE;
-// 		}
-// 		/* Read in more data. */
-// 		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-// 			yyg->yy_n_chars, num_to_read );
-//
-// 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-// 	}
-//
-// 	if ( yyg->yy_n_chars == 0 ) {
-// 		if ( number_to_move == YY_MORE_ADJ ) {
-// 			ret_val = EOB_ACT_END_OF_FILE;
-// 			yyrestart( yyin  , yyscanner);
-// 		} else {
-// 			ret_val = EOB_ACT_LAST_MATCH;
-// 			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status =
-// 				YY_BUFFER_EOF_PENDING;
-// 		}
-// 	} else {
-// 		ret_val = EOB_ACT_CONTINUE_SCAN;
-// 	}
-// 	if ((yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
-// 		/* Extend the array by 50%, plus the number we really need. */
-// 		int new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
-// 		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc(
-// 			(void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t) new_size , yyscanner );
-// 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf ) {
-// 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
-// 		}
-// 		/* "- 2" to take care of EOB's */
-// 		YY_CURRENT_BUFFER_LVALUE->yy_buf_size = (int) (new_size - 2);
-// 	}
-//
-// 	yyg->yy_n_chars += number_to_move;
-// 	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] = YY_END_OF_BUFFER_CHAR;
-// 	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] = YY_END_OF_BUFFER_CHAR;
-//
-// 	yyg->yytext_ptr = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[0];
-//
-// 	return ret_val;
-// }
-//
-// /* yy_get_previous_state - get the state just before the EOB char was reached */
-//
-// static yy_state_type yy_get_previous_state (yyscan_t yyscanner)
-// {
-// 	yy_state_type yy_current_state;
-// 	char *yy_cp;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	/* Generate the code to find the start state. */
-//
-// 			yy_current_state = yyg->yy_start;
-//
-// 			/* Set up for storing up states. */
-//
-// 	for ( yy_cp = yyg->yytext_ptr + YY_MORE_ADJ; yy_cp < yyg->yy_c_buf_p; ++yy_cp ) {
-// 		/* Generate the code to find the next state. */
-//
-// 	YY_CHAR yy_c = (*yy_cp ? *(yy_ec+YY_SC_TO_UI(*yy_cp)) : YY_NUL_EC);
-// 	/* Save the backing-up info \before/ computing the next state
-// 	 * because we always compute one more state than needed - we
-// 	 * always proceed until we reach a jam state
-// 	 */
-//
-// 		/* Generate code to keep backing-up information. */
-//
-// 		if ( yy_accept[yy_current_state] )
-//
-// 			{
-// 			yyg->yy_last_accepting_state = yy_current_state;
-// 			yyg->yy_last_accepting_cpos = yy_cp;
-// 			}
-//
-// 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-// 		{
-// 		yy_current_state = (int) yy_def[yy_current_state];
-//
-// 		/* We've arranged it so that templates are never chained
-// 		 * to one another.  This means we can afford to make a
-// 		 * very simple test to see if we need to convert to
-// 		 * yy_c's meta-equivalence class without worrying
-// 		 * about erroneously looking up the meta-equivalence
-// 		 * class twice
-// 		 */
-//
-// 		/* lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates */
-// 		if (yy_current_state >= YY_JAMSTATE + 1)
-// 			yy_c = yy_meta[yy_c];
-//
-// 		}
-// 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-//
-// 	}
-//
-// 	return yy_current_state;
-// }
 //
 // /* yy_try_NUL_trans - try to make a transition on the NUL character
 //  *
