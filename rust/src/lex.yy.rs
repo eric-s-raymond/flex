@@ -177,21 +177,23 @@ impl<T> Scan<T> {
     /** Gets input and stuffs it into "buf".  Returns number of
       * characters read.
       */
-    fn input(&mut self, buf: &mut BufferState, max_size: usize) -> Result<usize> {
-        if self.current_buffer_unchecked().yy_is_interactive {
+    fn input(&mut self, offset: usize, max_size: usize) -> Result<usize> {
+        let file = &mut self.yyin_r.clone(); // file handles are cheap to clone
+        let buf = self.current_buffer_unchecked_mut();
+        if buf.yy_is_interactive {
             let mut result: usize = 0;
             for n in 0..max_size {
-                let c = unsafe { libc::fgetc(&mut self.yyin_r) };
+                let c = unsafe { libc::fgetc(file) };
                 if c != libc::EOF && c != '\n' as libc::c_int {
-                    buf.yy_ch_buf[n] = c as u8
+                    buf.yy_ch_buf[n+offset] = c as u8
                 }
                 if c == '\n' as libc::c_int {
                     // TODO(db48x): I think this loop iteration is
                     // supposed to increment n an extra time
-                    buf.yy_ch_buf[n+1] = c as u8;
+                    buf.yy_ch_buf[n+offset+1] = c as u8;
                 }
                 if c == libc::EOF {
-                    let err = unsafe { libc::ferror(&mut self.yyin_r as *mut libc::FILE) };
+                    let err = unsafe { libc::ferror(file as *mut libc::FILE) };
                     if err != 0 {
                         return Err("input in flex scanner failed");
                     }
@@ -203,12 +205,13 @@ impl<T> Scan<T> {
             unsafe { *libc::__errno_location() = 0; }
             let mut result: usize = 0;
             while result == 0 {
-                result = unsafe { libc::fread(buf as *mut _ as *mut libc::c_void, 1, max_size, &mut self.yyin_r) };
-                if unsafe { libc::ferror(&mut self.yyin_r) } != libc::EINTR {
+                let ptr = buf as *mut _ as *mut libc::c_void;
+                result = unsafe { libc::fread(ptr.add(offset), 1, max_size, file) };
+                if unsafe { libc::ferror(file) } != libc::EINTR {
                     return Result::Err("input in flex scanner failed");
                 }
                 unsafe { *libc::__errno_location() = 0; }
-                unsafe { libc::clearerr(&mut self.yyin_r); }
+                unsafe { libc::clearerr(file); }
             }
             Ok(result)
         }
@@ -412,8 +415,8 @@ impl<T> Scan<T> {
                                         }
                                     } else {
                                         // not a NUL
-                                        match self.get_next_buffer() {
-                                            EOBAction::EndOfFile => {
+                                        match self.get_next_buffer()? {
+                                            Some(EOBAction::EndOfFile) => {
                                                 self.yy_did_buffer_switch_on_eof = false;
 
                                                 if self.wrap() {
@@ -436,7 +439,7 @@ impl<T> Scan<T> {
                                                 }
                                             }
 
-                                            EOBAction::ContinueScan => {
+                                            Some(EOBAction::ContinueScan) => {
                                                 self.yy_c_buf_p = self.yytext_r + amount_of_matched_text;
 
                                                 current_state = self.get_previous_state();
@@ -446,7 +449,7 @@ impl<T> Scan<T> {
                                                 continue 'yy_match;
                                             }
 
-                                            EOBAction::LastMatch => {
+                                            Some(EOBAction::LastMatch) => {
                                                 self.yy_c_buf_p = self.yy_n_chars;
 
                                                 current_state = self.get_previous_state();
@@ -454,6 +457,12 @@ impl<T> Scan<T> {
                                                 yy_cp = self.yy_c_buf_p;
                                                 yy_bp = self.yytext_r + MORE_ADJ;
                                                 continue 'find_action;
+                                            }
+
+                                            None => {
+                                                // take no action? get_next_buffer says that it
+                                                // wants to "force" the EOB, but it's hard to see
+                                                // what that means at the moment.
                                             }
                                         }
                                     }
@@ -539,9 +548,11 @@ impl<T> Scan<T> {
 // /* Special action meaning "start processing a new file". */
 // #define YY_NEW_FILE yyrestart( yyin , yyscanner )
 // #define YY_END_OF_BUFFER_CHAR 0
+const END_OF_BUFFER_CHAR: u8 = 0;
 
 /* Size of default input buffer. */
 const BUF_SIZE: usize = 32768;
+const READ_BUF_SIZE: usize = BUF_SIZE/2;
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
  */
