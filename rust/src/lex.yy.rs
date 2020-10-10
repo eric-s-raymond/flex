@@ -177,7 +177,7 @@ impl<T> Scan<T> {
     /** Gets input and stuffs it into "buf".  Returns number of
       * characters read.
       */
-    fn input(&mut self, offset: usize, max_size: usize) -> Result<usize> {
+    fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
         let file = &mut self.yyin_r.clone(); // file handles are cheap to clone
         let buf = self.current_buffer_unchecked_mut();
         if buf.yy_is_interactive {
@@ -520,7 +520,7 @@ impl<T> Scan<T> {
                 // Include room in for 2 EOB chars.
                 self.current_buffer_unchecked_mut().yy_ch_buf.reserve(num_to_read + 2);
                 let n_chars = self.yy_n_chars;
-                self.input(n_chars, num_to_read)?;
+                self.read(n_chars, num_to_read)?;
                 self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
                 self.yy_n_chars += number_to_move;
             }
@@ -643,6 +643,71 @@ impl<T> Scan<T> {
         self.yytext_r = bp;
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[cp];
         self.yy_c_buf_p = cp;
+    }
+
+    fn input(&mut self) -> Result<u8> {
+        let p = self.yy_c_buf_p;
+        self.current_buffer_unchecked_mut().yy_ch_buf[p] = self.yy_hold_char;
+
+        if self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p] == END_OF_BUFFER_CHAR {
+            // yy_c_buf_p now points to the character we want to return.  If this occurs *before*
+            // the EOB characters, then it's a valid NUL; if not, then we've hit the end of the
+            // buffer.
+            if self.yy_c_buf_p < self.yy_n_chars {
+                // This was really a NUL.
+                let p = self.yy_c_buf_p;
+                self.current_buffer_unchecked_mut().yy_ch_buf[p] = '\0' as u8;
+            } else {
+                // need more input
+                let offset = self.yy_c_buf_p - self.yytext_r;
+                self.yy_c_buf_p += 1;
+
+                match self.get_next_buffer()? {
+                    Some(EOBAction::LastMatch) => {
+                        // This happens because yy_g_n_b() sees that we've accumulated a token and
+                        // flags that we need to try matching the token before proceeding.  But for
+                        // input(), there's no matching to consider.  So convert the
+                        // EOB_ACT_LAST_MATCH to EOB_ACT_END_OF_FILE.
+
+                        // Reset buffer status.
+                        self.restart(self.yyin_r);
+
+                        if self.wrap() {
+                            return Ok('\0' as u8);
+                        }
+                        if !self.yy_did_buffer_switch_on_eof {
+                            // YY_NEW_FILE
+                            self.restart(self.yyin_r);
+                        }
+                        return self.input();
+                    }
+
+                    Some(EOBAction::EndOfFile) => {
+                        if self.wrap() {
+                            return Ok('\0' as u8);
+                        }
+                        if !self.yy_did_buffer_switch_on_eof {
+                            // YY_NEW_FILE
+                            self.restart(self.yyin_r);
+                        }
+                        return self.input();
+                    }
+
+                    Some(EOBAction::ContinueScan) => {
+                        self.yy_c_buf_p = self.yytext_r + offset;
+                    }
+
+                    None => { unreachable!(); }
+                }
+            }
+        }
+
+        let c = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
+        let p = self.yy_c_buf_p;
+        self.current_buffer_unchecked_mut().yy_ch_buf[p] = '\0' as u8;
+        self.yy_c_buf_p += 1;
+        self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
+        Ok(c)
     }
 
     fn wrap(&mut self) -> bool {
@@ -963,77 +1028,6 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-// #ifndef YY_NO_INPUT
-// #ifdef __cplusplus
-// static int yyinput (yyscan_t yyscanner)
-// #else
-// static int input  (yyscan_t yyscanner)
-// #endif
-//
-// {
-// 	int c;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	*yyg->yy_c_buf_p = yyg->yy_hold_char;
-//
-// 	if ( *yyg->yy_c_buf_p == YY_END_OF_BUFFER_CHAR ) {
-// 		/* yy_c_buf_p now points to the character we want to return.
-// 		 * If this occurs *before* the EOB characters, then it's a
-// 		 * valid NUL; if not, then we've hit the end of the buffer.
-// 		 */
-// 		if ( yyg->yy_c_buf_p < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] ) {
-// 			/* This was really a NUL. */
-// 			*yyg->yy_c_buf_p = '\0';
-// 		} else {
-// 			/* need more input */
-// 			int offset = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr);
-// 			++yyg->yy_c_buf_p;
-//
-// 			switch ( yy_get_next_buffer( yyscanner ) ) {
-// 			case EOB_ACT_LAST_MATCH:
-// 				/* This happens because yy_g_n_b()
-// 				 * sees that we've accumulated a
-// 				 * token and flags that we need to
-// 				 * try matching the token before
-// 				 * proceeding.  But for input(),
-// 				 * there's no matching to consider.
-// 				 * So convert the EOB_ACT_LAST_MATCH
-// 				 * to EOB_ACT_END_OF_FILE.
-// 				 */
-//
-// 				/* Reset buffer status. */
-// 				yyrestart( yyin , yyscanner);
-//
-// 				/*FALLTHROUGH*/
-//
-// 			case EOB_ACT_END_OF_FILE:
-// 				if ( yywrap( yyscanner ) ) {
-// 					return 0;
-// 				}
-// 				if ( ! yyg->yy_did_buffer_switch_on_eof ) {
-// 					YY_NEW_FILE;
-// 				}
-// #ifdef __cplusplus
-// 				return yyinput(yyscanner);
-// #else
-// 				return input(yyscanner);
-// #endif
-//
-// 			case EOB_ACT_CONTINUE_SCAN:
-// 				yyg->yy_c_buf_p = yyg->yytext_ptr + offset;
-// 				break;
-// 			}
-// 		}
-// 	}
-//
-// 	c = *(unsigned char *) yyg->yy_c_buf_p;	/* cast for 8-bit char's */
-// 	*yyg->yy_c_buf_p = '\0';	/* preserve yytext */
-// 	yyg->yy_hold_char = *++yyg->yy_c_buf_p;
-//
-// 	return c;
-// }
-// #endif	/* ifndef YY_NO_INPUT */
-//
 // /** Immediately switch to a different input stream.
 //  * @param input_file A readable stream.
 //  * @param yyscanner The scanner object.
