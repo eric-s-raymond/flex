@@ -585,6 +585,49 @@ impl<T> Scan<T> {
         current_state
     }
 
+    /// try to make a transition on the NUL character
+    ///
+    /// synopsis
+    ///   next_state = yy_try_NUL_trans( current_state );
+    fn try_NUL_trans(&mut self, current_state: State) -> State {
+        let mut current_state = current_state;
+        // Generate code for handling NUL's, if needed.
+
+        // First, deal with backing up and setting up yy_cp if the scanner finds that it should JAM
+        // on the NUL.
+        //
+        // Only generate a definition for "yy_cp" if we'll generate code that uses it.  Otherwise
+        // lint and the like complain.
+        let cp = self.yy_c_buf_p;
+
+        let mut c = NUL_EC;
+        // Save the backing-up info \before/ computing the next state because we always compute one
+        // more state than needed - we always proceed until we reach a jam state
+
+        // Generate code to keep backing-up information.
+
+        if yy_accept[current_state as usize] != 0 {
+            self.yy_last_accepting_state = current_state;
+            self.yy_last_accepting_cpos = cp;
+        }
+        while yy_chk[yy_base[current_state as usize] as usize + c as usize] != current_state {
+            current_state = yy_def[current_state as usize];
+
+            // We've arranged it so that templates are never chained to one another.  This means we
+            // can afford to make a very simple test to see if we need to convert to yy_c's
+            // meta-equivalence class without worrying about erroneously looking up the
+            // meta-equivalence class twice
+
+            // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
+            if current_state >= JAMSTATE + 1 {
+                c = yy_meta[c as usize];
+            }
+        }
+        current_state = yy_nxt[yy_base[current_state as usize] as usize + c as usize];
+        let is_jam = current_state == JAMSTATE;
+        if is_jam { 0 } else { current_state }
+    }
+
     fn wrap(&mut self) -> bool {
         unimplemented!();
     }
@@ -603,10 +646,6 @@ impl<T> Scan<T> {
     }
 
     fn load_buffer_state(&mut self) {
-        unimplemented!();
-    }
-
-    fn try_NUL_trans(&self, current_state: State) -> State {
         unimplemented!();
     }
 
@@ -908,65 +947,6 @@ const START_STACK_INCR: usize = 25;
 // 	YY_USER_ACTION
 
 //
-//
-// /* yy_try_NUL_trans - try to make a transition on the NUL character
-//  *
-//  * synopsis
-//  *	next_state = yy_try_NUL_trans( current_state );
-//  */
-// static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state , yyscan_t yyscanner)
-// {
-// 	int yy_is_jam;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner; /* This var may be unused depending upon options. */
-// 	/* Generate code for handling NUL's, if needed. */
-//
-// 	/* First, deal with backing up and setting up yy_cp if the scanner
-// 	 * finds that it should JAM on the NUL.
-// 	 *
-// 	 * Only generate a definition for "yy_cp" if we'll generate code
-// 	 * that uses it.  Otherwise lint and the like complain.
-// 	 */
-// 	char *yy_cp = yyg->yy_c_buf_p;
-//
-// 	YY_CHAR yy_c = YY_NUL_EC;
-// 	/* Save the backing-up info \before/ computing the next state
-// 	 * because we always compute one more state than needed - we
-// 	 * always proceed until we reach a jam state
-// 	 */
-//
-// 		/* Generate code to keep backing-up information. */
-//
-// 		if ( yy_accept[yy_current_state] )
-//
-// 			{
-// 			yyg->yy_last_accepting_state = yy_current_state;
-// 			yyg->yy_last_accepting_cpos = yy_cp;
-// 			}
-//
-// 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-// 		{
-// 		yy_current_state = (int) yy_def[yy_current_state];
-//
-// 		/* We've arranged it so that templates are never chained
-// 		 * to one another.  This means we can afford to make a
-// 		 * very simple test to see if we need to convert to
-// 		 * yy_c's meta-equivalence class without worrying
-// 		 * about erroneously looking up the meta-equivalence
-// 		 * class twice
-// 		 */
-//
-// 		/* lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates */
-// 		if (yy_current_state >= YY_JAMSTATE + 1)
-// 			yy_c = yy_meta[yy_c];
-//
-// 		}
-// 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-//
-// yy_is_jam = (yy_current_state == YY_JAMSTATE);
-//
-// 	(void)yyg;
-// 	return yy_is_jam ? 0 : yy_current_state;
-// }
 //
 // #ifndef YY_NO_UNPUT
 //
