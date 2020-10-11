@@ -42,8 +42,8 @@ pub struct Scan<T> {
     yyextra_r: T,
 
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
-    yyin_r: libc::FILE,
-    yyout_r: libc::FILE,
+    yyin_r: FILE,
+    yyout_r: FILE,
     /// index of top of stack.
     yy_buffer_stack_top: usize,
     /// capacity of stack.
@@ -183,7 +183,7 @@ impl<T> Scan<T> {
         if buf.yy_is_interactive {
             let mut result: usize = 0;
             for n in 0..max_size {
-                let c = unsafe { libc::fgetc(file) };
+                let c = unsafe { libc::fgetc(&mut file.0) };
                 if c != libc::EOF && c != '\n' as libc::c_int {
                     buf.yy_ch_buf[n+offset] = c as u8
                 }
@@ -193,7 +193,7 @@ impl<T> Scan<T> {
                     buf.yy_ch_buf[n+offset+1] = c as u8;
                 }
                 if c == libc::EOF {
-                    let err = unsafe { libc::ferror(file as *mut libc::FILE) };
+                    let err = unsafe { libc::ferror(&mut file.0) };
                     if err != 0 {
                         return Err("input in flex scanner failed");
                     }
@@ -206,12 +206,12 @@ impl<T> Scan<T> {
             let mut result: usize = 0;
             while result == 0 {
                 let ptr = buf as *mut _ as *mut libc::c_void;
-                result = unsafe { libc::fread(ptr.add(offset), 1, max_size, file) };
-                if unsafe { libc::ferror(file) } != libc::EINTR {
+                result = unsafe { libc::fread(ptr.add(offset), 1, max_size, &mut file.0) };
+                if unsafe { libc::ferror(&mut file.0) } != libc::EINTR {
                     return Result::Err("input in flex scanner failed");
                 }
                 unsafe { *libc::__errno_location() = 0; }
-                unsafe { libc::clearerr(file); }
+                unsafe { libc::clearerr(&mut file.0); }
             }
             Ok(result)
         }
@@ -356,7 +356,7 @@ impl<T> Scan<T> {
                                         libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
                                                      self.yyleng_r,
                                                      1,
-                                                     &mut self.yyout_r);
+                                                     &mut self.yyout_r.0);
                                     }
                                 }
 
@@ -710,15 +710,50 @@ impl<T> Scan<T> {
         Ok(c)
     }
 
+    /// Immediately switch to a different input stream.  This function does not reset the start condition
+    /// to @c INITIAL .
+    fn restart(&mut self, source: FILE) {
+        if self.current_buffer().is_none() {
+            self.ensure_buffer_stack();
+            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+        }
+        self.init_buffer(source);
+        self.load_buffer_state();
+    }
+
+    /// Switch to a different input buffer.
+    fn switch_to_buffer(&mut self, new_buffer: BufferState) {
+        // TODO. We should be able to replace this entire function body with
+        //      yypop_buffer_state();
+        //      yypush_buffer_state(new_buffer);
+        self.ensure_buffer_stack();
+        if *self.current_buffer_unchecked() != new_buffer {
+            if self.current_buffer().is_some() {
+                // Flush out information for old buffer.
+                let p = self.yy_c_buf_p;
+                self.current_buffer_unchecked_mut().yy_ch_buf[p] = self.yy_hold_char;
+                self.current_buffer_unchecked_mut().yy_buf_pos = self.yy_c_buf_p;
+                self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
+            }
+            *self.current_buffer_unchecked_mut() = new_buffer;
+            self.load_buffer_state();
+
+            // We don't actually know whether we did this switch during EOF (yywrap()) processing,
+            // but the only time this flag is looked at is after yywrap() is called, so it's safe to
+            // go ahead and always set it.
+            self.yy_did_buffer_switch_on_eof = true;
+        }
+    }
+
     fn wrap(&mut self) -> bool {
         unimplemented!();
     }
 
-    fn create_buffer(&mut self, source: libc::FILE, size: usize) -> BufferState {
+    fn create_buffer(&mut self, source: FILE, size: usize) -> BufferState {
         unimplemented!();
     }
 
-    fn push_new_buffer(&mut self, source: libc::FILE, size: usize) {
+    fn push_new_buffer(&mut self, source: FILE, size: usize) {
         let buf = self.create_buffer(source, size);
         if let Some(stack) = self.yy_buffer_stack.as_mut() {
             stack.push(buf);
@@ -731,7 +766,7 @@ impl<T> Scan<T> {
         unimplemented!();
     }
 
-    fn restart(&mut self, source: libc::FILE) {
+    fn init_buffer(&mut self, source: FILE) {
         unimplemented!();
     }
 }
@@ -825,8 +860,9 @@ enum BufferStatus {
     EOFPending,
 }
 
+#[derive(PartialEq, Eq)]
 struct BufferState {
-    yy_input_file: libc::FILE,
+    yy_input_file: FILE,
     /// input buffer
     yy_ch_buf: Vec<u8>,
     /// current position in input buffer
@@ -1028,59 +1064,6 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-// /** Immediately switch to a different input stream.
-//  * @param input_file A readable stream.
-//  * @param yyscanner The scanner object.
-//  * @note This function does not reset the start condition to @c INITIAL .
-//  */
-// void yyrestart  (FILE * input_file , yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	if ( ! YY_CURRENT_BUFFER ) {
-// 		yyensure_buffer_stack (yyscanner);
-// 		YY_CURRENT_BUFFER_LVALUE =
-// 	        	yy_create_buffer( yyin, YY_BUF_SIZE , yyscanner);
-// 	}
-//
-// 	yy_init_buffer( YY_CURRENT_BUFFER, input_file , yyscanner);
-// 	yy_load_buffer_state( yyscanner );
-// }
-//
-// /** Switch to a different input buffer.
-//  * @param new_buffer The new input buffer.
-//  * @param yyscanner The scanner object.
-//  */
-// void yy_switch_to_buffer  (YY_BUFFER_STATE  new_buffer , yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	/* TODO. We should be able to replace this entire function body
-// 	 * with
-// 	 *		yypop_buffer_state();
-// 	 *		yypush_buffer_state(new_buffer);
-// 	 */
-// 	yyensure_buffer_stack (yyscanner);
-// 	if ( YY_CURRENT_BUFFER == new_buffer ) {
-// 		return;
-// 	}
-// 	if ( YY_CURRENT_BUFFER ) {
-// 		/* Flush out information for old buffer. */
-// 		*yyg->yy_c_buf_p = yyg->yy_hold_char;
-// 		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
-// 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-// 	}
-//
-// 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-// 	yy_load_buffer_state( yyscanner );
-//
-// 	/* We don't actually know whether we did this switch during
-// 	 * EOF (yywrap()) processing, but the only time this flag
-// 	 * is looked at is after yywrap() is called, so it's safe
-// 	 * to go ahead and always set it.
-// 	 */
-// 	yyg->yy_did_buffer_switch_on_eof = 1;
-// }
 //
 // static void yy_load_buffer_state  (yyscan_t yyscanner)
 // {
@@ -1718,3 +1701,16 @@ const START_STACK_INCR: usize = 25;
 // }
 //
 // #line 21 "wc1.l"
+
+#[derive(Copy, Clone)]
+struct FILE(libc::FILE);
+
+impl PartialEq for FILE {
+    fn eq(&self, other: &Self) -> bool {
+        let a = &self.0 as *const _ as *mut libc::FILE;
+        let b = &other.0 as *const _ as *mut libc::FILE;
+        unsafe { libc::fileno(a) == libc::fileno(b) }
+    }
+}
+
+impl Eq for FILE { }
