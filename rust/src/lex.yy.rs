@@ -45,7 +45,7 @@ pub struct Scan<T> {
     yyin_r: FILE,
     yyout_r: FILE,
     /// Stack as an array.
-    yy_buffer_stack: Option<Vec<BufferState>>,
+    yy_buffer_stack: Vec<BufferState>,
     yy_hold_char: u8,
     yy_n_chars: usize,
     yyleng_r: usize,
@@ -75,27 +75,26 @@ impl<T> Scan<T> {
      * Returns the top of the stack, or NULL.
      */
     fn current_buffer(&self) -> Option<&BufferState> {
-        self.yy_buffer_stack.as_ref().and_then(|stack| stack.last())
+        self.yy_buffer_stack.last()
     }
 
     fn current_buffer_mut(&mut self) -> Option<&mut BufferState> {
-        self.yy_buffer_stack.as_mut().and_then(|stack| stack.last_mut())
+        self.yy_buffer_stack.last_mut()
     }
 
     /** Same as yy_current_buffer, but useful when we know that the buffer
      * stack is not None. For internal use only.
      */
     fn current_buffer_unchecked(&self) -> &BufferState {
-        &self.yy_buffer_stack.as_ref().expect("no buffer stack").last().expect("stack should not be empty")
+        self.yy_buffer_stack.last().expect("stack should not be empty")
     }
 
     fn current_buffer_unchecked_mut(&mut self) -> &mut BufferState {
-        self.yy_buffer_stack.as_mut().expect("no buffer stack").last_mut().expect("stack should not be empty")
+        self.yy_buffer_stack.last_mut().expect("stack should not be empty")
     }
 
     fn set_interactive(&mut self, is_interactive: bool) {
-        if let None = self.yy_buffer_stack {
-            self.ensure_buffer_stack();
+        if self.yy_buffer_stack.is_empty() {
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer_mut() {
@@ -104,16 +103,12 @@ impl<T> Scan<T> {
     }
 
     fn set_bol(&mut self, at_bol: bool) {
-        if let None = self.yy_buffer_stack {
-            self.ensure_buffer_stack();
+        if self.yy_buffer_stack.is_empty() {
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer_mut() {
             buf.yy_at_bol = at_bol;
         }
-    }
-
-    fn ensure_buffer_stack(&mut self) {
     }
 
     fn at_bol(&self) -> bool {
@@ -222,7 +217,6 @@ impl<T> Scan<T> {
             if self.yy_start != 0 {
                 self.yy_start = 1; // first start state
             }
-            self.ensure_buffer_stack();
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
 
             self.load_buffer_state();
@@ -707,7 +701,6 @@ impl<T> Scan<T> {
     /// to @c INITIAL .
     fn restart(&mut self, source: FILE) {
         if self.current_buffer().is_none() {
-            self.ensure_buffer_stack();
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         self.init_buffer(source);
@@ -719,7 +712,6 @@ impl<T> Scan<T> {
         // TODO. We should be able to replace this entire function body with
         //      yypop_buffer_state();
         //      yypush_buffer_state(new_buffer);
-        self.ensure_buffer_stack();
         if *self.current_buffer_unchecked() != new_buffer {
             if self.current_buffer().is_some() {
                 // Flush out information for old buffer.
@@ -754,7 +746,6 @@ impl<T> Scan<T> {
     /// Pushes the new state onto the stack. The new state becomes the current state. This function will
     /// allocate the stack if necessary.
     fn push_buffer_state(&mut self, new_buffer: BufferState) {
-        self.ensure_buffer_stack();
         if self.current_buffer().is_some() {
             // Flush out information for old buffer.
             let p = self.yy_c_buf_p;
@@ -763,12 +754,7 @@ impl<T> Scan<T> {
             self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
         }
 
-        // Only push if top exists. Otherwise, replace top.
-        if let Some(stack) = self.yy_buffer_stack.as_mut() {
-            stack.push(new_buffer);
-        } else {
-            panic!("tried to push to empty stack");
-        }
+        self.yy_buffer_stack.push(new_buffer);
         // copied from yy_switch_to_buffer.
         self.load_buffer_state();
         self.yy_did_buffer_switch_on_eof = true;
@@ -776,10 +762,8 @@ impl<T> Scan<T> {
 
     // Removes and deletes the top of the stack, if present.  The next element becomes the new top.
     fn pop_buffer_state(&mut self) {
-        if let Some(stack) = self.yy_buffer_stack.as_mut() {
-            stack.pop();
-        }
-        if self.current_buffer().is_some() {
+        self.yy_buffer_stack.pop();
+        if !self.yy_buffer_stack.is_empty() {
             self.load_buffer_state();
             self.yy_did_buffer_switch_on_eof = true;
         }
@@ -1147,53 +1131,6 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-//
-// /* Allocates the stack if it does not exist.
-//  *  Guarantees space for at least one push.
-//  */
-// static void yyensure_buffer_stack (yyscan_t yyscanner)
-// {
-// 	yy_size_t num_to_alloc;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	if (!yyg->yy_buffer_stack) {
-// 		/* First allocation is just for 2 elements, since we don't know if this
-// 		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
-// 		 * immediate realloc on the next call.
-// 		 */
-// 		num_to_alloc = 1; /* After all that talk, this was set to 1 anyways... */
-// 		yyg->yy_buffer_stack = (struct yy_buffer_state**)yyalloc
-// 								(num_to_alloc * sizeof(struct yy_buffer_state*)
-// 								, yyscanner);
-// 		if ( ! yyg->yy_buffer_stack ) {
-// 			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-// 		}
-//
-// 		memset(yyg->yy_buffer_stack, 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-//
-// 		yyg->yy_buffer_stack_max = num_to_alloc;
-// 		yyg->yy_buffer_stack_top = 0;
-// 		return;
-// 	}
-//
-// 	if (yyg->yy_buffer_stack_top >= (yyg->yy_buffer_stack_max) - 1) {
-// 		/* Increase the buffer to prepare for a possible push. */
-// 		yy_size_t grow_size = 8 /* arbitrary grow size */;
-//
-// 		num_to_alloc = yyg->yy_buffer_stack_max + grow_size;
-// 		yyg->yy_buffer_stack = (struct yy_buffer_state**)yyrealloc
-// 								(yyg->yy_buffer_stack,
-// 								num_to_alloc * sizeof(struct yy_buffer_state*)
-// 								, yyscanner);
-// 		if ( ! yyg->yy_buffer_stack ) {
-// 			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-// 		}
-// 		/* zero only the new slots.*/
-// 		memset(yyg->yy_buffer_stack + yyg->yy_buffer_stack_max, 0, grow_size * sizeof(struct yy_buffer_state*));
-// 		yyg->yy_buffer_stack_max = num_to_alloc;
-// 	}
-// }
-//
 // /** Setup the input buffer state to scan directly from a user-specified character buffer.
 //  * @param base the character buffer
 //  * @param size the size in bytes of the character buffer
