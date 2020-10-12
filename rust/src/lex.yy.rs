@@ -701,6 +701,10 @@ impl<T> Scan<T> {
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
         self.current_buffer_unchecked_mut().init(source);
+        // If b is the current buffer, then yy_init_buffer was _probably_ called from yyrestart() or
+        // through yy_get_next_buffer.  In that case, we don't want to reset the lineno or column.
+        self.current_buffer_unchecked_mut().yy_bs_lineno = 1;
+        self.current_buffer_unchecked_mut().yy_bs_column = 0;
         self.load_buffer_state();
     }
 
@@ -736,7 +740,7 @@ impl<T> Scan<T> {
     }
 
     fn push_new_buffer(&mut self, source: Option<FILE>, size: usize) {
-        let buf = BufferState::new(source, size, self);
+        let buf = BufferState::new(source, size);
         self.push_buffer_state(buf)
     }
 
@@ -885,7 +889,7 @@ struct BufferState {
 
 impl BufferState {
     /// Allocate and initialize an input buffer state.
-    fn new<T>(source: Option<FILE>, size: usize, scanner: &mut Scan<T>) -> BufferState {
+    fn new(source: Option<FILE>, size: usize) -> BufferState {
         let mut b = BufferState {
             yy_input_file: source,
             yy_ch_buf: Vec::with_capacity(size + 2),
@@ -900,25 +904,19 @@ impl BufferState {
             yy_fill_buffer: false,
             yy_buffer_status: BufferStatus::New
         };
-        b.init(source, scanner);
+        b.init(source);
         b
     }
 
 
     // Initializes or reinitializes a buffer.  This function is sometimes called more than once on
     // the same buffer, such as during a yyrestart() or at EOF.
-    fn init<T>(&mut self, source: Option<FILE>, scanner: &mut Scan<T>) {
+    fn init(&mut self, source: Option<FILE>) {
         let oerrno = unsafe { *libc::__errno_location() };
-        self.flush(scanner);
+        self.flush();
 
         self.yy_input_file = source;
         self.yy_fill_buffer = true;
-        // If b is the current buffer, then yy_init_buffer was _probably_ called from yyrestart() or
-        // through yy_get_next_buffer.  In that case, we don't want to reset the lineno or column.
-        if self != scanner.current_buffer_unchecked() {
-            self.yy_bs_lineno = 1;
-            self.yy_bs_column = 0;
-        }
         self.yy_is_interactive = if let Some(file) = source {
             unsafe { libc::isatty(libc::fileno(&file.0 as *const _ as *mut libc::FILE)) > 0 }
         } else {
@@ -928,7 +926,7 @@ impl BufferState {
     }
 
     /// Discard all buffered characters. On the next scan, YY_INPUT will be called.
-    fn flush<T>(&mut self, scanner: &mut Scan<T>) {
+    fn flush(&mut self) {
         self.yy_n_chars = 0;
 
         // We always need two end-of-buffer characters.  The first causes a transition to the
@@ -940,10 +938,6 @@ impl BufferState {
 
         self.yy_at_bol = true;
         self.yy_buffer_status = BufferStatus::New;
-
-        if self == scanner.current_buffer_unchecked() {
-            scanner.load_buffer_state();
-        }
     }
 }
 
