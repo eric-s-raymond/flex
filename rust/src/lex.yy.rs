@@ -37,13 +37,14 @@ const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
 
 type Result<T> = std::result::Result<T, &'static str>;
 
+#[derive(Default)]
 pub struct Scan<T> {
     /// User-defined. Not touched by flex.
-    yyextra_r: T,
+    yyextra_r: Option<T>,
 
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
-    yyin_r: FILE,
-    yyout_r: FILE,
+    yyin_r: Option<FILE>,
+    yyout_r: Option<FILE>,
     /// Stack as an array.
     yy_buffer_stack: Vec<BufferState>,
     yy_hold_char: u8,
@@ -67,7 +68,30 @@ pub struct Scan<T> {
     yy_more_len: usize,
 }
 
+impl<T: Default> Scan<T> {
+    fn new() -> Self {
+        let mut s: Scan<T> = Default::default();
+        s.init(false);
+        s
+    }
+}
+
 impl<T> Scan<T> {
+    fn init(&mut self, stdinit: bool) {
+        self.yy_buffer_stack = Vec::new();
+        self.yy_c_buf_p = 0;
+        self.yy_init = false;
+        self.yy_start = 0;
+
+        self.yy_start_stack = Vec::new();
+        self.yy_start_stack_depth = 0;
+
+        //if stdinit {
+        //    self.yyin_r =
+        //    self.yyout_r =
+        //}
+    }
+
     /** We provide macros for accessing buffer states in case in the
      * future we want to put the buffer states in a more general
      * "scanner state".
@@ -166,42 +190,46 @@ impl<T> Scan<T> {
       * characters read.
       */
     fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
-        let file = &mut self.yyin_r.clone(); // file handles are cheap to clone
-        let buf = self.current_buffer_unchecked_mut();
-        if buf.yy_is_interactive {
-            let mut result: usize = 0;
-            for n in 0..max_size {
-                let c = unsafe { libc::fgetc(&mut file.0) };
-                if c != libc::EOF && c != '\n' as libc::c_int {
-                    buf.yy_ch_buf[n+offset] = c as u8
-                }
-                if c == '\n' as libc::c_int {
-                    // TODO(db48x): I think this loop iteration is
-                    // supposed to increment n an extra time
-                    buf.yy_ch_buf[n+offset+1] = c as u8;
-                }
-                if c == libc::EOF {
-                    let err = unsafe { libc::ferror(&mut file.0) };
-                    if err != 0 {
-                        return Err("input in flex scanner failed");
+        //let file = &mut self.yyin_r.clone(); // file handles are cheap to clone
+        if let Some(mut file) = self.yyin_r {
+            let buf = self.current_buffer_unchecked_mut();
+            if buf.yy_is_interactive {
+                let mut result: usize = 0;
+                for n in 0..max_size {
+                    let c = unsafe { libc::fgetc(&mut file.0) };
+                    if c != libc::EOF && c != '\n' as libc::c_int {
+                        buf.yy_ch_buf[n+offset] = c as u8
                     }
+                    if c == '\n' as libc::c_int {
+                        // TODO(db48x): I think this loop iteration is
+                        // supposed to increment n an extra time
+                        buf.yy_ch_buf[n+offset+1] = c as u8;
+                    }
+                    if c == libc::EOF {
+                        let err = unsafe { libc::ferror(&mut file.0) };
+                        if err != 0 {
+                            return Err("input in flex scanner failed");
+                        }
+                    }
+                    result = n;
                 }
-                result = n;
-            }
-            Ok(result as usize)
-        } else {
-            unsafe { *libc::__errno_location() = 0; }
-            let mut result: usize = 0;
-            while result == 0 {
-                let ptr = buf as *mut _ as *mut libc::c_void;
-                result = unsafe { libc::fread(ptr.add(offset), 1, max_size, &mut file.0) };
-                if unsafe { libc::ferror(&mut file.0) } != libc::EINTR {
-                    return Result::Err("input in flex scanner failed");
-                }
+                Ok(result as usize)
+            } else {
                 unsafe { *libc::__errno_location() = 0; }
-                unsafe { libc::clearerr(&mut file.0); }
+                let mut result: usize = 0;
+                while result == 0 {
+                    let ptr = buf as *mut _ as *mut libc::c_void;
+                    result = unsafe { libc::fread(ptr.add(offset), 1, max_size, &mut file.0) };
+                    if unsafe { libc::ferror(&mut file.0) } != libc::EINTR {
+                        return Result::Err("input in flex scanner failed");
+                    }
+                    unsafe { *libc::__errno_location() = 0; }
+                    unsafe { libc::clearerr(&mut file.0); }
+                }
+                Ok(result)
             }
-            Ok(result)
+        } else {
+            Err("read called with no open input file")
         }
     }
 
@@ -339,11 +367,13 @@ impl<T> Scan<T> {
 
                                 4 => {
                                     // YY_RULE_SETUP
-                                    unsafe {
-                                        libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
-                                                     self.yyleng_r,
-                                                     1,
-                                                     &mut self.yyout_r.0);
+                                    if let Some(mut out) = self.yyout_r {
+                                        unsafe {
+                                            libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
+                                                         self.yyleng_r,
+                                                         1,
+                                                         &mut out.0);
+                                        }
                                     }
                                 }
 
@@ -699,7 +729,7 @@ impl<T> Scan<T> {
 
     /// Immediately switch to a different input stream.  This function does not reset the start condition
     /// to @c INITIAL .
-    fn restart(&mut self, source: FILE) {
+    fn restart(&mut self, source: Option<FILE>) {
         if self.current_buffer().is_none() {
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
@@ -738,7 +768,7 @@ impl<T> Scan<T> {
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
     }
 
-    fn push_new_buffer(&mut self, source: FILE, size: usize) {
+    fn push_new_buffer(&mut self, source: Option<FILE>, size: usize) {
         let buf = BufferState::new(source, size, self);
         self.push_buffer_state(buf)
     }
@@ -773,7 +803,7 @@ impl<T> Scan<T> {
         unimplemented!();
     }
 
-    fn init_buffer(&mut self, source: FILE) {
+    fn init_buffer(&mut self, source: Option<FILE>) {
         unimplemented!();
     }
 }
@@ -869,7 +899,7 @@ enum BufferStatus {
 
 #[derive(PartialEq, Eq)]
 struct BufferState {
-    yy_input_file: FILE,
+    yy_input_file: Option<FILE>,
     /// input buffer
     yy_ch_buf: Vec<u8>,
     /// current position in input buffer
@@ -919,7 +949,7 @@ struct BufferState {
 
 impl BufferState {
     /// Allocate and initialize an input buffer state.
-    fn new<T>(source: FILE, size: usize, scanner: &mut Scan<T>) -> BufferState {
+    fn new<T>(source: Option<FILE>, size: usize, scanner: &mut Scan<T>) -> BufferState {
         let mut b = BufferState {
             yy_input_file: source,
             yy_ch_buf: Vec::with_capacity(size + 2),
@@ -941,7 +971,7 @@ impl BufferState {
 
     // Initializes or reinitializes a buffer.  This function is sometimes called more than once on
     // the same buffer, such as during a yyrestart() or at EOF.
-    fn init<T>(&mut self, source: FILE, scanner: &mut Scan<T>) {
+    fn init<T>(&mut self, source: Option<FILE>, scanner: &mut Scan<T>) {
         let oerrno = unsafe { *libc::__errno_location() };
         self.flush(scanner);
 
@@ -953,7 +983,11 @@ impl BufferState {
             self.yy_bs_lineno = 1;
             self.yy_bs_column = 0;
         }
-        self.yy_is_interactive = unsafe { libc::isatty(libc::fileno(&source.0 as *const _ as *mut libc::FILE)) > 0 };
+        self.yy_is_interactive = if let Some(file) = source {
+            unsafe { libc::isatty(libc::fileno(&file.0 as *const _ as *mut libc::FILE)) > 0 }
+        } else {
+            false
+        };
         unsafe { *libc::__errno_location() = oerrno; }
     }
 
@@ -1377,93 +1411,7 @@ const START_STACK_INCR: usize = 25;
 //
 // /* Accessor methods for yylval and yylloc */
 //
-// /* User-visible API */
 //
-// /* yylex_init is special because it creates the scanner itself, so it is
-//  * the ONLY reentrant function that doesn't take the scanner as the last argument.
-//  * That's why we explicitly handle the declaration, instead of using our macros.
-//  */
-// int yylex_init(yyscan_t* ptr_yy_globals) {
-// 	if (ptr_yy_globals == NULL) {
-// 		errno = EINVAL;
-// 		return 1;
-// 	}
-//
-// 	*ptr_yy_globals = (yyscan_t) yyalloc ( sizeof( struct yyguts_t ), NULL );
-//
-// 	if (*ptr_yy_globals == NULL) {
-// 		errno = ENOMEM;
-// 		return 1;
-// 	}
-//
-// 	/* By setting to 0xAA, we expose bugs in yy_init_globals. Leave at 0x00 for releases. */
-// 	memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-//
-// 	return yy_init_globals ( *ptr_yy_globals );
-// }
-//
-// /* yylex_init_extra has the same functionality as yylex_init, but follows the
-//  * convention of taking the scanner as the last argument. Note however, that
-//  * this is a *pointer* to a scanner, as it will be allocated by this call (and
-//  * is the reason, too, why this function also must handle its own declaration).
-//  * The user defined value in the first argument will be available to yyalloc in
-//  * the yyextra field.
-//  */
-// int yylex_init_extra( YY_EXTRA_TYPE yy_user_defined, yyscan_t* ptr_yy_globals ) {
-// 	struct yyguts_t dummy_yyguts;
-//
-// 	yyset_extra (yy_user_defined, &dummy_yyguts);
-//
-// 	if (ptr_yy_globals == NULL){
-// 		errno = EINVAL;
-// 		return 1;
-// 	}
-//
-// 	*ptr_yy_globals = (yyscan_t) yyalloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
-//
-// 	if (*ptr_yy_globals == NULL){
-// 		errno = ENOMEM;
-// 		return 1;
-// 	}
-//
-// 	/* By setting to 0xAA, we expose bugs in
-// 	   yy_init_globals. Leave at 0x00 for releases. */
-// 	memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-//
-// 	yyset_extra (yy_user_defined, *ptr_yy_globals);
-//
-// 	return yy_init_globals ( *ptr_yy_globals );
-// }
-//
-// static int yy_init_globals (yyscan_t yyscanner) {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	/* Initialization is the same as for the non-reentrant scanner.
-// 	 * This function is called from yylex_destroy(), so don't allocate here.
-// 	 */
-//
-// 	yyg->yy_buffer_stack = NULL;
-// 	yyg->yy_c_buf_p = NULL;
-// 	yyg->yy_init = 0;
-// 	yyg->yy_start = 0;
-//
-// 	yyg->yy_start_stack_ptr = 0;
-// 	yyg->yy_start_stack_depth = 0;
-// 	yyg->yy_start_stack =  NULL;
-//
-// /* Defined in main.c */
-// #ifdef YY_STDINIT
-// 	yyin = stdin;
-// 	yyout = stdout;
-// #else
-// 	yyin = NULL;
-// 	yyout = NULL;
-// #endif
-//
-// 	/* For future reference: Set errno on error, since we are called by
-// 	 * yylex_init()
-// 	 */
-// 	return 0;
-// }
 //
 // /* yylex_destroy is for both reentrant and non-reentrant scanners. */
 // int yylex_destroy  (yyscan_t yyscanner) {
