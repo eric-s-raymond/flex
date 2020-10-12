@@ -44,10 +44,6 @@ pub struct Scan<T> {
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
     yyin_r: FILE,
     yyout_r: FILE,
-    /// index of top of stack.
-    yy_buffer_stack_top: usize,
-    /// capacity of stack.
-    yy_buffer_stack_max: usize,
     /// Stack as an array.
     yy_buffer_stack: Option<Vec<BufferState>>,
     yy_hold_char: u8,
@@ -79,26 +75,23 @@ impl<T> Scan<T> {
      * Returns the top of the stack, or NULL.
      */
     fn current_buffer(&self) -> Option<&BufferState> {
-        self.yy_buffer_stack.as_ref().map(|stack| &stack[self.yy_buffer_stack_top])
+        self.yy_buffer_stack.as_ref().and_then(|stack| stack.last())
     }
 
     fn current_buffer_mut(&mut self) -> Option<&mut BufferState> {
-        let top = self.yy_buffer_stack_top;
-        self.yy_buffer_stack.as_mut().map(|stack| &mut stack[top])
+        self.yy_buffer_stack.as_mut().and_then(|stack| stack.last_mut())
     }
 
     /** Same as yy_current_buffer, but useful when we know that the buffer
      * stack is not None. For internal use only.
      */
     fn current_buffer_unchecked(&self) -> &BufferState {
-        &self.yy_buffer_stack.as_ref().expect("no buffer stack")[self.yy_buffer_stack_top]
+        &self.yy_buffer_stack.as_ref().expect("no buffer stack").last().expect("stack should not be empty")
     }
 
     fn current_buffer_unchecked_mut(&mut self) -> &mut BufferState {
-        let top = self.yy_buffer_stack_top;
-        &mut self.yy_buffer_stack.as_mut().expect("no buffer stack")[top]
+        self.yy_buffer_stack.as_mut().expect("no buffer stack").last_mut().expect("stack should not be empty")
     }
-    // #define YY_CURRENT_BUFFER_LVALUE yyg->yy_buffer_stack[yyg->yy_buffer_stack_top]
 
     fn set_interactive(&mut self, is_interactive: bool) {
         if let None = self.yy_buffer_stack {
@@ -772,7 +765,6 @@ impl<T> Scan<T> {
 
         // Only push if top exists. Otherwise, replace top.
         if let Some(stack) = self.yy_buffer_stack.as_mut() {
-            self.yy_buffer_stack_top += 1;
             stack.push(new_buffer);
         } else {
             panic!("tried to push to empty stack");
@@ -786,7 +778,6 @@ impl<T> Scan<T> {
     fn pop_buffer_state(&mut self) {
         if let Some(stack) = self.yy_buffer_stack.as_mut() {
             stack.pop();
-            self.yy_buffer_stack_top -= 1;
         }
         if self.current_buffer().is_some() {
             self.load_buffer_state();
@@ -1514,8 +1505,6 @@ const START_STACK_INCR: usize = 25;
 // 	 */
 //
 // 	yyg->yy_buffer_stack = NULL;
-// 	yyg->yy_buffer_stack_top = 0;
-// 	yyg->yy_buffer_stack_max = 0;
 // 	yyg->yy_c_buf_p = NULL;
 // 	yyg->yy_init = 0;
 // 	yyg->yy_start = 0;
