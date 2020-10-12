@@ -38,7 +38,7 @@ const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
 type Result<T> = std::result::Result<T, &'static str>;
 
 #[derive(Default)]
-pub struct Scan<T> {
+pub struct Scanner<T> {
     /// User-defined. Not touched by flex.
     yyextra_r: Option<T>,
 
@@ -68,15 +68,15 @@ pub struct Scan<T> {
     yy_more_len: usize,
 }
 
-impl<T: Default> Scan<T> {
+impl<T: Default> Scanner<T> {
     fn new() -> Self {
-        let mut s: Scan<T> = Default::default();
+        let mut s: Scanner<T> = Default::default();
         s.init(false);
         s
     }
 }
 
-impl<T> Scan<T> {
+impl<T> Scanner<T> {
     fn init(&mut self, stdinit: bool) {
         self.yy_buffer_stack = Vec::new();
         self.yy_c_buf_p = 0;
