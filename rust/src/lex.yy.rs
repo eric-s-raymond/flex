@@ -745,25 +745,25 @@ impl<T> Scan<T> {
         }
     }
 
+    fn load_buffer_state(&mut self) {
+        self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
+        self.yytext_r = self.current_buffer_unchecked().yy_buf_pos;
+        self.yy_c_buf_p = self.current_buffer_unchecked().yy_buf_pos;
+        self.yyin_r = self.current_buffer_unchecked().yy_input_file;
+        self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
+    }
+
     fn wrap(&mut self) -> bool {
         unimplemented!();
     }
 
-    fn create_buffer(&mut self, source: FILE, size: usize) -> BufferState {
-        unimplemented!();
-    }
-
     fn push_new_buffer(&mut self, source: FILE, size: usize) {
-        let buf = self.create_buffer(source, size);
+        let buf = BufferState::new(source, size, self);
         if let Some(stack) = self.yy_buffer_stack.as_mut() {
             stack.push(buf);
         } else {
             panic!("tried to push to empty stack");
         }
-    }
-
-    fn load_buffer_state(&mut self) {
-        unimplemented!();
     }
 
     fn init_buffer(&mut self, source: FILE) {
@@ -908,6 +908,66 @@ struct BufferState {
     yy_fill_buffer: bool,
 
     yy_buffer_status: BufferStatus,
+}
+
+impl BufferState {
+    /// Allocate and initialize an input buffer state.
+    fn new<T>(source: FILE, size: usize, scanner: &mut Scan<T>) -> BufferState {
+        let mut b = BufferState {
+            yy_input_file: source,
+            yy_ch_buf: Vec::with_capacity(size + 2),
+            yy_buf_pos: 0,
+            yy_buf_size: 0,
+            yy_n_chars: 0,
+            yy_is_our_buffer: true,
+            yy_is_interactive: false,
+            yy_at_bol: false,
+            yy_bs_lineno: 1,
+            yy_bs_column: 0,
+            yy_fill_buffer: false,
+            yy_buffer_status: BufferStatus::New
+        };
+        b.init(source, scanner);
+        b
+    }
+
+
+    // Initializes or reinitializes a buffer.  This function is sometimes called more than once on
+    // the same buffer, such as during a yyrestart() or at EOF.
+    fn init<T>(&mut self, source: FILE, scanner: &mut Scan<T>) {
+        let oerrno = unsafe { *libc::__errno_location() };
+        self.flush(scanner);
+
+        self.yy_input_file = source;
+        self.yy_fill_buffer = true;
+        // If b is the current buffer, then yy_init_buffer was _probably_ called from yyrestart() or
+        // through yy_get_next_buffer.  In that case, we don't want to reset the lineno or column.
+        if self != scanner.current_buffer_unchecked() {
+            self.yy_bs_lineno = 1;
+            self.yy_bs_column = 0;
+        }
+        self.yy_is_interactive = unsafe { libc::isatty(libc::fileno(&source.0 as *const _ as *mut libc::FILE)) > 0 };
+        unsafe { *libc::__errno_location() = oerrno; }
+    }
+
+    /// Discard all buffered characters. On the next scan, YY_INPUT will be called.
+    fn flush<T>(&mut self, scanner: &mut Scan<T>) {
+        self.yy_n_chars = 0;
+
+        // We always need two end-of-buffer characters.  The first causes a transition to the
+        // end-of-buffer state.  The second causes a jam in that state.
+        self.yy_ch_buf[0] = END_OF_BUFFER_CHAR;
+        self.yy_ch_buf[1] = END_OF_BUFFER_CHAR;
+
+        self.yy_buf_pos = 0;
+
+        self.yy_at_bol = true;
+        self.yy_buffer_status = BufferStatus::New;
+
+        if self == scanner.current_buffer_unchecked() {
+            scanner.load_buffer_state();
+        }
+    }
 }
 
 // /* Begin user sect3 */
@@ -1065,45 +1125,6 @@ const START_STACK_INCR: usize = 25;
 // 	YY_USER_ACTION
 
 //
-// static void yy_load_buffer_state  (yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-// 	yyg->yytext_ptr = yyg->yy_c_buf_p = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
-// 	yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
-// 	yyg->yy_hold_char = *yyg->yy_c_buf_p;
-// }
-//
-// /** Allocate and initialize an input buffer state.
-//  * @param file A readable stream.
-//  * @param size The character buffer size in bytes. When in doubt, use @c YY_BUF_SIZE.
-//  * @param yyscanner The scanner object.
-//  * @return the allocated buffer state.
-//  */
-// YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size , yyscan_t yyscanner)
-// {
-// 	YY_BUFFER_STATE b;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state ) , yyscanner );
-// 	if ( ! b ) {
-// 		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
-// 	}
-// 	b->yy_buf_size = size;
-//
-// 	/* yy_ch_buf has to be 2 characters longer than the size given because
-// 	 * we need to put in 2 end-of-buffer characters.
-// 	 */
-// 	b->yy_ch_buf = (char *) yyalloc( (yy_size_t) (b->yy_buf_size + 2) , yyscanner );
-// 	if ( ! b->yy_ch_buf ) {
-// 		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
-// 	}
-// 	b->yy_is_our_buffer = 1;
-//
-// 	yy_init_buffer( b, file , yyscanner);
-//
-// 	return b;
-// }
 //
 // /** Destroy the buffer.
 //  * @param b a buffer created with yy_create_buffer()
@@ -1125,62 +1146,7 @@ const START_STACK_INCR: usize = 25;
 // 	yyfree( (void *) b , yyscanner );
 // }
 //
-// /* Initializes or reinitializes a buffer.
-//  * This function is sometimes called more than once on the same buffer,
-//  * such as during a yyrestart() or at EOF.
-//  */
-// static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file , yyscan_t yyscanner)
-// {
-// 	int oerrno = errno;
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 //
-// 	yy_flush_buffer( b , yyscanner);
-//
-// 	b->yy_input_file = file;
-// 	b->yy_fill_buffer = 1;
-//
-// 	/* If b is the current buffer, then yy_init_buffer was _probably_
-// 	 * called from yyrestart() or through yy_get_next_buffer.
-// 	 * In that case, we don't want to reset the lineno or column.
-// 	 */
-// 	if (b != YY_CURRENT_BUFFER){
-// 		b->yy_bs_lineno = 1;
-// 		b->yy_bs_column = 0;
-// 	}
-//
-//         b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
-//
-// 	errno = oerrno;
-// }
-//
-// /** Discard all buffered characters. On the next scan, YY_INPUT will be called.
-//  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
-//  * @param yyscanner The scanner object.
-//  */
-// void yy_flush_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	if ( ! b ) {
-// 		return;
-// 	}
-// 	b->yy_n_chars = 0;
-//
-// 	/* We always need two end-of-buffer characters.  The first causes
-// 	 * a transition to the end-of-buffer state.  The second causes
-// 	 * a jam in that state.
-// 	 */
-// 	b->yy_ch_buf[0] = YY_END_OF_BUFFER_CHAR;
-// 	b->yy_ch_buf[1] = YY_END_OF_BUFFER_CHAR;
-//
-// 	b->yy_buf_pos = &b->yy_ch_buf[0];
-//
-// 	b->yy_at_bol = 1;
-// 	b->yy_buffer_status = YY_BUFFER_NEW;
-//
-// 	if ( b == YY_CURRENT_BUFFER ) {
-// 		yy_load_buffer_state( yyscanner );
-// 	}
-// }
 //
 // /** Pushes the new state onto the stack. The new state becomes
 //  *  the current state. This function will allocate the stack
