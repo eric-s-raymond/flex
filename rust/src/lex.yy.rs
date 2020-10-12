@@ -37,13 +37,13 @@ const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
 
 type Result<T> = std::result::Result<T, &'static str>;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Scanner<T> {
     /// User-defined. Not touched by flex.
     yyextra_r: Option<T>,
 
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
-    yyin_r: Option<FILE>,
+    pub yyin_r: Option<FILE>,
     yyout_r: Option<FILE>,
     /// Stack as an array.
     yy_buffer_stack: Vec<BufferState>,
@@ -69,7 +69,7 @@ pub struct Scanner<T> {
 }
 
 impl<T: Default> Scanner<T> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let mut s: Scanner<T> = Default::default();
         s.init(false);
         s
@@ -157,13 +157,12 @@ impl<T> Scanner<T> {
       * characters read.
       */
     fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
-        //let file = &mut self.yyin_r.clone(); // file handles are cheap to clone
-        if let Some(mut file) = self.yyin_r {
+        if let Some(file) = self.yyin_r {
             let buf = self.current_buffer_unchecked_mut();
             if buf.yy_is_interactive {
                 let mut result: usize = 0;
                 for n in 0..max_size {
-                    let c = unsafe { libc::fgetc(&mut file.0) };
+                    let c = unsafe { libc::fgetc(file.0) };
                     if c != libc::EOF && c != '\n' as libc::c_int {
                         buf.yy_ch_buf[n+offset] = c as u8
                     }
@@ -173,7 +172,7 @@ impl<T> Scanner<T> {
                         buf.yy_ch_buf[n+offset+1] = c as u8;
                     }
                     if c == libc::EOF {
-                        let err = unsafe { libc::ferror(&mut file.0) };
+                        let err = unsafe { libc::ferror(file.0) };
                         if err != 0 {
                             return Err("input in flex scanner failed");
                         }
@@ -186,12 +185,12 @@ impl<T> Scanner<T> {
                 let mut result: usize = 0;
                 while result == 0 {
                     let ptr = buf as *mut _ as *mut libc::c_void;
-                    result = unsafe { libc::fread(ptr.add(offset), 1, max_size, &mut file.0) };
-                    if unsafe { libc::ferror(&mut file.0) } != libc::EINTR {
+                    result = unsafe { libc::fread(ptr.add(offset), 1, max_size, file.0) };
+                    if unsafe { libc::ferror(file.0) } != libc::EINTR {
                         return Result::Err("input in flex scanner failed");
                     }
                     unsafe { *libc::__errno_location() = 0; }
-                    unsafe { libc::clearerr(&mut file.0); }
+                    unsafe { libc::clearerr(file.0); }
                 }
                 Ok(result)
             }
@@ -203,7 +202,7 @@ impl<T> Scanner<T> {
     /** The main scanner function which does all the work.
      */
     // YY_DECL {
-    fn lex<D>(&mut self, _user_data: &mut D) -> Result<()> {
+    pub fn lex<D>(&mut self, _user_data: &mut D) -> Result<()> {
         if !self.yy_init {
             self.yy_init = true;
 
@@ -334,12 +333,12 @@ impl<T> Scanner<T> {
 
                                 4 => {
                                     // YY_RULE_SETUP
-                                    if let Some(mut out) = self.yyout_r {
+                                    if let Some(out) = self.yyout_r {
                                         unsafe {
                                             libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
                                                          self.yyleng_r,
                                                          1,
-                                                         &mut out.0);
+                                                         out.0);
                                         }
                                     }
                                 }
@@ -820,7 +819,7 @@ macro_rules! unput {
     ( $c:expr ) => { yyunput(c, yyg.yytext_ptr, yycanner); };
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum BufferStatus {
     New,
     Normal,
@@ -837,7 +836,7 @@ enum BufferStatus {
     EOFPending,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 struct BufferState {
     yy_input_file: Option<FILE>,
     /// input buffer
@@ -1148,8 +1147,14 @@ const START_STACK_INCR: usize = 25;
 // 	return b;
 // }
 
-#[derive(Copy, Clone)]
-struct FILE(libc::FILE);
+#[derive(Copy, Clone, Debug)]
+pub struct FILE(*mut libc::FILE);
+
+impl FILE {
+    pub fn new(f: *mut libc::FILE) -> Self {
+        FILE(f)
+    }
+}
 
 impl PartialEq for FILE {
     fn eq(&self, other: &Self) -> bool {
