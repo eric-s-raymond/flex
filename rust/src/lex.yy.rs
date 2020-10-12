@@ -800,7 +800,7 @@ impl<T> Scan<T> {
     }
 
     fn wrap(&mut self) -> bool {
-        unimplemented!();
+        true
     }
 }
 
@@ -1008,11 +1008,6 @@ impl BufferState {
 }
 
 // /* Begin user sect3 */
-
-fn yywrap<T>(scanner: &Scan<T>) -> usize {
-    1
-}
-const YY_SKIP_YYWRAP: bool = true;
 
 type State = i16;
 
