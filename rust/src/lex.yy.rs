@@ -753,17 +753,49 @@ impl<T> Scan<T> {
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
     }
 
-    fn wrap(&mut self) -> bool {
-        unimplemented!();
-    }
-
     fn push_new_buffer(&mut self, source: FILE, size: usize) {
         let buf = BufferState::new(source, size, self);
+        self.push_buffer_state(buf)
+    }
+
+    /// Pushes the new state onto the stack. The new state becomes the current state. This function will
+    /// allocate the stack if necessary.
+    fn push_buffer_state(&mut self, new_buffer: BufferState) {
+        self.ensure_buffer_stack();
+        if self.current_buffer().is_some() {
+            // Flush out information for old buffer.
+            let p = self.yy_c_buf_p;
+            self.current_buffer_unchecked_mut().yy_ch_buf[p] = self.yy_hold_char;
+            self.current_buffer_unchecked_mut().yy_buf_pos = self.yy_c_buf_p;
+            self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
+        }
+
+        // Only push if top exists. Otherwise, replace top.
         if let Some(stack) = self.yy_buffer_stack.as_mut() {
-            stack.push(buf);
+            self.yy_buffer_stack_top += 1;
+            stack.push(new_buffer);
         } else {
             panic!("tried to push to empty stack");
         }
+        // copied from yy_switch_to_buffer.
+        self.load_buffer_state();
+        self.yy_did_buffer_switch_on_eof = true;
+    }
+
+    // Removes and deletes the top of the stack, if present.  The next element becomes the new top.
+    fn pop_buffer_state(&mut self) {
+        if let Some(stack) = self.yy_buffer_stack.as_mut() {
+            stack.pop();
+            self.yy_buffer_stack_top -= 1;
+        }
+        if self.current_buffer().is_some() {
+            self.load_buffer_state();
+            self.yy_did_buffer_switch_on_eof = true;
+        }
+    }
+
+    fn wrap(&mut self) -> bool {
+        unimplemented!();
     }
 
     fn init_buffer(&mut self, source: FILE) {
@@ -1124,59 +1156,6 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-// /** Pushes the new state onto the stack. The new state becomes
-//  *  the current state. This function will allocate the stack
-//  *  if necessary.
-//  *  @param new_buffer The new state.
-//  *  @param yyscanner The scanner object.
-//  */
-// void yypush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	if (new_buffer == NULL) {
-// 		return;
-// 	}
-// 	yyensure_buffer_stack(yyscanner);
-//
-// 	/* This block is copied from yy_switch_to_buffer. */
-// 	if ( YY_CURRENT_BUFFER ) {
-// 		/* Flush out information for old buffer. */
-// 		*yyg->yy_c_buf_p = yyg->yy_hold_char;
-// 		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
-// 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-// 	}
-//
-// 	/* Only push if top exists. Otherwise, replace top. */
-// 	if (YY_CURRENT_BUFFER) {
-// 		yyg->yy_buffer_stack_top++;
-// 	}
-// 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-//
-// 	/* copied from yy_switch_to_buffer. */
-// 	yy_load_buffer_state( yyscanner );
-// 	yyg->yy_did_buffer_switch_on_eof = 1;
-// }
-//
-// /** Removes and deletes the top of the stack, if present.
-//  *  The next element becomes the new top.
-//  *  @param yyscanner The scanner object.
-//  */
-// void yypop_buffer_state (yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-// 	if (!YY_CURRENT_BUFFER) {
-// 		return;
-// 	}
-// 	yy_delete_buffer(YY_CURRENT_BUFFER , yyscanner);
-// 	YY_CURRENT_BUFFER_LVALUE = NULL;
-// 	if (yyg->yy_buffer_stack_top > 0) {
-// 		--yyg->yy_buffer_stack_top;
-// 	}
-// 	if (YY_CURRENT_BUFFER) {
-// 		yy_load_buffer_state( yyscanner );
-// 		yyg->yy_did_buffer_switch_on_eof = 1;
-// 	}
-// }
 //
 // /* Allocates the stack if it does not exist.
 //  *  Guarantees space for at least one push.
