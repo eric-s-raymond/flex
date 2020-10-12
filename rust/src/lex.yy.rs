@@ -1124,30 +1124,6 @@ const START_STACK_INCR: usize = 25;
 // #define YY_RULE_SETUP \
 // 	YY_USER_ACTION
 
-//
-//
-// /** Destroy the buffer.
-//  * @param b a buffer created with yy_create_buffer()
-//  * @param yyscanner The scanner object.
-//  */
-// void yy_delete_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
-// {
-// 	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-//
-// 	if ( ! b ) {
-// 		return;
-// 	}
-// 	if ( b == YY_CURRENT_BUFFER ) {	/* Not sure if we should pop here. */
-// 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
-// 	}
-// 	if ( b->yy_is_our_buffer ) {
-// 		yyfree( (void *) b->yy_ch_buf , yyscanner );
-// 	}
-// 	yyfree( (void *) b , yyscanner );
-// }
-//
-//
-//
 // /** Pushes the new state onto the stack. The new state becomes
 //  *  the current state. This function will allocate the stack
 //  *  if necessary.
