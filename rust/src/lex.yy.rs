@@ -733,7 +733,7 @@ impl<T> Scan<T> {
         if self.current_buffer().is_none() {
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
         }
-        self.init_buffer(source);
+        self.current_buffer_unchecked_mut().init(source);
         self.load_buffer_state();
     }
 
@@ -800,10 +800,6 @@ impl<T> Scan<T> {
     }
 
     fn wrap(&mut self) -> bool {
-        unimplemented!();
-    }
-
-    fn init_buffer(&mut self, source: Option<FILE>) {
         unimplemented!();
     }
 }
