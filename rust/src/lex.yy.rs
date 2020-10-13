@@ -149,7 +149,7 @@ impl<T> Scanner<T> {
         self.yytext_r = yy_bp;
         self.yyleng_r = yy_cp - yy_bp;
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[yy_cp];
-        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = '\0' as u8;
+        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = b'\0';
         //self.yy_c_buf_p = yy_cp;
     }
 
@@ -222,7 +222,8 @@ impl<T> Scanner<T> {
             let mut wc: usize = 0;
             let mut lc: usize = 0;
 
-            loop { /* loops until end-of-file is reached */
+            loop {
+                /* loops until end-of-file is reached */
                 let mut yy_cp: usize = self.yy_c_buf_p;
                 // yy_bp points to the position in yy_ch_buf of the start of the current run.
                 let mut yy_bp: usize = yy_cp;
@@ -290,7 +291,7 @@ impl<T> Scanner<T> {
                         self.yytext_r = yy_bp;
                         self.yyleng_r = yy_cp - yy_bp;
                         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[yy_cp];
-                        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = '\0' as u8;
+                        self.current_buffer_unchecked_mut().yy_ch_buf[yy_cp] = b'\0';
                         self.yy_c_buf_p = yy_cp;
 
                         'do_action: loop {
@@ -476,7 +477,7 @@ impl<T> Scanner<T> {
     fn get_next_buffer(&mut self) -> Result<Option<EOBAction>> {
         if self.yy_c_buf_p > self.yy_n_chars + 1 {
             Err("fatal flex scanner internal error--end of buffer missed")
-        } else if self.current_buffer_unchecked().yy_fill_buffer == false {
+        } else if !self.current_buffer_unchecked().yy_fill_buffer {
             // Don't try to fill the buffer, so this is an EOF.
             if self.yy_c_buf_p - self.yytext_r - MORE_ADJ == 1 {
                 // We matched a single character, the EOB, so treat this as a final EOF.
@@ -602,7 +603,7 @@ impl<T> Scanner<T> {
             // meta-equivalence class twice
 
             // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
-            if current_state >= JAMSTATE + 1 {
+            if current_state > JAMSTATE {
                 c = yy_meta[c as usize];
             }
         }
@@ -639,7 +640,7 @@ impl<T> Scanner<T> {
             if self.yy_c_buf_p < self.yy_n_chars {
                 // This was really a NUL.
                 let p = self.yy_c_buf_p;
-                self.current_buffer_unchecked_mut().yy_ch_buf[p] = '\0' as u8;
+                self.current_buffer_unchecked_mut().yy_ch_buf[p] = b'\0';
             } else {
                 // need more input
                 let offset = self.yy_c_buf_p - self.yytext_r;
@@ -656,7 +657,7 @@ impl<T> Scanner<T> {
                         self.restart(self.yyin_r);
 
                         if self.wrap() {
-                            return Ok('\0' as u8);
+                            return Ok(b'\0');
                         }
                         if !self.yy_did_buffer_switch_on_eof {
                             // YY_NEW_FILE
@@ -667,7 +668,7 @@ impl<T> Scanner<T> {
 
                     Some(EOBAction::EndOfFile) => {
                         if self.wrap() {
-                            return Ok('\0' as u8);
+                            return Ok(b'\0');
                         }
                         if !self.yy_did_buffer_switch_on_eof {
                             // YY_NEW_FILE
@@ -687,7 +688,7 @@ impl<T> Scanner<T> {
 
         let c = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
         let p = self.yy_c_buf_p;
-        self.current_buffer_unchecked_mut().yy_ch_buf[p] = '\0' as u8;
+        self.current_buffer_unchecked_mut().yy_ch_buf[p] = b'\0';
         self.yy_c_buf_p += 1;
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
         Ok(c)
