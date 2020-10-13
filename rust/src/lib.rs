@@ -1,3 +1,4 @@
+#![feature(vec_spare_capacity)]
 #[allow(unused_macros)]
 #[allow(unused_variables)]
 #[allow(dead_code)]
