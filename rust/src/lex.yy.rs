@@ -208,7 +208,7 @@ impl<T> Scanner<T> {
 
             // YY_USER_INIT
 
-            if self.yy_start != 0 {
+            if self.yy_start == 0 {
                 self.yy_start = 1; // first start state
             }
             self.push_new_buffer(self.yyin_r, BUF_SIZE);
