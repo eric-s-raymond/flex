@@ -931,8 +931,9 @@ impl BufferState {
 
         // We always need two end-of-buffer characters.  The first causes a transition to the
         // end-of-buffer state.  The second causes a jam in that state.
-        self.yy_ch_buf[0] = END_OF_BUFFER_CHAR;
-        self.yy_ch_buf[1] = END_OF_BUFFER_CHAR;
+        self.yy_ch_buf.clear();
+        self.yy_ch_buf.push(END_OF_BUFFER_CHAR);
+        self.yy_ch_buf.push(END_OF_BUFFER_CHAR);
 
         self.yy_buf_pos = 0;
 
