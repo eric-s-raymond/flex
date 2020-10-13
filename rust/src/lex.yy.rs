@@ -246,7 +246,7 @@ impl<T> Scanner<T> {
 
                 'yy_match: loop {
                     loop {
-                        let mut c: u8 = yy_ec[yy_cp as usize];
+                        let mut c: u8 = yy_ec[self.current_buffer_unchecked().yy_ch_buf[yy_cp as usize] as usize];
                         // Save the backing-up info \before/ computing the next state because we
                         // always compute one more state than needed - we always proceed until we
                         // reach a jam state
