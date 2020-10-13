@@ -894,7 +894,7 @@ impl BufferState {
             yy_input_file: source,
             yy_ch_buf: Vec::with_capacity(size + 2),
             yy_buf_pos: 0,
-            yy_buf_size: 0,
+            yy_buf_size: size + 2,
             yy_n_chars: 0,
             yy_is_our_buffer: true,
             yy_is_interactive: false,
