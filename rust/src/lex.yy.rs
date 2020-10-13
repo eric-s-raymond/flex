@@ -921,7 +921,8 @@ impl BufferState {
         self.yy_input_file = source;
         self.yy_fill_buffer = true;
         self.yy_is_interactive = if let Some(file) = source {
-            unsafe { libc::isatty(libc::fileno(&file.0 as *const _ as *mut libc::FILE)) > 0 }
+            let isatty = unsafe { libc::isatty(libc::fileno(file.0)) };
+            isatty != 0
         } else {
             false
         };
