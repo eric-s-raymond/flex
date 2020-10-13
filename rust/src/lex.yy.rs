@@ -184,9 +184,10 @@ impl<T> Scanner<T> {
                 unsafe { *libc::__errno_location() = 0; }
                 let mut result: usize = 0;
                 while result == 0 {
-                    let ptr = buf as *mut _ as *mut libc::c_void;
+                    let ptr = buf.yy_ch_buf.as_mut_ptr() as *mut libc::c_void;
                     result = unsafe { libc::fread(ptr.add(offset), 1, max_size, file.0) };
-                    if unsafe { libc::ferror(file.0) } != libc::EINTR {
+                    let err = unsafe { libc::ferror(file.0) };
+                    if err > 0 && err != libc::EINTR {
                         return Result::Err("input in flex scanner failed");
                     }
                     unsafe { *libc::__errno_location() = 0; }
