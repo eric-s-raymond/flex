@@ -510,8 +510,7 @@ impl<T> Scanner<T> {
                 }
                 // Include room in for 2 EOB chars.
                 self.current_buffer_unchecked_mut().yy_ch_buf.reserve(num_to_read + 2);
-                let n_chars = self.yy_n_chars;
-                self.yy_n_chars = self.read(n_chars, num_to_read)?;
+                self.yy_n_chars = self.read(number_to_move, num_to_read)?;
                 self.current_buffer_unchecked_mut().yy_n_chars = self.yy_n_chars;
                 self.yy_n_chars += number_to_move;
             }
