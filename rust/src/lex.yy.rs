@@ -183,20 +183,22 @@ impl<T> Scanner<T> {
             } else {
                 unsafe { *libc::__errno_location() = 0; }
                 let mut result: usize = 0;
-                while result == 0 {
+                loop {
                     buf.yy_ch_buf.truncate(offset);
                     let uninit = buf.yy_ch_buf.spare_capacity_mut();
                     let ptr = uninit.as_mut_ptr() as *mut libc::c_void;
-                    assert!(uninit.len() >= max_size);
+                    assert!(uninit.len() >= max_size + offset);
                     result = unsafe { libc::fread(ptr, 1, max_size, file.0) };
-                    unsafe { buf.yy_ch_buf.set_len(result); }
+                    unsafe { buf.yy_ch_buf.set_len(offset+result); }
                     let err = unsafe { libc::ferror(file.0) };
-                    if err > 0 && err != libc::EINTR {
+                    if err == 0 {
+                        break;
+                    } else if err > 0 && err != libc::EINTR {
                         return Result::Err("input in flex scanner failed");
                     }
-                    unsafe { *libc::__errno_location() = 0; }
-                    unsafe { libc::clearerr(file.0); }
                 }
+                unsafe { *libc::__errno_location() = 0; }
+                unsafe { libc::clearerr(file.0); }
                 Ok(result)
             }
         } else {
