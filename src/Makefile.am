@@ -55,6 +55,8 @@ COMMON_SOURCES = \
 	ccl.c \
 	cpp_backend.c \
 	cpp_skel.h \
+	rust_backend.c \
+	rust_skel.h \
 	dfa.c \
 	ecs.c \
 	filter.c \
@@ -99,6 +101,10 @@ MAINTAINERCLEANFILES = c9pp-skel.h
 
 cpp-skel.h: cpp-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
 	$(SHELL) $(srcdir)/mkskel.sh cpp $(srcdir) $(m4) $(VERSION) > $@.tmp
+	mv -f $@.tmp $@
+
+cpp-skel.h: rust-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
+	$(SHELL) $(srcdir)/mkskel.sh rust $(srcdir) $(m4) $(VERSION) > $@.tmp
 	mv -f $@.tmp $@
 
 if ENABLE_BOOTSTRAP

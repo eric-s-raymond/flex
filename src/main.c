@@ -783,6 +783,10 @@ void flexinit (int argc, char **argv)
 		}
 
 		switch ((enum flexopt_flag_t) rv) {
+                    case OPT_BACKEND:
+			ctrl.backend = arg;
+			break;
+
 		    case OPT_CPLUSPLUS:
 			ctrl.C_plus_plus = true;
 			break;
@@ -1202,6 +1206,14 @@ void flexinit (int argc, char **argv)
 	lastprot = 1;
 
 	set_up_initial_allocations ();
+
+	if (ctrl.backend == NULL || strcmp(ctrl.backend, "cpp") == 0) {
+		backend = &cpp_backend;
+	} else if (strcmp(ctrl.backend, "rust") == 0) {
+		backend = &rust_backend;
+	} else {
+		backend = &cpp_backend;
+	}
 }
 
 
@@ -1733,6 +1745,13 @@ void usage (void)
 	FILE   *f = stdout;
 
 	if (!env.did_outfilename) {
+		if (ctrl.backend == NULL || strcmp(ctrl.backend, "cpp") == 0) {
+			backend = &cpp_backend;
+		} else if (strcmp(ctrl.backend, "rust") == 0) {
+			backend = &rust_backend;
+		} else {
+			backend = &cpp_backend;
+		}
 		snprintf (outfile_path, sizeof(outfile_path), outfile_template,
 			  ctrl.prefix, backend->suffix());
 		env.outfilename = outfile_path;
@@ -1779,7 +1798,8 @@ void usage (void)
 		  "  -I, --interactive       generate interactive scanner (opposite of -B)\n"
 		  "      --yylineno          track line count in yylineno\n"
 		  "\n" "Generated code:\n"
-		  "  -+,  --c++               generate C++ scanner class\n"
+		  "       --backend=BACKEND   Select the specified code-generating backend. Default: cpp\n"
+		  "  -+,  --c++               cpp backend generates C++ scanner class instead of C\n"
 		  "  -Dmacro[=defn]           #define macro defn  (default defn is '1')\n"
 		  "  -L,  --noline            suppress #line directives in scanner\n"
 		  "  -P,  --prefix=STRING     use STRING as prefix instead of \"yy\"\n"

@@ -79,6 +79,8 @@ optspec_t flexopts[] = {
 	
 		{"-C[aefFmr]", OPT_COMPRESSION,
 	 "Specify degree of table compression (default is -Cem)"},
+        {"--backend=BACKEND", OPT_BACKEND, 0}
+        ,                       /* Select specified code-generating backend */
 	{"-+", OPT_CPLUSPLUS, 0}
 	,
 	{"--c++", OPT_CPLUSPLUS, 0}

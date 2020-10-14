@@ -8714,7 +8714,8 @@ steps:
 @item
 Clone one of the existing back-end/skeleton pairs.  If the language
 you are supporting is named @var{foo}, you should create files named
-@file{foo_backend.c} and @file{foo-flex.skl}.
+@file{foo_backend.c} and @file{foo-flex.skl}.  Make sure to rename the
+identifiers defined within so that they have a @var{foo_} prefix.
 
 @item
 Add @file{foo_backend.c} to COMMON_SOURCES in @file{src/Makefile.am}.  Add the

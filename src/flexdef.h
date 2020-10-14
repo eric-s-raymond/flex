@@ -312,6 +312,7 @@ typedef enum trit_t {
 } trit;
 
 extern struct flex_backend_t cpp_backend;
+extern struct flex_backend_t rust_backend;
 
 /* Control variables.  These are in a struct to avoid having to replicate definitions
  * twice for each option, instead a single struct can be declared and externed.
@@ -322,6 +323,7 @@ struct ctrl_bundle_t {
 	FILE *backing_up_file;	// file to summarize backing-up states to 
 	bool bison_bridge_lval;	// (--bison-bridge), bison pure calling convention. 
 	bool bison_bridge_lloc;	// (--bison-locations), bison yylloc. 
+	char *backend;		// selected code-generating backend
 	bool C_plus_plus;	// (-+ flag) generate a C++ scanner class 
 	int csize;		// size of character set for the scanner 
 				// 128 for 7-bit chars and 256 for 8-bit 
