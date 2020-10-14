@@ -182,6 +182,7 @@ impl<T> Scanner<T> {
                 Ok(result as usize)
             } else {
                 unsafe { *libc::__errno_location() = 0; }
+                #[allow(unused_assignments)]
                 let mut result: usize = 0;
                 loop {
                     buf.yy_ch_buf.truncate(offset);
