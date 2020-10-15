@@ -164,38 +164,12 @@ impl<T> Scanner<T> {
     fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
         if let Some(file) = &self.yyin_r.clone() {
             let buf = self.current_buffer_unchecked_mut();
-            if buf.yy_is_interactive {
-                let mut result: usize = 0;
-                let mut n: usize = 0;
-                loop {
-                    let mut tmp: [u8; 1] = [0];
-                    match file.borrow_mut().read(&mut tmp) {
-                        Ok(v) => {
-                            if v == 0 {
-                                break;
-                            } else if v == 1 {
-                                buf.yy_ch_buf[n] = tmp[0];
-                                n += 1;
-                            }
-                        },
-                        Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-                        _ => return Result::Err("input in flex scanner failed"),
-                    };
-                    result = n;
-                }
-                Ok(result as usize)
-            } else {
-                loop {
-                    buf.yy_ch_buf.truncate(offset);
-                    buf.yy_ch_buf.resize(max_size + offset, END_OF_BUFFER_CHAR);
-                    let result = file.borrow_mut().read(&mut buf.yy_ch_buf[offset..]);
-                    match result {
-                        Ok(v) => break Ok(v),
-                        Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-                        _ => return Result::Err("input in flex scanner failed"),
-                    };
-                }
-            }
+            buf.yy_ch_buf.truncate(offset);
+            buf.yy_ch_buf.resize(max_size + offset, END_OF_BUFFER_CHAR);
+            let reader = if buf.yy_is_interactive { read_interactive } else { read_file };
+            let bytes = reader(buf, file, offset, max_size)?;
+            buf.yy_ch_buf.truncate(bytes + offset);
+            Ok(bytes)
         } else {
             Err("read called with no open input file")
         }
@@ -1051,6 +1025,39 @@ const START_STACK_INCR: usize = 25;
 
 /* end tables serialization structures and prototypes */
 
+fn read_interactive(buf: &mut BufferState, file: &Rc<RefCell<dyn io::Read>>, offset: usize, max_size: usize) -> Result<usize> {
+    let mut n: usize = 0;
+    let mut tmp: [u8; 1] = [0];
+    loop {
+        match file.borrow_mut().read(&mut tmp) {
+            Ok(v) => {
+                if v == 0 {
+                    break;
+                } else if v == 1 {
+                    buf.yy_ch_buf[offset + n] = tmp[0];
+                    n += 1;
+                }
+            },
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            _ => return Result::Err("input in flex scanner failed"),
+        };
+        if n >= max_size {
+            break;
+        }
+    }
+    Ok(n)
+}
+
+fn read_file(buf: &mut BufferState, file: &Rc<RefCell<dyn io::Read>>, offset: usize, max_size: usize) -> Result<usize> {
+    loop {
+        let result = file.borrow_mut().read(&mut buf.yy_ch_buf[offset..]);
+        match result {
+            Ok(v) => break Ok(v),
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            _ => return Result::Err("input in flex scanner failed"),
+        };
+    }
+}
 // /** Setup the input buffer state to scan directly from a user-specified character buffer.
 //  * @param base the character buffer
 //  * @param size the size in bytes of the character buffer
