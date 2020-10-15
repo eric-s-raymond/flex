@@ -96,8 +96,6 @@ jmp_buf flex_main_jmp_buf;
 bool   *rule_has_nl, *ccl_has_nl;
 int     nlch = '\n';
 
-struct flex_backend_t *backend;
-
 bool    tablesext, tablesverify, gentables;
 char   *tablesfilename=0,*tablesname=0;
 struct yytbl_writer tableswr;
@@ -219,21 +217,21 @@ int flex_main (int argc, char *argv[])
 
 	out (&action_array[defs1_offset]);
 
-	line_directive_out (stdout, 0);
+	line_directive_out (stdout, NULL, linenum);
 
 	skelout (true);		/* %% [4.0] - various random yylex internals get dumped here */
 
 	/* Copy prolog to output file. */
 	out (&action_array[prolog_offset]);
 
-	line_directive_out (stdout, 0);
+	line_directive_out (stdout, NULL, linenum);
 
 	skelout (true);		/* %% [5.0] - main loop of matching-engine code gets dumped here */
 
 	/* Copy actions to output file. */
 	out (&action_array[action_offset]);
 
-	line_directive_out (stdout, 0);
+	line_directive_out (stdout, NULL, linenum);
 
 	/* generate cases for any missing EOF rules */
 	for (i = 1; i <= lastsc; ++i)
@@ -253,7 +251,7 @@ int flex_main (int argc, char *argv[])
 
 	/* Copy remainder of input to output. */
 
-	line_directive_out (stdout, 1);
+	line_directive_out (stdout, infilename, linenum);
 
 	if (sectnum == 3) {
 		OUT_BEGIN_CODE ();
@@ -394,7 +392,7 @@ void check_options (void)
 
 		if (!env.did_outfilename) {
 			snprintf (outfile_path, sizeof(outfile_path), outfile_template,
-				  ctrl.prefix, backend->suffix());
+				  ctrl.prefix, suffix());
 
 			env.outfilename = outfile_path;
 		}
@@ -738,8 +736,6 @@ void flexinit (int argc, char **argv)
 
 	sawcmpflag = false;
 	
-	backend = &cpp_backend;
-
 	/* Initialize dynamic array for holding the rule actions. */
 	action_size = 2048;	/* default size of action array in bytes */
 	action_array = allocate_character_array (action_size);
@@ -1221,7 +1217,7 @@ void flexinit (int argc, char **argv)
 
 void readin (void)
 {
-	line_directive_out(NULL, 1);
+	line_directive_out(NULL, infilename, linenum);
 
 	if (yyparse ()) {
 		pinpoint_message (_("fatal parse error"));
@@ -1277,7 +1273,7 @@ void readin (void)
 		flexerror(_("Prefix cannot include '[' or ']'"));
 
 	if (env.did_outfilename)
-		line_directive_out (stdout, 0);
+		line_directive_out (stdout, NULL, linenum);
 
 	/* This is where we begin writing to the file. */
 
@@ -1290,7 +1286,7 @@ void readin (void)
 		outn((char*) top_buf.elts);
 
 	/* Place a bogus line directive, it will be fixed in the filter. */
-	line_directive_out(0, false);
+	line_directive_out(NULL, NULL, 0);
 
 	/* User may want to set the scanner prototype */
 	if (ctrl.yydecl != NULL) {
@@ -1593,7 +1589,7 @@ void readin (void)
 	if (ctrl.noyyread)
 		visible_define("M4_MODE_USER_YYREAD");
 
-	if (backend == &cpp_backend) {
+	if (is_default_backend()) {
 		if (ctrl.C_plus_plus) {
 			visible_define ( "M4_MODE_CXX_ONLY");
 		} else {
@@ -1753,7 +1749,7 @@ void usage (void)
 			backend = &cpp_backend;
 		}
 		snprintf (outfile_path, sizeof(outfile_path), outfile_template,
-			  ctrl.prefix, backend->suffix());
+			  ctrl.prefix, suffix());
 		env.outfilename = outfile_path;
 	}
 

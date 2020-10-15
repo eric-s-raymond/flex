@@ -262,9 +262,8 @@ void lerr_fatal (const char *msg, ...)
 }
 
 
-/* line_directive_out - spit out a "#line" statement */
-
-void line_directive_out (FILE *output_file, int do_infile)
+/* line_directive_out - spit out a "#line" statement or equivalent */
+void line_directive_out (FILE *output_file, char *path, int linenum)
 {
 	char	*trace_fmt = "m4_ifdef([[M4_HOOK_TRACE_LINE_FORMAT]], [[M4_HOOK_TRACE_LINE_FORMAT([[%d]], [[%s]])]])";
 	char    directive[MAXLINE*2], filename[MAXLINE];
@@ -273,9 +272,9 @@ void line_directive_out (FILE *output_file, int do_infile)
 	if (!ctrl.gen_line_dirs)
 		return;
 
-	s1 = do_infile ? infilename : "M4_YY_OUTFILE_NAME";
+	s1 = (path != NULL) ? path : "M4_YY_OUTFILE_NAME";
 
-	if (do_infile && !s1)
+	if ((path != NULL) && !s1)
 		s1 = "<stdin>";
     
 	s2 = filename;
@@ -291,7 +290,7 @@ void line_directive_out (FILE *output_file, int do_infile)
 
 	*s2 = '\0';
 
-	if (do_infile)
+	if (path != NULL)
 		snprintf (directive, sizeof(directive), trace_fmt, linenum, filename);
 	else {
 		snprintf (directive, sizeof(directive), trace_fmt, 0, filename);
@@ -607,57 +606,6 @@ void   *reallocate_array (void *array, int size, size_t element_size)
 }
 
 
-/* skelout - write out one section of the skeleton file
- *
- * Description
- *    Copies skelfile or skel array to stdout until a line beginning with
- *    "%%" or EOF is found.
- */
-void skelout (bool announce)
-{
-	char    buf_storage[MAXLINE];
-	char   *buf = buf_storage;
-	bool   do_copy = true;
-
-	/* Loop pulling lines either from the skelfile, if we're using
-	 * one, or from the selected back end's skel[] array.
-	 */
-	while (env.skelfile != NULL ?
-	       (fgets (buf, MAXLINE, env.skelfile) != NULL) :
-	       ((buf = (char *) backend->skel[skel_ind++]) != 0)) {
-
-		if (env.skelfile != NULL)
-			chomp (buf);
-
-		/* copy from skel array */
-		if (buf[0] == '%') {	/* control line */
-			/* print the control line as a comment. */
-			if (ctrl.ddebug && buf[1] != '#') {
-			    comment(buf);
-			    outc ('\n');
-			}
-			if (buf[1] == '#') {
-				/* %# indicates comment line to be ignored */
-			} 
-			else if (buf[1] == '%') {
-				/* %% is a break point for skelout() */
-				if (announce) {
-					comment(buf);
-					outc ('\n');
-				}
-				return;
-			}
-			else {
-				flexfatal (_("bad line in skeleton file"));
-			}
-		}
-
-		else if (do_copy) 
-			outn (buf);
-	}			/* end while */
-}
-
-
 /* transition_struct_out - output a yy_trans_info structure
  *
  * outputs the yy_trans_info structure with the two elements, element_v and
@@ -739,22 +687,6 @@ void comment(const char *txt)
 	out_str("M4_HOOK_COMMENT_OPEN [[%s]] M4_HOOK_COMMENT_CLOSE", buf);
 	if (eol)
 		outc ('\n');
-}
-
-/* Search for a string in the skeleton prolog, where macros are defined.
- */
-bool boneseeker(const char *bone)
-{
-	int i;
-
-	for (i = 0; i < sizeof(backend->skel)/sizeof(backend->skel[0]); i++) {
-		const char *line = backend->skel[i];
-		if (strstr(line, bone) != NULL)
-			return true;
-		else if (strncmp(line, "%%", 2) == 0)
-			break;
-	}
-	return false;
 }
 
 
