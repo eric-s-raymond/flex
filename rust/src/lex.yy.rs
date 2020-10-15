@@ -744,6 +744,61 @@ impl<T> Scanner<T> {
     fn wrap(&mut self) -> bool {
         true
     }
+
+    // Setup the input buffer state to scan directly from a user-specified character buffer.
+    pub fn scan_from_buffer(&mut self, input: Vec<u8>) -> Result<&BufferState> {
+        let size = input.len();
+        if size < 2 || &input[size-2..=size-1] != &[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR] {
+            Err("buffer does not end in two END_OF_BUFFER_CHARs.")
+        } else {
+            let buffer = BufferState {
+                yy_buf_size: size - 2,
+                yy_buf_pos: 0,
+                yy_ch_buf: input,
+                yy_is_our_buffer: false,
+                yy_input_file: None,
+                yy_n_chars: size - 2,
+                yy_is_interactive: false,
+                yy_at_bol: true,
+                yy_fill_buffer: false,
+                yy_buffer_status: BufferStatus::New,
+                yy_bs_lineno: 1,
+                yy_bs_column: 0,
+            };
+            self.switch_to_buffer(buffer);
+            Ok(self.current_buffer_unchecked())
+        }
+    }
+
+    /// Setup the input buffer state to scan a string. The next call to yylex() will scan from a @e
+    /// copy of @a str. Note: If you want to scan a buffer that may contain NUL values, then use
+    /// yy_scan_bytes() instead.
+    pub fn scan_string(&mut self, input: String) -> Result<&BufferState> {
+        self.scan_bytes(input.as_bytes())
+    }
+
+    /// Setup the input buffer state to scan the given bytes. The next call to yylex() will scan
+    /// from a @e copy of @a bytes.
+    pub fn scan_bytes<B: AsRef<[u8]>>(&mut self, input: B) -> Result<&BufferState> {
+        let input: Vec<u8> = input.as_ref().iter().chain(&[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR]).copied().collect();
+        let size = input.len();
+        let buffer = BufferState {
+            yy_buf_size: size - 2,
+            yy_buf_pos: 0,
+            yy_ch_buf: input,
+            yy_is_our_buffer: true,
+            yy_input_file: None,
+            yy_n_chars: size - 2,
+            yy_is_interactive: false,
+            yy_at_bol: true,
+            yy_fill_buffer: false,
+            yy_buffer_status: BufferStatus::New,
+            yy_bs_lineno: 1,
+            yy_bs_column: 0,
+        };
+        self.switch_to_buffer(buffer);
+        Ok(self.current_buffer_unchecked())
+    }
 }
 
 const END_OF_BUFFER_CHAR: u8 = 0;
@@ -808,7 +863,7 @@ enum BufferStatus {
     EOFPending,
 }
 
-struct BufferState {
+pub struct BufferState {
     yy_input_file: Option<Rc<RefCell<dyn io::Read>>>,
     /// input buffer
     yy_ch_buf: Vec<u8>,
@@ -1058,87 +1113,3 @@ fn read_file(buf: &mut BufferState, file: &Rc<RefCell<dyn io::Read>>, offset: us
         };
     }
 }
-// /** Setup the input buffer state to scan directly from a user-specified character buffer.
-//  * @param base the character buffer
-//  * @param size the size in bytes of the character buffer
-//  * @param yyscanner The scanner object.
-//  * @return the newly allocated buffer state object.
-//  */
-// YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscanner)
-// {
-// 	YY_BUFFER_STATE b;
-//
-// 	if ( size < 2 ||
-// 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
-// 	     base[size-1] != YY_END_OF_BUFFER_CHAR ) {
-// 		/* They forgot to leave room for the EOB's. */
-// 		return NULL;
-// 	}
-// 	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state ) , yyscanner );
-// 	if ( ! b ) {
-// 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
-// 	}
-// 	b->yy_buf_size = (int) (size - 2);	/* "- 2" to take care of EOB's */
-// 	b->yy_buf_pos = b->yy_ch_buf = base;
-// 	b->yy_is_our_buffer = 0;
-// 	b->yy_input_file = NULL;
-// 	b->yy_n_chars = b->yy_buf_size;
-// 	b->yy_is_interactive = 0;
-// 	b->yy_at_bol = 1;
-// 	b->yy_fill_buffer = 0;
-// 	b->yy_buffer_status = YY_BUFFER_NEW;
-//
-// 	yy_switch_to_buffer( b , yyscanner );
-//
-// 	return b;
-// }
-//
-// /** Setup the input buffer state to scan a string. The next call to yylex() will
-//  * scan from a @e copy of @a str.
-//  * @param yystr a NUL-terminated string to scan
-//  * @param yyscanner The scanner object.
-//  * @return the newly allocated buffer state object.
-//  * @note If you want to scan bytes that may contain NUL values, then use
-//  *       yy_scan_bytes() instead.
-//  */
-// YY_BUFFER_STATE yy_scan_string (const char * yystr , yyscan_t yyscanner)
-// {
-//
-// 	return yy_scan_bytes( yystr, (int) strlen(yystr) , yyscanner);
-// }
-//
-// /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
-//  * scan from a @e copy of @a bytes.
-//  * @param yybytes the byte buffer to scan
-//  * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
-//  * @param yyscanner The scanner object.
-//  * @return the newly allocated buffer state object.
-//  */
-// YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, int  _yybytes_len , yyscan_t yyscanner) {
-// 	YY_BUFFER_STATE b;
-// 	char *buf;
-// 	yy_size_t n;
-// 	int i;
-//
-// 	/* Get memory for full buffer, including space for trailing EOB's. */
-// 	n = (yy_size_t) (_yybytes_len + 2);
-// 	buf = (char *) yyalloc( n , yyscanner );
-// 	if ( ! buf ) {
-// 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
-// 	}
-// 	for ( i = 0; i < _yybytes_len; ++i ) {
-// 		buf[i] = yybytes[i];
-// 	}
-// 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
-//
-// 	b = yy_scan_buffer( buf, n , yyscanner);
-// 	if ( ! b ) {
-// 		YY_FATAL_ERROR( "bad buffer in yy_scan_bytes()" );
-// 	}
-// 	/* It's okay to grow etc. this buffer, and we should throw it
-// 	 * away when we're done.
-// 	 */
-// 	b->yy_is_our_buffer = 1;
-//
-// 	return b;
-// }
