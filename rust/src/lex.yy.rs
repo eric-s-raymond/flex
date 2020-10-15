@@ -29,6 +29,11 @@
 
 extern crate libc;
 
+use std::io;
+use std::ptr;
+use std::rc::Rc;
+use std::cell::RefCell;
+
 const FLEX_SCANNER: bool = true;
 const MAJOR_VERSION: usize = 2;
 const MINOR_VERSION: usize = 6;
@@ -37,14 +42,14 @@ const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
 
 type Result<T> = std::result::Result<T, &'static str>;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct Scanner<T> {
     /// User-defined. Not touched by flex.
     yyextra_r: Option<T>,
 
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
-    pub yyin_r: Option<FILE>,
-    yyout_r: Option<FILE>,
+    pub yyin_r: Option<Rc<RefCell<dyn io::Read>>>,
+    yyout_r: Option<Box<dyn io::Write>>,
     /// Stack as an array.
     yy_buffer_stack: Vec<BufferState>,
     yy_hold_char: u8,
@@ -71,7 +76,7 @@ pub struct Scanner<T> {
 impl<T: Default> Scanner<T> {
     pub fn new() -> Self {
         let mut s: Scanner<T> = Default::default();
-        s.init(false);
+        s.init(true);
         s
     }
 }
@@ -86,10 +91,10 @@ impl<T> Scanner<T> {
         self.yy_start_stack = Vec::new();
         self.yy_start_stack_depth = 0;
 
-        //if stdinit {
-        //    self.yyin_r =
-        //    self.yyout_r =
-        //}
+        if stdinit {
+            self.yyin_r = Some(Rc::new(RefCell::new(io::stdin())));
+            self.yyout_r = Some(Box::new(io::stdout()));
+        }
     }
 
     /** We provide macros for accessing buffer states in case in the
@@ -117,18 +122,18 @@ impl<T> Scanner<T> {
         self.yy_buffer_stack.last_mut().expect("stack should not be empty")
     }
 
-    fn set_interactive(&mut self, is_interactive: bool) {
+    pub fn set_interactive(&mut self, is_interactive: bool) {
         if self.yy_buffer_stack.is_empty() {
-            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+            self.push_new_buffer(self.yyin_r.clone(), BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer_mut() {
             buf.yy_is_interactive = is_interactive;
         }
     }
 
-    fn set_bol(&mut self, at_bol: bool) {
+    pub fn set_bol(&mut self, at_bol: bool) {
         if self.yy_buffer_stack.is_empty() {
-            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+            self.push_new_buffer(self.yyin_r.clone(), BUF_SIZE);
         }
         if let Some(buf) = self.current_buffer_mut() {
             buf.yy_at_bol = at_bol;
@@ -157,50 +162,39 @@ impl<T> Scanner<T> {
       * characters read.
       */
     fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
-        if let Some(file) = self.yyin_r {
+        if let Some(file) = &self.yyin_r.clone() {
             let buf = self.current_buffer_unchecked_mut();
             if buf.yy_is_interactive {
                 let mut result: usize = 0;
-                for n in 0..max_size {
-                    let c = unsafe { libc::fgetc(file.0) };
-                    if c != libc::EOF && c != '\n' as libc::c_int {
-                        buf.yy_ch_buf[n+offset] = c as u8
-                    }
-                    if c == '\n' as libc::c_int {
-                        // TODO(db48x): I think this loop iteration is
-                        // supposed to increment n an extra time
-                        buf.yy_ch_buf[n+offset+1] = c as u8;
-                    }
-                    if c == libc::EOF {
-                        let err = unsafe { libc::ferror(file.0) };
-                        if err != 0 {
-                            return Err("input in flex scanner failed");
-                        }
-                    }
+                let mut n: usize = 0;
+                loop {
+                    let mut tmp: [u8; 1] = [0];
+                    match file.borrow_mut().read(&mut tmp) {
+                        Ok(v) => {
+                            if v == 0 {
+                                break;
+                            } else if v == 1 {
+                                buf.yy_ch_buf[n] = tmp[0];
+                                n += 1;
+                            }
+                        },
+                        Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                        _ => return Result::Err("input in flex scanner failed"),
+                    };
                     result = n;
                 }
                 Ok(result as usize)
             } else {
-                unsafe { *libc::__errno_location() = 0; }
-                #[allow(unused_assignments)]
-                let mut result: usize = 0;
                 loop {
                     buf.yy_ch_buf.truncate(offset);
-                    let uninit = buf.yy_ch_buf.spare_capacity_mut();
-                    let ptr = uninit.as_mut_ptr() as *mut libc::c_void;
-                    assert!(uninit.len() >= max_size + offset);
-                    result = unsafe { libc::fread(ptr, 1, max_size, file.0) };
-                    unsafe { buf.yy_ch_buf.set_len(offset+result); }
-                    let err = unsafe { libc::ferror(file.0) };
-                    if err == 0 {
-                        break;
-                    } else if err > 0 && err != libc::EINTR {
-                        return Result::Err("input in flex scanner failed");
-                    }
+                    buf.yy_ch_buf.resize(max_size + offset, END_OF_BUFFER_CHAR);
+                    let result = file.borrow_mut().read(&mut buf.yy_ch_buf[offset..]);
+                    match result {
+                        Ok(v) => break Ok(v),
+                        Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                        _ => return Result::Err("input in flex scanner failed"),
+                    };
                 }
-                unsafe { *libc::__errno_location() = 0; }
-                unsafe { libc::clearerr(file.0); }
-                Ok(result)
             }
         } else {
             Err("read called with no open input file")
@@ -219,7 +213,7 @@ impl<T> Scanner<T> {
             if self.yy_start == 0 {
                 self.yy_start = 1; // first start state
             }
-            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+            self.push_new_buffer(self.yyin_r.clone(), BUF_SIZE);
 
             self.load_buffer_state();
         }
@@ -342,13 +336,11 @@ impl<T> Scanner<T> {
 
                                 4 => {
                                     // YY_RULE_SETUP
-                                    if let Some(out) = self.yyout_r {
-                                        unsafe {
-                                            libc::fwrite(&self.current_buffer_unchecked().yy_ch_buf[self.yytext_r] as *const _ as *const libc::c_void,
-                                                         self.yyleng_r,
-                                                         1,
-                                                         out.0);
-                                        }
+                                    let start = self.yytext_r;
+                                    let end = self.yytext_r + self.yyleng_r;
+                                    let buf = self.current_buffer_unchecked().yy_ch_buf[start..end].to_vec();
+                                    if let Some(out) = &mut self.yyout_r {
+                                        out.as_mut().write(&buf[..]).expect("write failure");
                                     }
                                 }
 
@@ -369,7 +361,7 @@ impl<T> Scanner<T> {
                                         // is the first action (other than possibly a back-up) that
                                         // will match for the new input source.
                                         self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
-                                        self.current_buffer_unchecked_mut().yy_input_file = self.yyin_r;
+                                        self.current_buffer_unchecked_mut().yy_input_file = self.yyin_r.clone();
                                         self.current_buffer_unchecked_mut().yy_buffer_status = BufferStatus::Normal;
                                     }
 
@@ -426,7 +418,7 @@ impl<T> Scanner<T> {
                                                 } else {
                                                     if !self.yy_did_buffer_switch_on_eof {
                                                         // YY_NEW_FILE;
-                                                        self.restart(self.yyin_r);
+                                                        self.restart(self.yyin_r.clone());
                                                     }
                                                 }
                                             }
@@ -521,7 +513,7 @@ impl<T> Scanner<T> {
 
             if self.yy_n_chars == 0 {
                 if number_to_move == MORE_ADJ {
-                    let source = self.yyin_r;
+                    let source = self.yyin_r.clone();
                     self.restart(source);
                     Ok(Some(EOBAction::EndOfFile))
                 } else {
@@ -659,14 +651,14 @@ impl<T> Scanner<T> {
                         // EOB_ACT_LAST_MATCH to EOB_ACT_END_OF_FILE.
 
                         // Reset buffer status.
-                        self.restart(self.yyin_r);
+                        self.restart(self.yyin_r.clone());
 
                         if self.wrap() {
                             return Ok(b'\0');
                         }
                         if !self.yy_did_buffer_switch_on_eof {
                             // YY_NEW_FILE
-                            self.restart(self.yyin_r);
+                            self.restart(self.yyin_r.clone());
                         }
                         return self.input();
                     }
@@ -677,7 +669,7 @@ impl<T> Scanner<T> {
                         }
                         if !self.yy_did_buffer_switch_on_eof {
                             // YY_NEW_FILE
-                            self.restart(self.yyin_r);
+                            self.restart(self.yyin_r.clone());
                         }
                         return self.input();
                     }
@@ -701,9 +693,9 @@ impl<T> Scanner<T> {
 
     /// Immediately switch to a different input stream.  This function does not reset the start condition
     /// to @c INITIAL .
-    fn restart(&mut self, source: Option<FILE>) {
+    fn restart(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>) {
         if self.current_buffer().is_none() {
-            self.push_new_buffer(self.yyin_r, BUF_SIZE);
+            self.push_new_buffer(self.yyin_r.clone(), BUF_SIZE);
         }
         self.current_buffer_unchecked_mut().init(source);
         // If b is the current buffer, then yy_init_buffer was _probably_ called from yyrestart() or
@@ -718,7 +710,7 @@ impl<T> Scanner<T> {
         // TODO. We should be able to replace this entire function body with
         //      yypop_buffer_state();
         //      yypush_buffer_state(new_buffer);
-        if *self.current_buffer_unchecked() != new_buffer {
+        if ptr::eq(self.current_buffer_unchecked(), &new_buffer) {
             if self.current_buffer().is_some() {
                 // Flush out information for old buffer.
                 let p = self.yy_c_buf_p;
@@ -740,11 +732,11 @@ impl<T> Scanner<T> {
         self.yy_n_chars = self.current_buffer_unchecked().yy_n_chars;
         self.yytext_r = self.current_buffer_unchecked().yy_buf_pos;
         self.yy_c_buf_p = self.current_buffer_unchecked().yy_buf_pos;
-        self.yyin_r = self.current_buffer_unchecked().yy_input_file;
+        self.yyin_r = self.current_buffer_unchecked().yy_input_file.clone();
         self.yy_hold_char = self.current_buffer_unchecked().yy_ch_buf[self.yy_c_buf_p];
     }
 
-    fn push_new_buffer(&mut self, source: Option<FILE>, size: usize) {
+    fn push_new_buffer(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>, size: usize) {
         let buf = BufferState::new(source, size);
         self.push_buffer_state(buf)
     }
@@ -842,9 +834,8 @@ enum BufferStatus {
     EOFPending,
 }
 
-#[derive(Debug, PartialEq, Eq)]
 struct BufferState {
-    yy_input_file: Option<FILE>,
+    yy_input_file: Option<Rc<RefCell<dyn io::Read>>>,
     /// input buffer
     yy_ch_buf: Vec<u8>,
     /// current position in input buffer
@@ -894,9 +885,9 @@ struct BufferState {
 
 impl BufferState {
     /// Allocate and initialize an input buffer state.
-    fn new(source: Option<FILE>, size: usize) -> BufferState {
+    fn new(source: Option<Rc<RefCell<dyn io::Read>>>, size: usize) -> BufferState {
         let mut b = BufferState {
-            yy_input_file: source,
+            yy_input_file: None,
             yy_ch_buf: Vec::with_capacity(size + 2),
             yy_buf_pos: 0,
             yy_buf_size: size + 2,
@@ -913,22 +904,12 @@ impl BufferState {
         b
     }
 
-
     // Initializes or reinitializes a buffer.  This function is sometimes called more than once on
     // the same buffer, such as during a yyrestart() or at EOF.
-    fn init(&mut self, source: Option<FILE>) {
-        let oerrno = unsafe { *libc::__errno_location() };
+    fn init(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>) {
         self.flush();
-
         self.yy_input_file = source;
         self.yy_fill_buffer = true;
-        self.yy_is_interactive = if let Some(file) = source {
-            let isatty = unsafe { libc::isatty(libc::fileno(file.0)) };
-            isatty != 0
-        } else {
-            false
-        };
-        unsafe { *libc::__errno_location() = oerrno; }
     }
 
     /// Discard all buffered characters. On the next scan, YY_INPUT will be called.
@@ -1154,22 +1135,3 @@ const START_STACK_INCR: usize = 25;
 //
 // 	return b;
 // }
-
-#[derive(Copy, Clone, Debug)]
-pub struct FILE(*mut libc::FILE);
-
-impl FILE {
-    pub fn new(f: *mut libc::FILE) -> Self {
-        FILE(f)
-    }
-}
-
-impl PartialEq for FILE {
-    fn eq(&self, other: &Self) -> bool {
-        let a = &self.0 as *const _ as *mut libc::FILE;
-        let b = &other.0 as *const _ as *mut libc::FILE;
-        unsafe { libc::fileno(a) == libc::fileno(b) }
-    }
-}
-
-impl Eq for FILE { }

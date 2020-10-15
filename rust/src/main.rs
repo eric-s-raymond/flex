@@ -8,16 +8,22 @@
 #[path="lex.yy.rs"]
 mod lex;
 
-use std::ffi::CString;
+use std::cell::RefCell;
+use std::env;
 use std::error::Error;
+use std::fs;
+use std::rc::Rc;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut scanner: lex::Scanner<()> = lex::Scanner::new();
-    //let path = CString::new("../README.md")?;
-    let path = CString::new("src/lex.yy.rs")?;
-    let mode = CString::new("r")?;
-    let file = unsafe { libc::fopen(path.as_ptr(), mode.as_ptr()) };
-    scanner.yyin_r = if file.is_null() { None } else { Some(lex::FILE::new(file)) };
+    if let Some(filename) = env::args().into_iter().nth(1) {
+        let file = fs::OpenOptions::new()
+            .read(true)
+            .create(false)
+            .open(filename)?;
+        scanner.yyin_r = Some(Rc::new(RefCell::new(file)));
+        scanner.set_interactive(false);
+    }
     let mut data = ();
     scanner.lex(&mut data)?;
     Ok(())
