@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .read(true)
             .create(false)
             .open(filename)?;
-        scanner.yyin_r = Some(Rc::new(RefCell::new(file)));
+        scanner.input = Some(Rc::new(RefCell::new(file)));
         scanner.set_interactive(false);
     }
     let mut data = ();
