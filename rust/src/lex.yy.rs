@@ -27,8 +27,6 @@
 /* M4_MODE_PREFIX = yy */
 /* END of m4 controls */
 
-extern crate libc;
-
 use std::io;
 use std::ptr;
 use std::rc::Rc;
