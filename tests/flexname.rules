@@ -21,53 +21,17 @@
  * PURPOSE.
  */
 
-%{
-/* This test is for correctness of extended (?...) patterns. */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "config.h"
-
-%}
-
-%option 8bit prefix="test"
+/*
+ * Test Lex incompatibility.  This is the compatibility exanmple from
+ * the documentation; with !lex-compat it *should* match the string "foo".
+ * For the complementery test, see lexcompat.rules.
+ */
 %option nounput nomain noyywrap noinput
-%option warn
+%option warn nolex-compat
 
-
+NAME	[A-Z][A-Z0-9]*
 %%
-
-    /* Output should match the input. */
-
-abc(?# Single Line Comment )def    ECHO;
-ghi(?#
-    multi-line
-    comment
-    )jkl                           ECHO;
-
-mno(?#
-    multi-line //
-    comment with ##
-    ~~!@#$ %^&*(@-_+=\|,.<>/ ?: ;
-    punctuation
-    )pqr                           ECHO;
-(?# Start of a rule.)stu           ECHO;
-vwxyz(?#End of a rule.)            ECHO;
-A(?x: B
-    /* comment */
-    C D)                           ECHO;
-
-\n                                 ECHO;
+foo{NAME}?      {M4_TEST_ECHO}
+\n		{M4_TEST_ECHO}
+.		{M4_TEST_FAILMESSAGE}
 %%
-
-int main(void);
-
-int
-main (void)
-{
-    yyin = stdin;
-    yyout = stdout;
-    yylex();
-    //printf("TEST RETURNING OK.\n");
-    return 0;
-}

@@ -29,7 +29,7 @@
 #include "config.h"
 
 %}
-
+%option emit="c99"
 %option 8bit prefix="FOO"
 %option nounput nomain noyywrap noinput
 %option warn
@@ -37,39 +37,47 @@
 
 %%
 
-.|\n|\r  {
+
+.|\n|\r  { 
 
     /* Compile, but do not execute the following code. */
-    if( 0) {
-        FOO_create_buffer((FILE*)0,0);
-        FOO_delete_buffer((YY_BUFFER_STATE)0);
-        FOO_flush_buffer((YY_BUFFER_STATE)0);
-        FOO_init_buffer((YY_BUFFER_STATE)0,(FILE*)0);
-        FOO_load_buffer_state();
-        FOO_scan_buffer((char*)0,(yy_size_t)0);
-        FOO_scan_bytes((const char*)0, 0);
-        FOO_scan_string((const char*)0);
-        FOO_switch_to_buffer((YY_BUFFER_STATE)0);
-        yyin   = (FILE*)0;
-        yyout  = (FILE*)0;
-        yyleng = 0;
-        yylex();
-        yyrestart((FILE*)0);
-        yytext = (char*)0;
-    }
- }
-%%
+    if( 0 ) {
+        FOO_create_buffer( (FILE*)0, 0, yyscanner);
+        FOO_delete_buffer( (YY_BUFFER_STATE)0, yyscanner);
+        FOO_flush_buffer( (YY_BUFFER_STATE)0, yyscanner);
+        FOO_init_buffer( (YY_BUFFER_STATE)0, (FILE*)0, yyscanner);
+        FOO_load_buffer_state( yyscanner);
+        FOO_scan_buffer( (char*)0, (yy_size_t)0, yyscanner);
+        FOO_scan_bytes( (const char*)0, 0, yyscanner);
+        FOO_scan_string( (const char*)0, yyscanner);
+        FOO_switch_to_buffer( (YY_BUFFER_STATE)0, yyscanner);
+        FOOrestart( (FILE*)0, (yyscan_t )0);
 
+        FOOget_extra( (yyscan_t )0 );
+        FOOget_in( (yyscan_t )0 );
+        FOOget_leng( (yyscan_t )0 );
+        FOOget_out( (yyscan_t )0 );
+        FOOget_text( (yyscan_t )0 );
+        FOOlex( (yyscan_t )0 );
+        FOOlex_destroy( (yyscan_t )0 );
+        FOOlex_init( (yyscan_t *)0 );
+        FOOset_extra( (void *)0, (yyscan_t )0 );
+        FOOset_in( (FILE*)0, (yyscan_t )0 );
+        FOOset_out( (FILE*)0, (yyscan_t )0 );
+    }
+  }
+%%
 
 int main(void);
 
 int
 main (void)
 {
-    yyin = stdin;
-    yyout = stdout;
-    FOOlex();
-    printf("TEST RETURNING OK.\n");
+    yyscan_t  scanner;
+    FOOlex_init( &scanner);
+    FOOlex( scanner);
+    FOOlex_destroy( scanner);
+    printf( "TEST RETURNING OK.\n");
     return 0;
 }
 

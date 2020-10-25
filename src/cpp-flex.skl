@@ -1,20 +1,4 @@
 %# -*-C-*- vi: set ft=c:
-%# This file is processed in several stages.
-%# Here are the stages, as best as I can describe:
-%#
-%#   1. This is processed through GNU m4 during the
-%#      pre-compilation stage of flex. Only macros starting
-%#      with `m4preproc_' are processed, and quoting is normal.
-%#
-%#   2. The preprocessed skeleton is translated into a comma-separated
-%#      list of doublequoted strings which is stuffed into a language-
-%#      specific method block compiled into the flex binary. The %# comment
-%#      lines are removed.
-%#
-%#   3. At runtime, the skeleton is generated and filtered (again)
-%#      through m4. Macros beginning with `m4_' will be processed.
-%#      The quoting is "[[" and "]]" so we don't interfere with
-%#      user code.
 %#
 %# All generated macros for the m4 stage contain the text "m4" or "M4"
 %# in them. This is to distinguish them from CPP macros.
@@ -25,7 +9,7 @@
 %# prescriptive about whitespace and braces is more than usually
 %# important. So please set your C style to K&R, aka 1TBS with
 %# tabs when editing this file. Braces around single-statement
-%# if/while/for/do/switch/break bodies are mandatory. 
+%# if/while/for/do/switch/break bodies are mandatory.
 %#
 
 %#  Macros for preproc stage.
@@ -36,47 +20,32 @@ m4_changecom
 m4_changequote
 m4_changequote([[, ]])
 
-%#
-%# Lines in this skeleton starting with a "%" character are "control lines"
-%# and affect the generation of the scanner. The possible control codes are
-%# listed and processed in misc.c.
-%#
-%#   %#  -  A comment. The current line is omitted from the generated scanner.
-%#   %%  -  A stop-point, where code is inserted by flex.
-%#          Each stop-point is numbered here and also in the code generator.
-%#          (See gen.c, etc. for details.)
-%#
-%# Stop points will be inserted into the generated scanner as a comment.
-%# This is to aid those who edit the skeleton.
-%#
+%# Properties not used in the skeleton - meant to be read by the Flex code
+m4_define([[M4_PROPERTY_BACKEND_NAME]], [[C/C++]])
+%#m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[]])
+m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^#line ([0-9]+) "(.*)"]])
+m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[#line %d "%s"]])
 
-%# Macro hooks used by Flex start here
-
+%# Macro hooks used by Flex code generators start here
 m4_define([[M4_HOOK_INT32]], [[flex_int32_t]])
 m4_define([[M4_HOOK_INT16]], [[flex_int16_t]])
-
 m4_define([[M4_HOOK_COMMENT_OPEN]], [[/*]])
 m4_define([[M4_HOOK_COMMENT_CLOSE]], [[*/]])
-
 %# If this is not defined, no trace lines will be generated.
 m4_define([[M4_HOOK_TRACE_LINE_FORMAT]], [[#line $1 "$2"
 ]])
-m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[#line %d "%s"]])
 m4_define([[M4_HOOK_TABLE_OPENER]], [[{]])
 m4_define([[M4_HOOK_TABLE_CONTINUE]], [[},]])
 m4_define([[M4_HOOK_TABLE_CLOSER]], [[};]])
-
+m4_define([[M4_HOOK_RELATIVIZE]], [[$1]])
 m4_define([[M4_HOOK_STATE_ENTRY_FORMAT]], [[	&yy_transition[$1],
 ]])
-
 m4_define([[M4_HOOK_EOF_STATE_CASE_ARM]], [[	case YY_STATE_EOF($1):]])
 m4_define([[M4_HOOK_EOF_STATE_CASE_FALLTHROUGH]], [[		/* FALLTHROUGH */]])
 m4_define([[M4_HOOK_EOF_STATE_CASE_TERMINATE]], [[		yyterminate();
 ]])
-
 m4_define([[M4_HOOK_CONST_DEFINE]], [[#define $1 $2
 ]])
-
 m4_define([[M4_HOOK_SET_YY_DECL]], [[#define YY_DECL $1
 ]])
 m4_define([[M4_HOOK_SET_YYLMAX]], [[#define YYLMAX $1
@@ -87,9 +56,6 @@ m4_define([[M4_HOOK_SET_PREACTION]], [[#define YY_USER_ACTION $1
 ]])
 m4_define([[M4_HOOK_SET_POSTACTION]], [[#define YY_BREAK $1
 ]])
-
-%# Not used in the skeleton - meant to be read by the Flex code
-m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^#line ([0-9]+) "(.*)"]])
 
 %% [0.0] Make hook macros available to Flex
 
@@ -2131,9 +2097,8 @@ m4_ifdef([[M4_MODE_HAS_BACKING_UP]], [[
 				/* undo the effects of YY_DO_BEFORE_ACTION */
 				*yy_cp = YY_G(yy_hold_char);
 
-				/* /\* Backing-up info for compressed tables is taken \after/ */
-				/*  * yy_cp has been incremented for the next state. */
-				/*  *\/ */
+				/* Backing-up info for compressed tables is taken \after/ */
+				/* yy_cp has been incremented for the next state. */
 				yy_cp = YY_G(yy_last_accepting_cpos);
 				m4_ifdef([[M4_MODE_FULLSPD]], [[yy_cp++;]])
 				m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[yy_cp++;]])

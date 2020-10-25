@@ -22,61 +22,39 @@
  */
 
 %{
+/* A template scanner file to build "scanner.c". */
 #include <stdio.h>
 #include <stdlib.h>
 #include "config.h"
 
 %}
 
+%option emit="c99"
 %option 8bit prefix="test"
 %option nounput nomain noyywrap noinput
-%option warn reject
-
-
-%%
-
-.              { REJECT; }
-.|\n           ;
+%option warn debug
 
 %%
+.+   { }
+\n   { }
+%%
 
-int main ( int argc, char** argv )
+int main(void);
+
+int main (void)
 {
-    FILE* fp = NULL;
-    void *yyscanner=0;
-    M4_YY_DECL_GUTS_VAR();
-
-#ifdef TEST_IS_REENTRANT
-    testlex_init(&yyscanner);
-#else
-    (void)yyscanner;
-#endif
-
-#ifdef TEST_HAS_TABLES_EXTERNAL
-    if((fp  = fopen(argv[1],"rb"))== NULL)
-        YY_FATAL_ERROR("could not open tables file for reading");
-
-    if(yytables_fload(fp M4_YY_CALL_LAST_ARG) < 0)
-        YY_FATAL_ERROR("yytables_fload returned < 0");
-    if(M4_YY_TABLES_VERIFY)
-        exit(0);
-#endif
+    yyscan_t  lexer;
+    testlex_init( &lexer );
+    testset_out ( stdout,lexer);
+    testset_in  ( stdin, lexer);
     
-    if(argc > 2){
-        if((fp  = fopen(argv[2],"r"))== NULL)
-            YY_FATAL_ERROR("could not open input file for reading");
-        yyin = fp;
+    /* Just see if the next line compiles. */
+    testset_debug (testget_debug(lexer), lexer);
+    
+    while( testlex(lexer) )
+    {
     }
-    while(testlex(M4_YY_CALL_ONLY_ARG) != 0)
-        ;
-        
-#ifdef TEST_HAS_TABLES_EXTERNAL
-    testtables_destroy(M4_YY_CALL_ONLY_ARG);
-#endif
-    testlex_destroy(M4_YY_CALL_ONLY_ARG);
-
-    if(argc < 0) /* silence the compiler */
-        yyscanner = (void*)fp;
-
+    testlex_destroy( lexer );
+    printf("TEST RETURNING OK.\n");
     return 0;
 }

@@ -54,9 +54,9 @@ COMMON_SOURCES = \
 	buf.c \
 	ccl.c \
 	skeletons.c \
-	cpp_skel.h \
-	rust_backend.c \
 	rust_skel.h \
+	cpp-skel.h \
+	c99-skel.h \
 	dfa.c \
 	ecs.c \
 	filter.c \
@@ -92,18 +92,23 @@ include_HEADERS = \
 
 EXTRA_DIST = \
 	cpp-flex.skl \
+	c99-flex.skl \
 	mkskel.sh \
 	gettext.h
 
 CLEANFILES = stage1scan.c stage1flex$(EXEEXT)
 
-MAINTAINERCLEANFILES = c9pp-skel.h
+MAINTAINERCLEANFILES = cpp-skel.h c99-skel.h rust-skel.h
 
 cpp-skel.h: cpp-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
 	$(SHELL) $(srcdir)/mkskel.sh cpp $(srcdir) $(m4) $(VERSION) > $@.tmp
 	mv -f $@.tmp $@
 
-cpp-skel.h: rust-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
+c99-skel.h: c99-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
+	$(SHELL) $(srcdir)/mkskel.sh c99 $(srcdir) $(m4) $(VERSION) > $@.tmp
+	mv -f $@.tmp $@
+
+rust-skel.h: rust-flex.skl mkskel.sh flexint_shared.h tables_shared.h tables_shared.c
 	$(SHELL) $(srcdir)/mkskel.sh rust $(srcdir) $(m4) $(VERSION) > $@.tmp
 	mv -f $@.tmp $@
 
