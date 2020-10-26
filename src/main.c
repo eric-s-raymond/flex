@@ -197,15 +197,15 @@ int flex_main (int argc, char *argv[])
 	out ("\n");
 
 	comment("START of Flex-generated definitions\n");
-	out_str_dec ("M4_HOOK_CONST_DEFINE(%s, %d)", "YY_NUM_RULES", num_rules);
-	out_str_dec ("M4_HOOK_CONST_DEFINE(%s, %d)", "YY_END_OF_BUFFER", num_rules + 1);
-	out_str_dec ("M4_HOOK_CONST_DEFINE(%s, %d)", "YY_JAMBASE", jambase);
-	out_str_dec ("M4_HOOK_CONST_DEFINE(%s, %d)", "YY_JAMSTATE", jamstate);
-	out_str_dec ("M4_HOOK_CONST_DEFINE(%s, %d)", "YY_NUL_EC", NUL_ec);
+	out_str_dec ("M4_HOOK_CONST_DEFINE_UINT(%s, %d)", "YY_NUM_RULES", num_rules);
+	out_str_dec ("M4_HOOK_CONST_DEFINE_STATE(%s, %d)", "YY_END_OF_BUFFER", num_rules + 1);
+	out_str_dec ("M4_HOOK_CONST_DEFINE_STATE(%s, %d)", "YY_JAMBASE", jambase);
+	out_str_dec ("M4_HOOK_CONST_DEFINE_STATE(%s, %d)", "YY_JAMSTATE", jamstate);
+	out_str_dec ("M4_HOOK_CONST_DEFINE_BYTE(%s, %d)", "YY_NUL_EC", NUL_ec);
 	/* Need to define the transet type as a size large
 	 * enough to hold the biggest offset.
 	 */
-	out_str3 ("M4_HOOK_CONST_DEFINE(%s, %s)", "YY_OFFSET_TYPE", optimize_pack(tblend + numecs + 1)->name, "");
+	out_str ("M4_HOOK_SET_OFFSET_TYPE(%s)", optimize_pack(tblend + numecs + 1)->name);
 	comment("END of Flex-generated definitions\n");
 
 	skelout (true);		/* %% [2.0] - tables get dumped here */
@@ -1048,7 +1048,7 @@ void flexinit (int argc, char **argv)
 			    if (*def == '\0')
 				    def = "1";
 
-			    snprintf(buf2, sizeof(buf2), "M4_HOOK_CONST_DEFINE(%s, %s)", arg, def);
+			    snprintf(buf2, sizeof(buf2), "M4_HOOK_CONST_DEFINE_UNKNOWN(%s, %s)", arg, def);
 			    buf_strappend (&userdef_buf, buf2);
 		    }
 		    break;
@@ -1311,9 +1311,9 @@ void readin (void)
 	}
 
 	if (ctrl.yylmax != 0) {
-		out_dec ("M4_HOOK_SET_YYLMAX(%d)\n", ctrl.yylmax);
+		out_dec ("M4_HOOK_CONST_DEFINE_UINT(YYLMAX, %d)\n", ctrl.yylmax);
 	}
-	
+
 	/* Dump the user defined preproc directives. */
 	if (userdef_buf.elts)
 		outn ((char *) (userdef_buf.elts));
@@ -1443,7 +1443,7 @@ void readin (void)
 		int i;
 		buf_init(&tmpbuf, sizeof(char));
 		for (i = 1; i <= lastsc; i++) {
-			char *str, *fmt = "M4_HOOK_CONST_DEFINE(%s, %d)";
+			char *str, *fmt = "M4_HOOK_CONST_DEFINE_STATE(%s, %d)";
 			size_t strsz;
 
 			strsz = strlen(fmt) + strlen(scname[i]) + (size_t)(1 + ceil (log10(i))) + 2;
