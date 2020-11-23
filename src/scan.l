@@ -88,10 +88,6 @@ extern const char *escaped_qstart, *escaped_qend;
 	if ( all_lower( str ) ) \
 		reject = true;
 
-#define CHECK_YYMORE(str) \
-	if ( all_lower( str ) ) \
-		yymore_used = true;
-
 #define YY_USER_INIT \
 	if ( getenv("POSIXLY_CORRECT") ) \
 		ctrl.posix_compat = true;
@@ -150,6 +146,13 @@ LEXOPT		[aceknopr]
 M4QSTART    "[""["
 M4QEND      "]""]"
 
+FUNARGS     [^)]*
+
+%{
+void context_call(char *);
+void context_member(char *, const char *);
+#undef yyreject
+%}
 %%
 	static int bracelevel, didadef, indented_code;
 	static int doing_rule_action = false;
@@ -306,7 +309,7 @@ M4QEND      "]""]"
     <<EOF>>     {
                 linenum = brace_start_line;
                 synerr(_("Unmatched '{'"));
-                yyterminate();
+                return YY_NULL;
                 }
 }
 
@@ -368,7 +371,7 @@ M4QEND      "]""]"
 	bison-bridge     ctrl.bison_bridge_lval = option_sense;
 	bison-locations  { if((ctrl.bison_bridge_lloc = option_sense))
                             ctrl.bison_bridge_lval = true;
-                     }
+			}
 	"c++"		ctrl.C_plus_plus = option_sense;
 	caseful|case-sensitive		sf_set_case_ins(!option_sense);
 	caseless|case-insensitive	sf_set_case_ins(option_sense);
@@ -404,7 +407,8 @@ M4QEND      "]""]"
 	pointer		ctrl.yytext_is_array = ! option_sense;
 	read		ctrl.use_read = option_sense;
 	reentrant	ctrl.reentrant = option_sense;
-	reject		reject_really_used = option_sense;
+	reject		ctrl.reject_really_used = option_sense;
+	rewrite		ctrl.rewrite = option_sense;
 	stack		ctrl.stack_used = option_sense;
 	stdinit		ctrl.do_stdinit = option_sense;
 	stdout		env.use_stdout = option_sense;
@@ -414,9 +418,11 @@ M4QEND      "]""]"
 	verbose		env.printstats = option_sense;
 	warn		env.nowarn = ! option_sense;
 	yylineno	ctrl.do_yylineno = option_sense;
-	yymore		yymore_really_used = option_sense;
+	yymore		ctrl.yymore_really_used = option_sense;
 	yywrap		ctrl.do_yywrap = option_sense;
 	yyread		ctrl.noyyread = !option_sense;
+
+	yypanic		ctrl.no_yypanic = !option_sense;
 
 	yy_push_state	ctrl.no_yy_push_state = ! option_sense;
 	yy_pop_state	ctrl.no_yy_pop_state = ! option_sense;
@@ -449,6 +455,7 @@ M4QEND      "]""]"
 	yyget_lloc      ctrl.no_yyget_lloc = ! option_sense;
 	yyset_lloc      ctrl.no_yyset_lloc = ! option_sense;
 
+	bufsize		return TOK_BUFSIZE;
 	emit		return TOK_EMIT;
 	extra-type	return TOK_EXTRA_TYPE;
 	outfile		return TOK_OUTFILE;
@@ -456,6 +463,7 @@ M4QEND      "]""]"
 	yyclass		return TOK_YYCLASS;
 	yylmax		return TOK_YYLMAX;
 	yydecl		return TOK_YYDECL;
+	yyterminate	return TOK_YYTERMINATE;
 	pre-action	return TOK_PREACTION;
 	post-action	return TOK_POSTACTION;
 	user-init	return TOK_USERINIT;
@@ -517,7 +525,7 @@ M4QEND      "]""]"
 	<<EOF>>		{
 			mark_prolog();
 			sectnum = 0;
-			yyterminate(); /* to stop the parser */
+			return YY_NULL; /* to stop the parser */
 			}
 }
 
@@ -916,16 +924,19 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
 
 	<CODEBLOCK,ACTION>{
 		"reject" {
-            ACTION_ECHO;
-            CHECK_REJECT(yytext);
+			ACTION_ECHO;
+			CHECK_REJECT(yytext);
         }
 		"yyreject()" {
-            ACTION_ECHO;
-            CHECK_YYREJECT(yytext);
+			add_action("]""]M4_HOOK_REJECT[""[");
+			CHECK_YYREJECT(yytext);
         }
-		"yymore" {
-            ACTION_ECHO;
-            CHECK_YYMORE(yytext);
+		"yymore()" {
+			yymore_used = true;
+			if (ctrl.rewrite)
+				context_call(yytext);
+			else
+				ACTION_ECHO;
         }
 	}
 
@@ -935,7 +946,7 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
 		ACTION_ECHO;
 		if (bracelevel <= 0 || (doing_codeblock && indented_code)) {
             if ( doing_rule_action )
-                add_action( "\tYY_BREAK]""]\n" );
+                add_action( "\t]""]M4_HOOK_STATE_CASE_BREAK\n" );
 
             doing_rule_action = doing_codeblock = false;
             BEGIN(SECT2);
@@ -944,11 +955,34 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
 }
 
 
-	/* Reject and YYmore() are checked for above, in PERCENT_BRACE_ACTION */
+	/* yyreject and yymore() are checked for above, in PERCENT_BRACE_ACTION */
 <ACTION>{
 	"{"		ACTION_ECHO; ++bracelevel;
 	"}"		ACTION_ECHO; --bracelevel;
-	[^[:alpha:]_{}""''/\n\[\]]+	ACTION_ECHO;
+	yyecho\(\)|yyinput\(\)|yystart\({FUNARGS}\)|yybegin\({FUNARGS}\)|yyunput\({FUNARGS}\)|yypanic\({FUNARGS}\)|yyatbol\(\)|yysetbol\({FUNARGS}\) {
+			if (ctrl.rewrite)
+				context_call(yytext);
+			else
+				ACTION_ECHO;
+	}
+	yyterminate\(\)|yyless\({FUNARGS}\) {
+			add_action("]""]");
+			add_action(yytext);
+			add_action("[""[");
+	}
+	(yyin|yyout|yyextra|yyleng|yytext|yyflexdebug)/[^[:alnum:]_] {
+			if (ctrl.rewrite)
+				context_member(yytext, "M4_PROPERTY_CONTEXT_FORMAT");
+			else
+				ACTION_ECHO;
+	}
+	(yylineno|yycolumn)/[^[:alnum:]_] {
+			if (ctrl.rewrite)
+				context_member(yytext, "M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT");
+			else
+				ACTION_ECHO;
+	}
+	[^[:Alpha:]_{}""''/\n\[\]]+	ACTION_ECHO;
         {NAME}		ACTION_ECHO;
         "'"([^''\\\n]|\\.)"'" ACTION_ECHO; /* character constant */
         "'"             ACTION_ECHO; BEGIN(CHARACTER_CONSTANT);
@@ -958,7 +992,7 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
                 ACTION_ECHO;
                 if (bracelevel <= 0) {
                    if ( doing_rule_action )
-                      add_action( "\tYY_BREAK]""]\n" );
+                      add_action( "\t]""]M4_HOOK_STATE_CASE_BREAK\n" );
 
                    doing_rule_action = false;
                    BEGIN(SECT2);
@@ -1060,3 +1094,38 @@ void set_input_file( char *file )
 
 	linenum = 1;
 	}
+
+void context_call(char *txt) {
+	const char *context_arg = skel_property("M4_PROPERTY_CONTEXT_ARG");
+
+	/* if there's no such property, simply pass through */
+	if (context_arg == NULL) {
+		add_action(txt);
+	} else {
+		char buf[BUFSIZ];
+
+		/* otherwise, supply the context string as a final argument */
+		assert(txt[strlen(txt)-1] == ')');
+		strncpy(buf, txt, sizeof(buf));
+		buf[strlen(buf)-1] = '\0';	/* remove trailing ) */
+		add_action(buf);
+		if (txt[strlen(buf)-1] != '(') {
+			add_action(", ");
+		}
+		add_action(context_arg);
+		add_action(")");
+	}
+}
+
+void context_member(char *txt, const char *prop) {
+	const char *context_format = skel_property(prop);
+
+	/* if there's no such property, simply pass through */
+	if (context_format == NULL) {
+		add_action(txt);
+	} else {
+		char buf[128];
+		snprintf(buf, sizeof(buf), context_format, txt);
+		add_action(buf);
+	}
+}

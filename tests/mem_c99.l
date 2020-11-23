@@ -39,7 +39,7 @@
 
 %}
 
-%option emit="c99"
+%option emit="c99" bufsize=8
 %option 8bit prefix="test"
 %option nounput nomain noyywrap noinput noyy_top_state
 %option warn stack nodefault
@@ -86,7 +86,7 @@ static void dump_mem(FILE* fp){
     fprintf(fp,"}\n");
 }
 
-void * testalloc(yy_size_t n , void* yyscanner)
+void * testalloc(yy_size_t n , yyscan_t yyscanner)
 {
     (void)yyscanner;
 
@@ -117,7 +117,7 @@ void * testalloc(yy_size_t n , void* yyscanner)
     return p;
 }
 
-void * testrealloc(void* p, yy_size_t n , void* yyscanner)
+void * testrealloc(void* p, yy_size_t n , yyscan_t yyscanner)
 {
     (void)yyscanner;
 
@@ -140,7 +140,7 @@ void * testrealloc(void* p, yy_size_t n , void* yyscanner)
     exit(1);
 }
 
-void testfree(void* p , void* yyscanner)
+void testfree(void* p , yyscan_t yyscanner)
 {
     (void)yyscanner;
 

@@ -49,7 +49,6 @@ void set_up_initial_allocations(void);
 /* these globals are all defined and commented in flexdef.h */
 int     syntaxerror, eofseen;
 int     yymore_used, reject, real_reject, continued_action, in_rule;
-int     yymore_really_used, reject_really_used;
 int     datapos, dataline, linenum;
 FILE   *skelfile = NULL;
 int     skel_ind = 0;
@@ -370,7 +369,7 @@ void check_options (void)
 	/* This makes no sense whatsoever. I'm removing it. */
 	if (ctrl.do_yylineno)
 		/* This should really be "maintain_backup_tables = true" */
-		reject_really_used = true;
+		ctrl.reject_really_used = true;
 #endif
 
 	if (ctrl.csize == trit_unspecified) {
@@ -728,13 +727,17 @@ void flexinit (int argc, char **argv)
 	syntaxerror = false;
 	yymore_used = continued_action = false;
 	in_rule = reject = false;
-	yymore_really_used = reject_really_used = trit_unspecified;
+	ctrl.yymore_really_used = ctrl.reject_really_used = trit_unspecified;
+
 	ctrl.do_main = trit_unspecified;
 	ctrl.interactive = ctrl.csize = trit_unspecified;
 	ctrl.do_yywrap = ctrl.gen_line_dirs = ctrl.usemecs = ctrl.useecs = true;
 	ctrl.reentrant = ctrl.bison_bridge_lval = ctrl.bison_bridge_lloc = false;
 	env.performance_hint = 0;
 	ctrl.prefix = "yy";
+	ctrl.rewrite = false;
+	ctrl.yylmax = BUFSIZ;
+
 	tablesext = tablesverify = false;
 	gentables = true;
 	tablesfilename = tablesname = NULL;
@@ -1090,19 +1093,19 @@ void flexinit (int argc, char **argv)
 			break;
 
 		    case OPT_YYMORE:
-			yymore_really_used = true;
+			ctrl.yymore_really_used = true;
 			break;
 
 		    case OPT_NO_YYMORE:
-			yymore_really_used = false;
+			ctrl.yymore_really_used = false;
 			break;
 
 		    case OPT_REJECT:
-			reject_really_used = true;
+			ctrl.reject_really_used = true;
 			break;
 
 		    case OPT_NO_REJECT:
-			reject_really_used = false;
+			ctrl.reject_really_used = false;
 			break;
 
 		    case OPT_NO_YY_PUSH_STATE:
@@ -1227,9 +1230,11 @@ void readin (void)
 	if (syntaxerror)
 		flexend (1);
 
-	/* On --emit, -e, or %option emit, change backends
-	 * This is where backend properties are collected,
-	 * which means they can't be set from a custom skelfile.
+	/* On --emit, -e, or change backends This is where backend
+	 * properties are collected, which means they can't be set
+	 * from a custom skelfile.  Note: might have been called sooner
+	 * when %option emit was evaluated; this catches command-line
+	 * optiins and the default case.
 	 */
 	backend_by_name(ctrl.emit);
 
@@ -1310,9 +1315,11 @@ void readin (void)
 		out_str ("M4_HOOK_SET_POSTACTION(%s)\n", ctrl.postaction);
 	}
 
-	if (ctrl.yylmax != 0) {
-		out_dec ("M4_HOOK_CONST_DEFINE_UINT(YYLMAX, %d)\n", ctrl.yylmax);
-	}
+	/* This has to be a stright textual substitution rather
+	 * than a constant declaration because in C a const is
+	 * not const enough to be a static array bound.
+	 */
+	out_dec ("m4_define([[YYLMAX]], [[%d]])\n", ctrl.yylmax);
 
 	/* Dump the user defined preproc directives. */
 	if (userdef_buf.elts)
@@ -1350,14 +1357,14 @@ void readin (void)
 	else
 		ctrl.backing_up_file = NULL;
 
-	if (yymore_really_used == true)
+	if (ctrl.yymore_really_used == true)
 		yymore_used = true;
-	else if (yymore_really_used == false)
+	else if (ctrl.yymore_really_used == false)
 		yymore_used = false;
 
-	if (reject_really_used == true)
+	if (ctrl.reject_really_used == true)
 		reject = true;
-	else if (reject_really_used == false)
+	else if (ctrl.reject_really_used == false)
 		reject = false;
 
 	if (env.performance_hint > 0) {
@@ -1466,7 +1473,7 @@ void readin (void)
 		visible_define("<M4_YY_BISON_LLOC>");
 
 	if (extra_type != NULL)
-		visible_define_str ("M4_EXTRA_TYPE_DEFS", extra_type);
+		visible_define_str ("M4_MODE_EXTRA_TYPE", extra_type);
 
 	/* always generate the tablesverify flag. */
 	visible_define_str ("M4_YY_TABLES_VERIFY", tablesverify ? "1" : "0");
@@ -1521,7 +1528,7 @@ void readin (void)
 	}
 	if (real_reject)
 		visible_define ( "M4_MODE_REAL_REJECT");
-	if (reject_really_used)
+	if (ctrl.reject_really_used)
 		visible_define ( "M4_MODE_FIND_ACTION_REJECT_REALLY_USED");
 	if (reject)
 		visible_define ( "M4_MODE_USES_REJECT");
@@ -1612,6 +1619,14 @@ void readin (void)
 	if (ctrl.no_yyinput)
 		visible_define("M4_MODE_NO_YYINPUT");
 
+	if (ctrl.bufsize != 0)
+	    visible_define_int("M4_MODE_YY_BUFSIZE", ctrl.bufsize);
+
+	if (ctrl.yyterminate != NULL)
+	    visible_define_str("M4_MODE_YYTERMINATE", ctrl.yyterminate);
+	
+	if (ctrl.no_yypanic)
+		visible_define("M4_YY_NO_YYPANIC");
 	if (ctrl.no_yy_push_state)
 		visible_define("M4_YY_NO_PUSH_STATE");
 	if (ctrl.no_yy_pop_state)
@@ -1678,6 +1693,11 @@ void readin (void)
 		visible_define("M4_YY_NEVER_INTERACTIVE");
 	if (ctrl.stack_used)
 		visible_define("M4_YY_STACK_USED");
+
+	if (ctrl.rewrite)
+		visible_define ( "M4_MODE_REWRITE");
+	else
+		visible_define ( "M4_MODE_NO_REWRITE");
 
 	comment("END of m4 controls\n");
 	out ("\n");

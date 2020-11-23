@@ -1,4 +1,5 @@
-/* This file is part of flex.
+/*
+ * This file is part of flex.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -19,13 +20,15 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
+define(`M4_TEST_ENABLEDEBUG', `')
+
 %option 8bit
 %option nounput nomain noyywrap noinput
-%option warn array
+%option warn debug
+
 %%
-
-.|\n    { }
-
+.+   { }
+\n   { }
 ###
-0000 foo 1111 foo 0000 bar
-0000 foo 1111 foo 0000 bar
+Any input will do for this test.
+We are only testing if it actually runs in debug mode.

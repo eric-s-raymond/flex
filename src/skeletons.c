@@ -38,21 +38,26 @@
 /* START digested skeletons */
 
 const char *cpp_skel[] = {
-#include "cpp-skel.h"
+#include "cpp-flex.h"
     0,
 };
 
 const char *c99_skel[] = {
-#include "c99-skel.h"
+#include "c99-flex.h"
+    0,
+};
+
+const char *go_skel[] = {
+#include "go-flex.h"
     0,
 };
 
 /* END digested skeletons */
 
 /* Method table describing a language-specific back end.
- * Even if this never gets a member other than the skell
- * array, it prevents us from geting lost in a maze of
- * twity array referebce levels, all different.
+ * Even if this never gets a member other than the skel
+ * array, it prevents us from getting lost in a maze of
+ * twisty array reference levels, all different.
  */
 struct flex_backend_t {
 	const char **skel;		// Digested skeleton file
@@ -61,6 +66,7 @@ struct flex_backend_t {
 static struct flex_backend_t backends[] = {
     {.skel=cpp_skel},
     {.skel=c99_skel},
+    {.skel=go_skel},
     {NULL}
 };
 
@@ -91,7 +97,18 @@ static bool boneseeker(const char *bone)
 
 void backend_by_name(const char *name)
 {
+	const char *prefix_property;
 	if (name != NULL) {
+		if (strcmp(name, "nr") == 0) {
+			backend = &backends[0];
+			ctrl.reentrant = false;
+			goto backend_ok;
+		}
+		if (strcmp(name, "r") == 0) {
+			backend = &backends[0];
+			ctrl.reentrant = true;
+			goto backend_ok;
+		}
 		for (backend = &backends[0]; backend->skel != NULL; backend++) {
 			if (strcasecmp(skel_property("M4_PROPERTY_BACKEND_NAME"), name) == 0)
 				goto backend_ok;
@@ -99,10 +116,14 @@ void backend_by_name(const char *name)
 		flexerror(_("no such back end"));
 	}
   backend_ok:
+	ctrl.rewrite = !is_default_backend();
 	ctrl.backend_name = xstrdup(skel_property("M4_PROPERTY_BACKEND_NAME"));
 	ctrl.traceline_re = xstrdup(skel_property("M4_PROPERTY_TRACE_LINE_REGEXP"));
 	ctrl.traceline_template = xstrdup(skel_property("M4_PROPERTY_TRACE_LINE_TEMPLATE"));
 	ctrl.have_state_entry_format = boneseeker("m4_define([[M4_HOOK_STATE_ENTRY_FORMAT]]");
+	prefix_property = skel_property("M4_PROPERTY_PREFIX");
+	if (prefix_property != NULL)
+		ctrl.prefix = xstrdup(prefix_property);
 	flex_init_regex(ctrl.traceline_re);
 }
 

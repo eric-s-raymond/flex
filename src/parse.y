@@ -3,7 +3,7 @@
 %token CHAR NUMBER SECTEND SCDECL XSCDECL NAME PREVCCL EOF_OP
 %token TOK_OPTION TOK_OUTFILE TOK_PREFIX TOK_YYCLASS TOK_HEADER_FILE TOK_EXTRA_TYPE
 %token TOK_TABLES_FILE TOK_YYLMAX TOK_NUMERIC TOK_YYDECL TOK_PREACTION TOK_POSTACTION
-%token TOK_USERINIT TOK_EMIT
+%token TOK_USERINIT TOK_EMIT TOK_BUFSIZE TOK_YYTERMINATE
 
 %token CCE_ALNUM CCE_ALPHA CCE_BLANK CCE_CNTRL CCE_DIGIT CCE_GRAPH
 %token CCE_LOWER CCE_PRINT CCE_PUNCT CCE_SPACE CCE_UPPER CCE_XDIGIT
@@ -135,13 +135,16 @@ goal		:  initlex sect1 sect1end sect2 initforrule
 			for ( i = 1; i <= lastsc; ++i )
 				scset[i] = mkbranch( scset[i], def_rule );
 
+			add_action("]]");
+
 			if ( ctrl.spprdflt )
 				add_action(
-				"YY_FATAL_ERROR( \"flex scanner jammed\" )" );
-			else
-				add_action( "yyecho()" );
+				"M4_HOOK_FATAL_ERROR(\"flex scanner jammed\")");
+			else {
+			    add_action("M4_HOOK_ECHO");
+			}
 
-			add_action( ";\n\tYY_BREAK]]\n" );
+			add_action( "\n\tM4_HOOK_STATE_CASE_BREAK\n" );
 			}
 		;
 
@@ -215,10 +218,14 @@ option		:  TOK_OUTFILE '=' NAME
 			{ ctrl.preaction = xstrdup(nmstr); }
 		|  TOK_POSTACTION '=' NAME
 			{ ctrl.postaction = xstrdup(nmstr); }
+		|  TOK_BUFSIZE '=' TOK_NUMERIC
+			{ ctrl.bufsize = nmval; }
 		|  TOK_EMIT '=' NAME
-			{ ctrl.emit = xstrdup(nmstr); }
+			{ ctrl.emit = xstrdup(nmstr); backend_by_name(ctrl.emit); }
 		|  TOK_USERINIT '=' NAME
 			{ ctrl.userinit = xstrdup(nmstr); }
+		|  TOK_YYTERMINATE '=' NAME
+			{ ctrl.yyterminate = xstrdup(nmstr); }
 		|  TOK_TABLES_FILE '=' NAME
         		{ tablesext = true; tablesfilename = xstrdup(nmstr); }
 		;

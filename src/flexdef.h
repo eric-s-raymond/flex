@@ -310,8 +310,8 @@ struct ctrl_bundle_t {
 	bool always_interactive;// always use cheacter-by-character input
 	FILE *backing_up_file;	// file to summarize backing-up states to 
 	bool bison_bridge_lval;	// (--bison-bridge), bison pure calling convention. 
-	bool bison_bridge_lloc;	// (--bison-locations), bison yylloc. 
-	char *backend;		// selected code-generating backend
+	bool bison_bridge_lloc;	// (--bison-locations), bison yylloc.
+	size_t bufsize;		// input buffer size
 	bool C_plus_plus;	// (-+ flag) generate a C++ scanner class 
 	int csize;		// size of character set for the scanner 
 				// 128 for 7-bit chars and 256 for 8-bit 
@@ -332,7 +332,9 @@ struct ctrl_bundle_t {
 	bool no_unistd;		// suppress inclusion of unistd.h
 	bool posix_compat;	// (-X) maximize compatibility with POSIX lex 
 	char *prefix;		// prefix for externally visible names, default "yy" 
-	bool reentrant;		// if true (-R), generate a reentrant C scanner 
+	trit reject_really_used;// Force generation of support code for reject operation
+	bool reentrant;		// if true (-R), generate a reentrant C scanner
+	bool rewrite;		// Appl;y magic rewre rles to special fumctions 
 	bool stack_used;	// Enable use of start-condition stacks
 	bool no_section3_escape;// True if the undocumented option --unsafe-no-m4-sect3-escape was passed
 	bool spprdflt;		// (-s) suppress the default rule
@@ -343,6 +345,7 @@ struct ctrl_bundle_t {
 	char *yyclass;		// yyFlexLexer subclass to use for YY_DECL
 	char *yydecl;		// user-specfied prototype for yylex.
 	int yylmax;		// Maximum buffer length if %array
+	trit yymore_really_used;// Force geberation of support code for yymore
 	bool yytext_is_array;	// if true (i.e., %array directive), then declare
 				// yytext as array instead of a character pointer.
 				// Nice and inefficient.
@@ -351,6 +354,8 @@ struct ctrl_bundle_t {
 	char *preaction;	// Code fragment to be inserted before each action
 	char *postaction;	// Code fragment to be inserted after each action
 	char *emit;		// Specify target language to emit.
+	char *yyterminate;	// Set a non-default termination hook.
+	bool no_yypanic;	// if true, no not generate default yypanic function
  	// flags corresponding to the huge mass of --no-yy options
 	bool no_yy_push_state;
 	bool no_yy_pop_state;
@@ -439,7 +444,6 @@ extern struct env_bundle_t env;
 
 extern int syntaxerror, eofseen;
 extern int yymore_used, reject, real_reject, continued_action, in_rule;
-extern int yymore_really_used, reject_really_used;
 
 /* Variables used in the flex input routines:
  * datapos - characters on current output line
@@ -801,6 +805,9 @@ extern void visible_define (const char *);
 /* And again, with an explicit value part. */
 extern void visible_define_str (const char *, const char *);
 
+/* This time the value part is an int */
+extern void visible_define_int (const char *, const int);
+
 /* Generate full speed compressed transition table. */
 extern void genctbl(void);
 
@@ -1060,6 +1067,8 @@ extern void scinstal(const char *, int);	/* make a start condition */
 /* Lookup the number associated with a start condition. */
 extern int sclookup(const char *);
 
+/* Supply context argument for a function if required */
+extern void context_call(char *);
 
 /* from file tblcmp.c */
 

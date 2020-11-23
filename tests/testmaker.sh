@@ -1,20 +1,22 @@
 #!/bin/sh
 #
 # testmaker.sh - asssemble tests from backend-independent rulesets and
-# backend-dependent boilerplate.
+# backend-dependent boilerplate.  Generates both a Flex source file
+# and an input text for it.
 #
 # The single argument is a testfile name to be generated.
 # With the -d option, dump to stdourather than crating the file.
 #
 # To add a new back end named "foo", append "|foo" to the
-# string literal below.
-backends="c99"
+# third case arm marked "# Add new back ends on this line".
 
 if [ "$1" = -d ] ; then
     shift
     outdev=/dev/stdout
+    filter=cat
 else
     outdev="$1"
+    filter=m4
 fi
 
 testfile=$1
@@ -41,9 +43,9 @@ for part in "$@"; do
     case ${part} in
         nr) backend=nr; ;;
         r) backend=r; options="${options} reentrant";;
-        ${backends}) backend=${part}; options="${options} emit=\"${part}\"" ;;
+        c99|go) backend=${part}; options="${options} emit=\"${part}\"" ;;	# Add new back ends on this line
         ser) serialization=yes ;;
-        ver) serialization=yes; options="${options} tables-verify" ;;
+        ver) serialization=yes; verification=yes; options="${options} tables-verify" ;;
 	Ca) options="${options} align" ;;
 	Ce) options="${options} ecs" ;;
 	Cf) options="${options} full" ;;
@@ -84,8 +86,14 @@ m4def() {
     cat testmaker.m4
     echo "M4_TEST_PREAMBLE\`'dnl"
     echo "M4_TEST_OPTIONS\`'dnl"
-    cat "${stem}.rules"
+    sed <"${stem}.rules" -e "/###/Q0"
+    echo "%%"
     echo "M4_TEST_POSTAMBLE\`'dnl"
-) | m4 >"${outdev}"
+) | "${filter}" >"${outdev}"
+
+if [ "${outdev}" != /dev/stdout ] && [ ! -f "${stem}.txt" ]
+then
+    sed <"${stem}.rules" -e "1,/###/d" >"${stem}.txt"
+fi
 
 # end
