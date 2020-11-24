@@ -244,6 +244,7 @@ int flex_main (int argc, char *argv[])
 
 	if (did_eof_rule) {
 		out ("M4_HOOK_EOF_STATE_CASE_TERMINATE");
+                outc('\n');
 	}
 
 	skelout (true);
