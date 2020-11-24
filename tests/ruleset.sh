@@ -23,17 +23,51 @@ compatible() {
     [ "${mybackend}" = "nr" ] || [ "${myruleset}" != "lexcompat.rules" -a "${myruleset}" != "posixlycorrect.rules" ]
 }
 
+exts=""
+suffixes=""
 for backend in "$@" ; do
+    case $backend in
+	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
+	*) ext=${backend} ;;
+    esac
+    exts="$(printf "%s\n%s" "${ext}" "${exts}")"
+done
+exts="$(echo "${exts}" | sort -u)"
+for ext in ${exts}; do
+    suffixes=".${ext} ${suffixes}"
+done
+echo "SUFFIXES = ${suffixes}"
+#for ext in ${exts}; do
+#    # shellcheck disable=SC2016
+#    printf '%s%s: $(FLEX)\n\t$(AM_V_LEX)$(FLEX) $(TESTOPTS) -o $@ $<\n\n' ".l${ext}" ".${ext}"
+#done
+
+for backend in "$@" ; do
+    case $backend in
+	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
+	*) ext=${backend} ;;
+    esac
     for ruleset in *.rules; do
 	if compatible "${backend}" "${ruleset}" ; then
 	    testname="${ruleset%.*}_${backend}"
-	    echo "${testname}_SOURCES = ${testname}.l"
+#            if [ "${ext}" = "c" ]; then
+#                echo "${testname}_SOURCES = ${testname}.l${ext}"
+#            else
+                echo "${testname}_SOURCES = ${testname}.${ext}"
+#            fi
 	    echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
 	    # we're deliberately single-quoting this because we _don't_ want those variables to be expanded yet
 	    # shellcheck disable=2016
-	    printf '\t$(SHELL) $(srcdir)/testmaker.sh $@\n\n'
+	    printf '\t$(SHELL) $(srcdir)/testmaker.sh $@\n'
+#            if [ "${ext}" != "c" ]; then
+#                echo "${testname}.${ext}: ${testname}.l${ext}"
+#            fi
+            echo ""
+
 	    RULESET_TESTS="${RULESET_TESTS} ${testname}"
-	    RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.c ${testname}.l ${ruleset%.*}.txt"
+	    RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.${ext} ${testname}.l ${ruleset%.*}.txt"
 	fi
     done
     for kind in opt ser ver ; do
@@ -43,7 +77,7 @@ for backend in "$@" ; do
             bare_opt=$(echo ${bare_opt}| sed 's/F$/xF/')
             testname=tableopts_${kind}_${backend}-${bare_opt}.${kind}
             RULESET_TESTS="${RULESET_TESTS} ${testname}"
-            RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.c ${testname}.l ${testname}.tables"
+            RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.${ext} ${testname}.l ${testname}.tables"
             cat << EOF
 tableopts_${kind}_${backend}_${bare_opt}_${kind}_SOURCES = ${testname}.l
 ${testname}.l: \$(srcdir)/tableopts.rules \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4
@@ -59,6 +93,7 @@ done
 for backend in "$@" ; do
     case $backend in
 	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
 	*) ext=${backend} ;;
     esac
     # shellcheck disable=SC2059
@@ -83,5 +118,3 @@ printf "# End generated test rules\n"
 echo RULESET_TESTS = "${RULESET_TESTS}"
 echo RULESET_REMOVABLES = "${RULESET_REMOVABLES}"
 echo
-
-

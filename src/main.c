@@ -786,7 +786,7 @@ void flexinit (int argc, char **argv)
 
 		switch ((enum flexopt_flag_t) rv) {
                     case OPT_BACKEND:
-			ctrl.backend = arg;
+                      //ctrl.backend = arg;
 			break;
 
 		    case OPT_CPLUSPLUS:

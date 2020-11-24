@@ -810,13 +810,6 @@ const READ_BUF_SIZE: usize = BUF_SIZE/2;
 const STATE_BUF_SIZE: usize = (BUF_SIZE + 2) * std::mem::size_of::<State>();
 
 #[derive(PartialEq, Eq)]
-enum EndOfBufferAction {
-    ContinueScan,
-    EndOfFile,
-    LastMatch,
-}
-
-#[derive(PartialEq, Eq)]
 enum EOBAction {
     ContinueScan,
     EndOfFile,

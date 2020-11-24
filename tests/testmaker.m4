@@ -187,4 +187,22 @@ func main(void) {
 ')dnl close postamble
 ')dnl close go
 dnl
+dnl for the Rust backend
+ifelse(M4_TEST_BACKEND, `rust', `dnl
+define(`M4_TEST_PREAMBLE', `dnl
+')dnl close rust preamble
+define(`M4_TEST_DO', `$1;')dnl
+define(`M4_TEST_FAILMESSAGE', `eprintln!("TEST FAILED."); std::process::exit(1);')dnl
+define(`M4_TEST_ASSERT', `if !($1) {eprintln!("ASSERT FAILED."); std::process::exit(1);}')dnl
+define(`M4_TEST_POSTAMBLE', `dnl
+fn main() -> Result<()> {
+    let mut lexer: Lexer<()> = Lexer::new();
+    let mut data = ();
+    lexer.lex(&mut data)?;
+    println!("TEST RETURNING OK.");
+    Ok(())
+}
+')dnl close rust postamble
+')dnl close rust
+dnl
 dnl Additional backends go here

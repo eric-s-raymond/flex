@@ -8,14 +8,16 @@
 # With the -d option, dump to stdourather than crating the file.
 #
 # To add a new back end named "foo", append "|foo" to the
-# third case arm marked "# Add new back ends on this line".
+# string literal below.
 
 if [ "$1" = -d ] ; then
     shift
     outdev=/dev/stdout
+    # shellcheck disable=2209
     filter=cat
 else
     outdev="$1"
+    # shellcheck disable=2209
     filter=m4
 fi
 
@@ -27,7 +29,7 @@ trap 'rm -f /tmp/testmaker$$' EXIT INT QUIT
 # shellcheck disable=2046
 set $(echo "${testfile}" | tr '.' ' ')
 for last; do :; done
-if [ "${last}" != "l" ]
+if [ "$(echo "${last}" | cut -c1-2)" = "1" ]
 then
     echo "$0: Don't know how to make anything but a .l file: ${last}" >&2
     exit 1
@@ -43,7 +45,7 @@ for part in "$@"; do
     case ${part} in
         nr) backend=nr; ;;
         r) backend=r; options="${options} reentrant";;
-        c99|go) backend=${part}; options="${options} emit=\"${part}\"" ;;	# Add new back ends on this line
+        c99|go|rust) backend=${part}; options="${options} emit=\"${part}\"" ;;	# Add new back ends on this line
         ser) serialization=yes ;;
         ver) serialization=yes; verification=yes; options="${options} tables-verify" ;;
 	Ca) options="${options} align" ;;

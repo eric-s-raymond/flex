@@ -52,6 +52,11 @@ const char *go_skel[] = {
     0,
 };
 
+const char *rust_skel[] = {
+#include "rust-flex.h"
+    0,
+};
+
 /* END digested skeletons */
 
 /* Method table describing a language-specific back end.
@@ -67,6 +72,7 @@ static struct flex_backend_t backends[] = {
     {.skel=cpp_skel},
     {.skel=c99_skel},
     {.skel=go_skel},
+    {.skel=rust_skel},
     {NULL}
 };
 
@@ -138,6 +144,7 @@ const char *suffix (void)
 			suffix = "c";
 	} else {
 		suffix = skel_property("M4_PROPERTY_SOURCE_SUFFIX");
+                printf("suffix='%s'\n", suffix);
 	}
 	
 	return suffix;
