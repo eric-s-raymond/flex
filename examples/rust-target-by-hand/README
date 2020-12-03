@@ -1,0 +1,10 @@
+This directory contains the first work towards creating a Rust target
+for Flex. Flex was first used to create the C code for
+examples/fastwc/wc1.l, then this code was hand-ported to Rust. This
+allowed me to understand the resulting program as a whole without
+needing to first grok all the alternatives present in the m4 skeleton,
+and insulated me from changes to that skeleton that were happening at
+the same time. Once I had this Rust program working, I understood that
+the generated code was doing well enough to tackle the skeleton. The
+c99 skeleton was also in a much better shape to use as a starting
+point by that time as well.
