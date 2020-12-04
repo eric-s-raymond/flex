@@ -911,20 +911,20 @@ m4_ifdef([[M4_MODE_NO_INTERACTIVE]], [[m4_dnl
                             m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[let mut act = tables::accept[current_state as usize];]])
 m4_ifdef([[M4_MODE_FIND_ACTION_REJECT]], [[m4_dnl
                             current_state = self.state_buf.pop().unwrap();
-                            self.lp = tables::accept[current_state as usize];
+                            self.lp = tables::accept[current_state as usize] as usize;
 m4_ifdef([[M4_MODE_FIND_ACTION_REJECT_REALLY_USED]], [[m4_dnl
                             'find_rule: /* we branch to this label when backing up */]])
                             loop { /* loop until we find out what rule we matched */
-                                if (self.lp != 0 && self.lp < tables::accept[current_state as usize + 1]) {
+                                if self.lp != 0 && self.lp < tables::accept[current_state as usize + 1] as usize {
                                     act = tables::acclist[self.lp];
 m4_ifdef([[M4_MODE_VARIABLE_TRAILING_CONTEXT_RULES]], [[m4_dnl
                                     if (act & YY_TRAILING_HEAD_MASK) != 0 || self.looking_for_trail_begin != 0 {
-                                        if (act == self.looking_for_trail_begin) {
+                                        if act == self.looking_for_trail_begin {
                                             selflooking_for_trail_begin = 0;
                                             act &= ~YY_TRAILING_HEAD_MASK;
                                             break;
                                         }
-                                    } else if (act & YY_TRAILING_MASK) != 0 {
+                                    } else if act & YY_TRAILING_MASK != 0 {
                                         self.looking_for_trail_begin = act & ~YY_TRAILING_MASK;
                                         self.looking_for_trail_begin |= YY_TRAILING_HEAD_MASK;
 m4_ifdef([[M4_MODE_REAL_REJECT]], [[m4_dnl
@@ -959,7 +959,7 @@ m4_ifdef([[M4_MODE_NO_VARIABLE_TRAILING_CONTEXT_RULES]], [[
                                  * branching inside a loop.
                                  */
                                 current_state = self.state_buf.pop().unwrap();
-                                self.lp = tables::accept[current_state as usize];
+                                self.lp = tables::accept[current_state as usize] as usize;
                             } /* close 'find_rule loop */
 ]])m4_dnl
 m4_ifdef([[M4_MODE_FIND_ACTION_COMPRESSED]], [[
