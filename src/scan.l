@@ -1096,24 +1096,21 @@ void set_input_file( char *file )
 	}
 
 void context_call(char *txt) {
-	const char *context_arg = skel_property("M4_PROPERTY_CONTEXT_ARG");
+	const char *context_format = skel_property("M4_PROPERTY_CONTEXT_CALL_FORMAT");
 
 	/* if there's no such property, simply pass through */
-	if (context_arg == NULL) {
+	if (context_format == NULL) {
 		add_action(txt);
 	} else {
 		char buf[BUFSIZ];
-
-		/* otherwise, supply the context string as a final argument */
 		assert(txt[strlen(txt)-1] == ')');
-		strncpy(buf, txt, sizeof(buf));
-		buf[strlen(buf)-1] = '\0';	/* remove trailing ) */
+		txt[strlen(txt)-1] = '\0';
+		char *args = strchr(txt, '(');
+		*args = '\0';
+		args += 1;
+		txt += 2; // skip over the yy prefix
+		snprintf(buf, BUFSIZ, context_format, txt, args);
 		add_action(buf);
-		if (txt[strlen(buf)-1] != '(') {
-			add_action(", ");
-		}
-		add_action(context_arg);
-		add_action(")");
 	}
 }
 
