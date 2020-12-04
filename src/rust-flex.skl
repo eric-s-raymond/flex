@@ -68,7 +68,7 @@ m4_define([[M4_HOOK_SET_POSTACTION]], [[m4_define([[M4_HOOK_STATE_CASE_BREAK]], 
 m4_define([[M4_HOOK_FATAL_ERROR]], [[panic!($1);]])
 m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
 
-m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(()) /* $1 */]]))
+m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
 m4_define([[yyless]], [[less!($1);]])
 
 #![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code)]
@@ -357,7 +357,7 @@ const TRAILING_HEAD_MASK: usize = 0x4000;
 %# Default declaration of generated scanner - a define so the user can
 %# easily add parameters.
 m4_ifdef([[YY_DECL]],, [[m4_dnl
-m4_define([[YY_DECL]], [[fn lex<D>(&mut self, _user_data: &mut D) -> Result<()>]])
+m4_define([[YY_DECL]], [[fn lex<D>(&mut self, _user_data: &mut D) -> Result<isize>]])
 ]])
 
 impl<T: Default> Lexer<T> {
