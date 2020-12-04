@@ -40,8 +40,8 @@ WORD [[:alpha:]]+
 DIGIT [[:digit:]]
 
 %%
-"yylineno++"          ++yylineno;
-"yylineno--"          --yylineno;
+"yylineno++"          yylineno += 1;
+"yylineno--"          yylineno -= 1;
 [[:blank:]]+
 {WORD}
 {DIGIT}+(\n{DIGIT}+)*
