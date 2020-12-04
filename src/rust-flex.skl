@@ -36,7 +36,7 @@ m4_define([[M4_HOOK_STATE_ENTRY_FORMAT]], [[&transition[$1],
 ]])
 m4_define([[M4_HOOK_NORMAL_STATE_CASE_ARM]], [[$1 => {]])
 m4_define([[M4_HOOK_EOF_STATE_CASE_ARM]], [[s if s == YY_STATE_EOF($1) => {]])
-m4_define([[M4_HOOK_EOF_STATE_CASE_FALLTHROUGH]], [[self.terminate(); },
+m4_define([[M4_HOOK_EOF_STATE_CASE_FALLTHROUGH]], [[yyterminate; },
 ]])
 m4_define([[M4_HOOK_EOF_STATE_CASE_TERMINATE]], [[]])
 m4_define([[M4_HOOK_TAKE_YYTEXT]], [[self.do_before_action(cp, bp); /* set up yytext */]])
