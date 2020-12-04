@@ -17,7 +17,7 @@ m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^//#line ([0-9]+) "(.*)"]])
 m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[//#line %d "%s"]])
 m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[self.%s(%s)]])
 m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[self.%s]])
-m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[self.buffer_stack.last().%s]])
+m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[self.current_buffer_unchecked_mut().%s]])
 %#m4_define([[M4_PROPERTY_PREFIX]], [[FlexLexer]])
 
 %# Macro hooks used by Flex code generators start here
@@ -566,8 +566,8 @@ m4_ifdef([[M4_MODE_YYLINENO]], [[
 ]])]])
 m4_ifdef([[M4_MODE_NO_BOL_NEEDED]], [[
 m4_ifdef([[M4_MODE_YYLINENO]], [[
-        if c == '\n' {
-            self.bump_line();
+        if c == b'\n' {
+            self.bumpline();
         }
 ]])]])
         Ok(c)
@@ -653,14 +653,13 @@ m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
 m4_ifdef([[M4_MODE_YYLINENO]], [[
     /* FIXME: gate on yy_rule_can_match_eol, this is no longer a macro
      * and we can get at yy_act */
-    fn less_lineno(&must self, n: usize) {
-        let buf = self.current_buffer_unchecked_mut();
+    fn less_lineno(&mut self, n: usize) {
         self.lineno_rewind_to(self.text + n, self.leng.unwrap());
     }
 
-    fn lineno_rewind_to(&mut self, cp: u8, dst: usize) {
-        let buf = self.current_buffer_unchecked_mut();
-        buf.lineno -= self.current_buffer_unchecked().ch_buf[cp..=dst].iter().filter(|c| c == '\n').count();
+    fn lineno_rewind_to(&mut self, cp: usize, dst: usize) {
+        let count = self.current_buffer_unchecked().ch_buf[cp..=dst].iter().filter(|c| **c == b'\n').count();
+        self.current_buffer_unchecked_mut().lineno -= count;
     }
 ]])
 
@@ -977,9 +976,9 @@ m4_ifdef([[M4_MODE_FIND_ACTION_COMPRESSED]], [[
                             self.do_before_action(cp, bp);
 
 m4_ifdef([[M4_MODE_YYLINENO]],[[m4_dnl
-                            if act != YY_END_OF_BUFFER && tables::rule_can_match_eol[act as usize] {
+                            if act != YY_END_OF_BUFFER && tables::rule_can_match_eol[act as usize] != 0 {
                                 let start = m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.prev_more_offset]], [[self.more_len]])]], [[0]]);
-                                self.bumpline_n(self.text_buf[start..self.leng.unwrap()].iter().filter(|c| c == '\n').count());
+                                self.bumpline_n(self.current_buffer_unchecked().ch_buf[start..self.leng.unwrap()].iter().filter(|c| **c == b'\n').count());
                             }
 ]])m4_dnl
 
