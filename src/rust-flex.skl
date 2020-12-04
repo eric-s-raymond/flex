@@ -172,7 +172,7 @@ pub struct Lexer<T> {
     buffer_stack: Vec<BufferState>,
     hold_char: u8,
     n_chars: usize,
-    length: Option<usize>,
+    leng: Option<usize>,
     c_buf_p: usize,
     init: bool,
     start: State,
@@ -458,15 +458,15 @@ m4_ifdef([[M4_MODE_DEBUG]],m4_dnl
 
     /** Write the current token to the output stream. */
     fn echo(&mut self) -> Result<()> {
-       if self.length.is_some() {
-           let token = self.current_buffer_unchecked().ch_buf[self.text..self.text + self.length.unwrap()].to_owned();
+       if self.leng.is_some() {
+           let token = self.current_buffer_unchecked().ch_buf[self.text..self.text + self.leng.unwrap()].to_owned();
            if let Some(output) = &mut self.output {
                output.write_all(&token).map_err(|e| e.to_string())
            } else {
                self.panic("No output stream available to echo to");
            }
        } else {
-           self.panic("Attempted to echo a token while self.length was negative");
+           self.panic("Attempted to echo a token while self.leng was negative");
        }
     }
 
@@ -609,8 +609,8 @@ m4_ifdef([[M4_MODE_NO_CPP_USE_READ]], [[
 
 m4_ifdef([[M4_MODE_BOL_NEEDED]], [[
     fn rule_check_bol(&mut self) {
-        if self.length.is_some() {
-            self.current_buffer_unchecked_mut().at_bol = self.ch(self.text + self.length.unwrap() - 1) == b'\n';
+        if self.leng.is_some() {
+            self.current_buffer_unchecked_mut().at_bol = self.ch(self.text + self.leng.unwrap() - 1) == b'\n';
         }
     }
 ]])
@@ -622,28 +622,28 @@ m4_ifdef([[M4_MODE_BOL_NEEDED]], [[
         self.text = bp;
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m4_dnl
         self.text -= self.more_len;
-        self.length = cp.checked_sub(self.text);]])]])
-        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[self.length = cp.checked_sub(bp);]])
-        m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.length = cp.checked_sub(bp);]])
+        self.leng = cp.checked_sub(self.text);]])]])
+        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[self.leng = cp.checked_sub(bp);]])
+        m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.leng = cp.checked_sub(bp);]])
         self.hold_char = self.ch(cp);
         self.set_ch(cp, b'\0');
 m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[if self.length.unwrap() + self.more_offset >= YYLMAX {
+        m4_ifdef([[M4_MODE_YYMORE_USED]], [[if self.leng.unwrap() + self.more_offset >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }]])
-        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.length.unwrap() >= YYLMAX {
+        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.leng.unwrap() >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }]])
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[
-        let range = self.text..=self.length.unwrap();
+        let range = self.text..=self.leng.unwrap();
         let start = self.text + self.more_offset;
         self.current_buffer_unchecked_mut().ch_buf.copy_within(range, start);
 ]])
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.length.unwrap() += self.more_offset;]])
+        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.leng.unwrap() += self.more_offset;]])
         m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.prev_more_offset = self.more_offset;]])
         m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.more_offset = 0;]])
 m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
-        let range = self.text..=self.length.unwrap();
+        let range = self.text..=self.leng.unwrap();
         let start = self.text;
         self.current_buffer_unchecked_mut().ch_buf.copy_within(range, start);]])
 ]])
@@ -655,7 +655,7 @@ m4_ifdef([[M4_MODE_YYLINENO]], [[
      * and we can get at yy_act */
     fn less_lineno(&must self, n: usize) {
         let buf = self.current_buffer_unchecked_mut();
-        self.lineno_rewind_to(self.text + n, self.length.unwrap());
+        self.lineno_rewind_to(self.text + n, self.leng.unwrap());
     }
 
     fn lineno_rewind_to(&mut self, cp: u8, dst: usize) {
@@ -700,7 +700,7 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     fn restore_more_offset(&mut self)
     {
         self.more_offset = self.prev_more_offset;
-        self.length.unwrap() -= self.more_offset;
+        self.leng.unwrap() -= self.more_offset;
     }
 ]])
 m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
@@ -979,7 +979,7 @@ m4_ifdef([[M4_MODE_FIND_ACTION_COMPRESSED]], [[
 m4_ifdef([[M4_MODE_YYLINENO]],[[m4_dnl
                             if act != YY_END_OF_BUFFER && tables::rule_can_match_eol[act as usize] {
                                 let start = m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.prev_more_offset]], [[self.more_len]])]], [[0]]);
-                                self.bumpline_n(self.text_buf[start..self.length.unwrap()].iter().filter(|c| c == '\n').count());
+                                self.bumpline_n(self.text_buf[start..self.leng.unwrap()].iter().filter(|c| c == '\n').count());
                             }
 ]])m4_dnl
 
