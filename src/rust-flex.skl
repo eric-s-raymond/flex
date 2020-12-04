@@ -205,7 +205,7 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     more_len: usize,
 ]])
     lineno: usize,
-    flex_debug: usize,
+    debug: bool,
 }
 
 /* Begin user sect3 */
@@ -398,6 +398,11 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]],
             self.input = Some(Rc::new(RefCell::new(io::stdin())));
             self.output = Some(Box::new(io::stdout()));
         }
+
+m4_ifdef([[M4_MODE_DEBUG]],m4_dnl
+[[m4_dnl
+        self.debug = DEBUG;
+]])m4_dnl
     }
 
     /** Returns the top buffer of the stack, or None. */
@@ -982,17 +987,17 @@ m4_ifdef([[M4_MODE_YYLINENO]],[[m4_dnl
 
                             'do_action: loop { /* This label is used only to access EOF actions. */
 m4_ifdef([[M4_MODE_DEBUG]], [[m4_dnl
-                                if self.flex_debug {
+                                if self.debug {
                                     if act == 0 {
                                         eprintln!("--scanner backing up");
-                                    } else if act < YY_NUM_RULES {
-                                        eprintln!("--accepting rule at line %ld (\"%s\")", tables::rule_linenum[act], self.text);
-                                    } else if act == YY_NUM_RULES {
-                                        eprintln!("--accepting default rule (\"%s\")", text);
-                                    } else if act == YY_NUM_RULES + 1 {
+                                    } else if act < YY_NUM_RULES as i16 {
+                                        eprintln!("--accepting rule at line {} (\"{:?}\")", tables::rule_linenum[act as usize], self.text);
+                                    } else if act == YY_NUM_RULES as i16 {
+                                        eprintln!("--accepting default rule (\"{:?}\")", self.text);
+                                    } else if act == YY_NUM_RULES as i16 + 1 {
                                         eprintln!("--(end of buffer or a NUL)");
                                     } else {
-                                        eprintln!("--EOF (start condition %d)\n", self.start());
+                                        eprintln!("--EOF (start condition {})\n", self.start());
                                     }
                                 }
 ]])m4_dnl
