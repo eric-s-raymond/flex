@@ -785,10 +785,6 @@ void flexinit (int argc, char **argv)
 		}
 
 		switch ((enum flexopt_flag_t) rv) {
-                    case OPT_BACKEND:
-                      //ctrl.backend = arg;
-			break;
-
 		    case OPT_CPLUSPLUS:
 			ctrl.C_plus_plus = true;
 			break;
@@ -1815,7 +1811,6 @@ void usage (void)
 		  "  -I, --interactive       generate interactive scanner (opposite of -B)\n"
 		  "      --yylineno          track line count in yylineno\n"
 		  "\n" "Generated code:\n"
-		  "       --backend=BACKEND   Select the specified code-generating backend. Default: cpp\n"
 		  "  -+,  --c++               cpp backend generates C++ scanner class instead of C\n"
 		  "  -Dmacro[=defn]           #define macro defn  (default defn is '1')\n"
 		  "  -e,  --emit=LANG         Specify target language\n"
