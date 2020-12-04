@@ -558,7 +558,7 @@ m4_ifdef([[M4_MODE_YYLINENO]],
         self.c_buf_p += 1;
         self.hold_char = self.ch(self.c_buf_p);
 m4_ifdef([[M4_MODE_BOL_NEEDED]], [[
-        self.current_buffer_unchecked_mut().at_bol = c == '\n';
+        self.current_buffer_unchecked_mut().at_bol = c == b'\n';
 m4_ifdef([[M4_MODE_YYLINENO]], [[
         if self.current_buffer_unchecked_mut().at_bol {
             self.bumpline();
@@ -610,9 +610,7 @@ m4_ifdef([[M4_MODE_NO_CPP_USE_READ]], [[
 m4_ifdef([[M4_MODE_BOL_NEEDED]], [[
     fn rule_check_bol(&mut self) {
         if self.length.is_some() {
-            let buf = self.current_buffer_unchecked_mut() =
-            let at_bol = buf[self.text + self.length.unwrap() - 1] == '\n';
-            buf.at_bol = at_bol;
+            self.current_buffer_unchecked_mut().at_bol = self.ch(self.text + self.length.unwrap() - 1) == b'\n';
         }
     }
 ]])
@@ -812,7 +810,7 @@ m4_ifdef([[M4_MODE_NO_BOL_NEEDED]], [[
 ]])
 m4_ifdef([[M4_MODE_NO_FULLSPD]], [[
         current_state = self.start;
-m4_ifdef([[M4_MODE_BOL_NEEDED]], [[current_state += self.at_bol();]])
+m4_ifdef([[M4_MODE_BOL_NEEDED]], [[current_state += if self.at_bol() { 1 } else { 0 };]])
         /* Set up for storing up states. */
 m4_ifdef([[M4_MODE_USES_REJECT]], [[
         self.state_ptr = self.state_buf;
