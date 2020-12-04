@@ -84,8 +84,9 @@ self.set_ch(cp, self.hold_char); /* undo effects of setting up yytext */
 cp = self.full_match; /* restore possibly backed-over text */
 m4_ifdef([[M4_MODE_VARIABLE_TRAILING_CONTEXT_RULES]], [[
 self.lp = self.full_lp; /* restore orig. accepting pos. */
-self.state_ptr = self.full_state; /* restore orig. state */
-current_state = *self.state_ptr; /* restore curr. state */
+// TODO(db48x): investigate; probably just need to pop the stack
+//self.state_ptr = self.full_state; /* restore orig. state */
+//current_state = *self.state_ptr; /* restore curr. state */
 ]])
 self.lp += 1;
 continue 'find_rule;
@@ -136,7 +137,7 @@ const NULL: u8 = 0;
 m4_define([[YY_STATE_EOF]], [[(YY_END_OF_BUFFER as isize + $1 as isize + 1) as i16]])
 
 /* The state buf must be large enough to hold one state per character in the main buffer. */
-m4_define([[YY_STATE_BUF_SIZE]], [[((BUF_SIZE + 2) * std::mem::size_of::<State>())]])
+m4_define([[YY_STATE_BUF_SIZE]], [[(BUF_SIZE + 2) * std::mem::size_of::<State>()]])
 
 %# These are not part of the exported interface and can safely be renamed
 #[derive(PartialEq, Eq)]
@@ -184,7 +185,6 @@ pub struct Lexer<T> {
     last_accepting_cpos: usize,
 m4_ifdef([[M4_MODE_USES_REJECT]], [[
     state_buf: Vec<State>,
-    state_ptr: usize,
     full_match: usize,
     lp: usize,
 
@@ -381,7 +381,6 @@ impl<T> Lexer<T> {
 m4_ifdef([[M4_MODE_USES_REJECT]],
 [[
         self.state_buf = Vec::with_capacity(YY_STATE_BUF_SIZE);
-        self.state_ptr = 0;
         self.full_match = 0;
         self.lp = 0;
 ]])
@@ -812,9 +811,7 @@ m4_ifdef([[M4_MODE_NO_FULLSPD]], [[
 m4_ifdef([[M4_MODE_BOL_NEEDED]], [[current_state += if self.at_bol() { 1 } else { 0 };]])
         /* Set up for storing up states. */
 m4_ifdef([[M4_MODE_USES_REJECT]], [[
-        self.state_ptr = self.state_buf;
-        self.state_buf[self.state_ptr] = current_state;
-        self.state_ptr += 1;
+        self.state_buf.push(current_state);
 ]])
 ]])
 ]])
@@ -1260,7 +1257,7 @@ m4_ifdef([[M4_MODE_NULTRANS]], [[m4_dnl
 ]])m4_dnl
         m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[M4_GEN_BACKING_UP]])
         m4_ifdef([[M4_MODE_FULLSPD]], [[M4_GEN_BACKING_UP]])
-        m4_ifdef([[M4_MODE_USES_REJECT]], [[        self.state_ptr.push(current_state);]])
+        m4_ifdef([[M4_MODE_USES_REJECT]], [[        self.state_buf.push(current_state);]])
         current_state
     }
 
@@ -1305,7 +1302,7 @@ m4_ifdef([[M4_MODE_USES_REJECT]], [[
          * the state stack and c_buf_p get out of sync.
          */
         if !is_jam {
-            self.state_ptr.push(current_state);
+            self.state_buf.push(current_state);
         }
 ]])
 ]])
