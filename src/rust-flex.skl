@@ -71,7 +71,7 @@ m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
 m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
 m4_define([[yyless]], [[less!($1);]])
 
-#![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code, unused_must_use, unused_braces)]
+#![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code, unused_must_use, unused_braces, redundant_semicolons)]
 
 use std::cell::RefCell;
 use std::io;
