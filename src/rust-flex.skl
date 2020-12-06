@@ -15,7 +15,7 @@ m4_define([[M4_PROPERTY_BACKEND_NAME]], [[Rust]])
 m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[rs]])
 m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^//#line ([0-9]+) "(.*)"]])
 m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[//#line %d "%s"]])
-m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[self.%s(%s)]])
+m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[M4_CONTEXT_CALL(%s, %s)]])
 m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[self.%s]])
 m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[self.current_buffer_unchecked_mut().%s]])
 %#m4_define([[M4_PROPERTY_PREFIX]], [[FlexLexer]])
@@ -70,6 +70,8 @@ m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
 
 m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
 m4_define([[yyless]], [[cp = self.less(cp, bp, $1);]])
+
+m4_define([[M4_CONTEXT_CALL]], [[m4_ifelse($1,[[unput]],[[self.$1(b$2, bp)]],[[self.$1($2)]])]])
 
 #![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code, unused_must_use, unused_braces, redundant_semicolons)]
 

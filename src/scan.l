@@ -1110,7 +1110,9 @@ void context_call(char *txt) {
 		args += 1;
 		txt += 2; // skip over the yy prefix
 		snprintf(buf, BUFSIZ, context_format, txt, args);
+		add_action("]""]");
 		add_action(buf);
+		add_action("[""[");
 	}
 }
 
