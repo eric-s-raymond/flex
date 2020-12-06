@@ -693,7 +693,7 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
         m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
         self.set_ch(cp, self.hold_char);
         self.restore_more_offset();
-        let cp = bp + n - self.more_offset;
+        let cp = bp + n - self.more_adj();
         self.c_buf_p = cp;
         self.do_before_action(cp, bp); /* set up yytext again */
         cp
@@ -716,7 +716,7 @@ m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
         m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
         self.set_ch(cp, self.hold_char);
         self.restore_more_offset();
-        let cp = bp + n - self.more_offset;
+        let cp = bp + n - self.more_adj();
         self.c_buf_p = cp;
         self.do_before_action(cp, bp); /* set up yytext again */
         cp
