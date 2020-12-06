@@ -674,7 +674,7 @@ m4_ifdef([[M4_MODE_YYLINENO]], [[
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[
 m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     fn more(&mut self) {
-        self.more_offset = self.text_buf[self.text..].take_while(|c| c != '\0').count();
+        self.more_offset = self.text_buf[self.text..].iter().take_while(|c| **c != b'\0').count();
     }
 
     fn more_adj(&self) -> usize {
