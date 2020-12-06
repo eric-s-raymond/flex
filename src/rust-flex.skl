@@ -187,7 +187,7 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     prev_more_offset: usize,
 ]], [[
     text: usize,
-    more_flag: usize,
+    more_flag: bool,
     more_len: usize,
 ]])
     lineno: usize,
@@ -866,11 +866,12 @@ M4_GEN_BACKING_UP
             loop { /* loops until end-of-file is reached */
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_dnl
 m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m4_dnl
-                self.more_len = 0;
-                if self.more_flag {
-                    more_len = self.c_buf_p - self.text;
-                    self.more_flag = false;
-                }
+                self.more_len = if self.more_flag {
+                    self.c_buf_p - self.text
+                } else {
+                    0
+                };
+                self.more_flag = false;
 ]])]])m4_dnl
                 cp = self.c_buf_p;
                 /* Support of text. */
