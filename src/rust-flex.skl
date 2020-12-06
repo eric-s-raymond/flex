@@ -471,7 +471,7 @@ m4_ifdef([[M4_YY_NO_YYUNPUT]],, [[
         self.text = bp;
 m4_ifdef([[M4_MODE_YYLINENO]],
 [[
-        if c == '\n' {
+        if c == b'\n' {
             self.current_buffer_unchecked_mut().lineno -= 1;
         }
 ]])
