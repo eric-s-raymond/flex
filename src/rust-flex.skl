@@ -624,7 +624,7 @@ m4_ifdef([[M4_MODE_YYMORE_USED]], [[
         let start = self.text + self.more_offset;
         self.current_buffer_unchecked_mut().ch_buf.copy_within(range, start);
 ]])
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.leng.unwrap() += self.more_offset;]])
+        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.leng = Some(self.leng.unwrap() + self.more_offset);]])
         m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.prev_more_offset = self.more_offset;]])
         m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.more_offset = 0;]])
 m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
@@ -684,7 +684,7 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     fn restore_more_offset(&mut self)
     {
         self.more_offset = self.prev_more_offset;
-        self.leng.unwrap() -= self.more_offset;
+        self.leng = Some(self.leng.unwrap() - self.more_offset);
     }
 
     /** Return all but the first "n" matched characters back to the input stream. */
