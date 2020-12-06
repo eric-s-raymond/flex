@@ -69,7 +69,7 @@ m4_define([[M4_HOOK_FATAL_ERROR]], [[panic!($1);]])
 m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
 
 m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
-m4_define([[yyless]], [[less!($1);]])
+m4_define([[yyless]], [[cp = self.less(cp, bp, $1);]])
 
 #![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code, unused_must_use, unused_braces, redundant_semicolons)]
 
@@ -94,20 +94,6 @@ continue 'find_rule;
 ]])
 
 %% [0.0] Make hook macros available to Flex
-
-/** Return all but the first "n" matched characters back to the input stream. */
-#[allow(unused_macros)]
-macro_rules! less {
-    ($n:literal) => {
-        /* Undo effects of setting up yytext. */
-        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno($n);]])
-        self.set_ch(cp, self.hold_char);
-        self.restore_more_offset();
-        cp = bp + $n - self.more_offset();
-        self.c_buf_p = cp;
-        self.do_before_action(cp, bp); /* set up yytext again */
-    }
-}
 
 const FLEX_SCANNER: bool = true;
 const MAJOR_VERSION: usize = 2;
@@ -700,6 +686,18 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
         self.more_offset = self.prev_more_offset;
         self.leng.unwrap() -= self.more_offset;
     }
+
+    /** Return all but the first "n" matched characters back to the input stream. */
+    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
+        /* Undo effects of setting up yytext. */
+        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
+        self.set_ch(cp, self.hold_char);
+        self.restore_more_offset();
+        let cp = bp + n - self.more_offset;
+        self.c_buf_p = cp;
+        self.do_before_action(cp, bp); /* set up yytext again */
+        cp
+    }
 ]])
 m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
     fn more(&mut self) {
@@ -711,6 +709,18 @@ m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
     }
 
     fn restore_more_offset(&mut self) { }
+
+    /** Return all but the first "n" matched characters back to the input stream. */
+    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
+        /* Undo effects of setting up yytext. */
+        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
+        self.set_ch(cp, self.hold_char);
+        self.restore_more_offset();
+        let cp = bp + n - self.more_offset;
+        self.c_buf_p = cp;
+        self.do_before_action(cp, bp); /* set up yytext again */
+        cp
+    }
 ]])
 ]])
 
@@ -723,6 +733,11 @@ m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
     }
 
     fn restore_more_offset(&mut self) { }
+
+    /** Return all but the first "n" matched characters back to the input stream. */
+    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
+        panic!("uh…");
+    }
 ]])
 
     pub fn set_bol(&mut self, at_bol: bool) {
