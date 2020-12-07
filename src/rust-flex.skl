@@ -1196,10 +1196,11 @@ m4_ifdef([[M4_MODE_FIND_ACTION_REJECT_OR_INTERACTIVE]], [[m4_dnl
             let number_to_move = self.c_buf_p - self.text - 1;
             let range = self.text..self.c_buf_p-1;
             self.current_buffer_unchecked_mut().ch_buf.copy_within(range, 0);
-            if self.current_buffer_unchecked().buffer_status == BufferStatus::EOFPending {
+            let number_read = if self.current_buffer_unchecked().buffer_status == BufferStatus::EOFPending {
                 // don't do the read, it's not guaranteed to return an EOF, just force an EOF
                 self.current_buffer_unchecked_mut().n_chars = 0;
                 self.n_chars = 0;
+                0
             } else {
                 let mut number_to_read = self.current_buffer_unchecked().buf_size - number_to_move - 1;
                 if number_to_read > READ_BUF_SIZE {
@@ -1213,15 +1214,16 @@ m4_ifdef([[M4_MODE_USES_REJECT]],
 ]])
                 // Include room in for 2 EOB chars.
                 self.current_buffer_unchecked_mut().ch_buf.reserve(number_to_read + 2);
-                self.n_chars = self.read(number_to_move, number_to_read)?;
-                self.current_buffer_unchecked_mut().n_chars = self.n_chars;
-                self.n_chars += number_to_move;
-            }
+                let number_read = self.read(number_to_move, number_to_read)?;
+                self.n_chars = number_read + number_to_move;
+                self.current_buffer_unchecked_mut().n_chars = number_to_read;
+                number_read
+            };
 
             self.current_buffer_unchecked_mut().ch_buf.extend_from_slice(&[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR]);
             self.text = 0;
 
-            if self.n_chars == 0 {
+            if number_read == 0 {
                 if number_to_move == self.more_adj() {
                     let source = self.input.clone();
                     self.restart(source);
