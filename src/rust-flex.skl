@@ -615,24 +615,28 @@ m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m
         self.hold_char = self.ch(cp);
         self.set_ch(cp, b'\0');
 m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[if self.leng.unwrap() + self.more_offset >= YYLMAX {
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[
+        if self.leng.unwrap() + self.more_offset >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
-        }]])
+        }
+        let length = self.leng.unwrap();
+        let range = self.text..=self.text + length;
+        let dest = self.more_offset;
+        self.text_buf.resize(dest, b'\0');
+        // manually inlined current_buffer_unchecked here because borrow checker
+        self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
+        self.leng = Some(self.leng.unwrap() + self.more_offset);
+        self.prev_more_offset = self.more_offset;
+        self.more_offset = 0;
+]])
+m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
         m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.leng.unwrap() >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }]])
-m4_ifdef([[M4_MODE_YYMORE_USED]], [[
         let range = self.text..=self.leng.unwrap();
-        let start = self.text + self.more_offset;
-        self.current_buffer_unchecked_mut().ch_buf.copy_within(range, start);
-]])
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.leng = Some(self.leng.unwrap() + self.more_offset);]])
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.prev_more_offset = self.more_offset;]])
-        m4_ifdef([[M4_MODE_YYMORE_USED]], [[self.more_offset = 0;]])
-m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
-        let range = self.text..=self.leng.unwrap();
-        let start = self.text;
-        self.current_buffer_unchecked_mut().ch_buf.copy_within(range, start);]])
+        self.text_buf.clear();
+        // manually inlined current_buffer_unchecked here because borrow checker
+        self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
 ]])
         self.c_buf_p = cp;
     }
@@ -693,7 +697,7 @@ m4_ifdef([[M4_MODE_YYLINENO]], [[
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[
 m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     fn more(&mut self) {
-        self.more_offset = self.text_buf[self.text..].iter().take_while(|c| **c != b'\0').count();
+        self.more_offset = self.current_buffer_unchecked().ch_buf[self.text..].iter().take_while(|c| **c != b'\0').count();
     }
 
     fn more_adj(&self) -> usize {
