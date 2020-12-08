@@ -678,6 +678,18 @@ m4_ifdef([[M4_MODE_YYLINENO]], [[
         self.current_buffer_unchecked_mut().column = 0;
     }
 
+    /** Return all but the first "n" matched characters back to the input stream. */
+    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
+        /* Undo effects of setting up yytext. */
+        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
+        self.set_ch(cp, self.hold_char);
+        self.restore_more_offset();
+        let cp = bp + n - self.more_adj();
+        self.c_buf_p = cp;
+        self.do_before_action(cp, bp); /* set up yytext again */
+        cp
+    }
+
 m4_ifdef([[M4_MODE_YYMORE_USED]], [[
 m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
     fn more(&mut self) {
@@ -693,18 +705,6 @@ m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
         self.more_offset = self.prev_more_offset;
         self.leng = Some(self.leng.unwrap() - self.more_offset);
     }
-
-    /** Return all but the first "n" matched characters back to the input stream. */
-    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
-        /* Undo effects of setting up yytext. */
-        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
-        self.set_ch(cp, self.hold_char);
-        self.restore_more_offset();
-        let cp = bp + n - self.more_adj();
-        self.c_buf_p = cp;
-        self.do_before_action(cp, bp); /* set up yytext again */
-        cp
-    }
 ]])
 m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
     fn more(&mut self) {
@@ -716,18 +716,6 @@ m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[
     }
 
     fn restore_more_offset(&mut self) { }
-
-    /** Return all but the first "n" matched characters back to the input stream. */
-    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
-        /* Undo effects of setting up yytext. */
-        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])
-        self.set_ch(cp, self.hold_char);
-        self.restore_more_offset();
-        let cp = bp + n - self.more_adj();
-        self.c_buf_p = cp;
-        self.do_before_action(cp, bp); /* set up yytext again */
-        cp
-    }
 ]])
 ]])
 
@@ -740,11 +728,6 @@ m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
     }
 
     fn restore_more_offset(&mut self) { }
-
-    /** Return all but the first "n" matched characters back to the input stream. */
-    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
-        panic!("uh…");
-    }
 ]])
 
     pub fn set_bol(&mut self, at_bol: bool) {
