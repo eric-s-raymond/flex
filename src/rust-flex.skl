@@ -614,8 +614,8 @@ m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m
         m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.leng = cp.checked_sub(bp);]])
         self.hold_char = self.ch(cp);
         self.set_ch(cp, b'\0');
-m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[
-m4_ifdef([[M4_MODE_YYMORE_USED]], [[
+m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[m4_dnl
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_dnl
         if self.leng.unwrap() + self.more_offset >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }
@@ -628,8 +628,8 @@ m4_ifdef([[M4_MODE_YYMORE_USED]], [[
         self.leng = Some(self.leng.unwrap() + self.more_offset);
         self.prev_more_offset = self.more_offset;
         self.more_offset = 0;
-]])
-m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[m4_dnl
         m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.leng.unwrap() >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }]])
@@ -637,7 +637,8 @@ m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[
         self.text_buf.clear();
         // manually inlined current_buffer_unchecked here because borrow checker
         self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
-]])
+]])m4_dnl
+]])m4_dnl
         self.c_buf_p = cp;
     }
 
