@@ -1,94 +1,121 @@
 
 # Begin generated test rules
 
+AM_V_RUSTC = $(am__v_RUSTC_$(V))
+am__v_RUSTC_ = $(am__v_RUSTC_$(AM_DEFAULT_VERBOSITY))
+am__v_RUSTC_0 = @echo "  RUSTC   " $@;
+am__v_RUSTC_1 = 
+
 SUFFIXES = .rs .go .c 
 array_nr_SOURCES = array_nr.c
+array_nr.c: array_nr.l $(FLEX)
 array_nr.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 basic_nr_SOURCES = basic_nr.c
+basic_nr.c: basic_nr.l $(FLEX)
 basic_nr.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 bol_nr_SOURCES = bol_nr.c
+bol_nr.c: bol_nr.l $(FLEX)
 bol_nr.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 ccl_nr_SOURCES = ccl_nr.c
+ccl_nr.c: ccl_nr.l $(FLEX)
 ccl_nr.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 debug_nr_SOURCES = debug_nr.c
+debug_nr.c: debug_nr.l $(FLEX)
 debug_nr.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 extended_nr_SOURCES = extended_nr.c
+extended_nr.c: extended_nr.l $(FLEX)
 extended_nr.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 fixedtrailing_nr_SOURCES = fixedtrailing_nr.c
+fixedtrailing_nr.c: fixedtrailing_nr.l $(FLEX)
 fixedtrailing_nr.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 flexname_nr_SOURCES = flexname_nr.c
+flexname_nr.c: flexname_nr.l $(FLEX)
 flexname_nr.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 lexcompat_nr_SOURCES = lexcompat_nr.c
+lexcompat_nr.c: lexcompat_nr.l $(FLEX)
 lexcompat_nr.l: $(srcdir)/lexcompat.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 lineno_nr_SOURCES = lineno_nr.c
+lineno_nr.c: lineno_nr.l $(FLEX)
 lineno_nr.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 posixlycorrect_nr_SOURCES = posixlycorrect_nr.c
+posixlycorrect_nr.c: posixlycorrect_nr.l $(FLEX)
 posixlycorrect_nr.l: $(srcdir)/posixlycorrect.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 posix_nr_SOURCES = posix_nr.c
+posix_nr.c: posix_nr.l $(FLEX)
 posix_nr.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 preposix_nr_SOURCES = preposix_nr.c
+preposix_nr.c: preposix_nr.l $(FLEX)
 preposix_nr.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 quoteincomment_nr_SOURCES = quoteincomment_nr.c
+quoteincomment_nr.c: quoteincomment_nr.l $(FLEX)
 quoteincomment_nr.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 reject_nr_SOURCES = reject_nr.c
+reject_nr.c: reject_nr.l $(FLEX)
 reject_nr.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_nr_SOURCES = tableopts_nr.c
+tableopts_nr.c: tableopts_nr.l $(FLEX)
 tableopts_nr.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 vartrailing_nr_SOURCES = vartrailing_nr.c
+vartrailing_nr.c: vartrailing_nr.l $(FLEX)
 vartrailing_nr.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyless_nr_SOURCES = yyless_nr.c
+yyless_nr.c: yyless_nr.l $(FLEX)
 yyless_nr.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearraybol_nr_SOURCES = yymorearraybol_nr.c
+yymorearraybol_nr.c: yymorearraybol_nr.l $(FLEX)
 yymorearraybol_nr.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearray_nr_SOURCES = yymorearray_nr.c
+yymorearray_nr.c: yymorearray_nr.l $(FLEX)
 yymorearray_nr.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymore_nr_SOURCES = yymore_nr.c
+yymore_nr.c: yymore_nr.l $(FLEX)
 yymore_nr.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyunput_nr_SOURCES = yyunput_nr.c
+yyunput_nr.c: yyunput_nr.l $(FLEX)
 yyunput_nr.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_nr_Ca_opt_SOURCES = tableopts_opt_nr-Ca.opt.l
 tableopts_opt_nr-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -223,84 +250,104 @@ tableopts_ver_nr-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
 array_r_SOURCES = array_r.c
+array_r.c: array_r.l $(FLEX)
 array_r.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 basic_r_SOURCES = basic_r.c
+basic_r.c: basic_r.l $(FLEX)
 basic_r.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 bol_r_SOURCES = bol_r.c
+bol_r.c: bol_r.l $(FLEX)
 bol_r.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 ccl_r_SOURCES = ccl_r.c
+ccl_r.c: ccl_r.l $(FLEX)
 ccl_r.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 debug_r_SOURCES = debug_r.c
+debug_r.c: debug_r.l $(FLEX)
 debug_r.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 extended_r_SOURCES = extended_r.c
+extended_r.c: extended_r.l $(FLEX)
 extended_r.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 fixedtrailing_r_SOURCES = fixedtrailing_r.c
+fixedtrailing_r.c: fixedtrailing_r.l $(FLEX)
 fixedtrailing_r.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 flexname_r_SOURCES = flexname_r.c
+flexname_r.c: flexname_r.l $(FLEX)
 flexname_r.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 lineno_r_SOURCES = lineno_r.c
+lineno_r.c: lineno_r.l $(FLEX)
 lineno_r.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 posix_r_SOURCES = posix_r.c
+posix_r.c: posix_r.l $(FLEX)
 posix_r.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 preposix_r_SOURCES = preposix_r.c
+preposix_r.c: preposix_r.l $(FLEX)
 preposix_r.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 quoteincomment_r_SOURCES = quoteincomment_r.c
+quoteincomment_r.c: quoteincomment_r.l $(FLEX)
 quoteincomment_r.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 reject_r_SOURCES = reject_r.c
+reject_r.c: reject_r.l $(FLEX)
 reject_r.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_r_SOURCES = tableopts_r.c
+tableopts_r.c: tableopts_r.l $(FLEX)
 tableopts_r.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 vartrailing_r_SOURCES = vartrailing_r.c
+vartrailing_r.c: vartrailing_r.l $(FLEX)
 vartrailing_r.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyless_r_SOURCES = yyless_r.c
+yyless_r.c: yyless_r.l $(FLEX)
 yyless_r.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearraybol_r_SOURCES = yymorearraybol_r.c
+yymorearraybol_r.c: yymorearraybol_r.l $(FLEX)
 yymorearraybol_r.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearray_r_SOURCES = yymorearray_r.c
+yymorearray_r.c: yymorearray_r.l $(FLEX)
 yymorearray_r.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymore_r_SOURCES = yymore_r.c
+yymore_r.c: yymore_r.l $(FLEX)
 yymore_r.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyunput_r_SOURCES = yyunput_r.c
+yyunput_r.c: yyunput_r.l $(FLEX)
 yyunput_r.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_r_Ca_opt_SOURCES = tableopts_opt_r-Ca.opt.l
 tableopts_opt_r-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -435,84 +482,104 @@ tableopts_ver_r-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(s
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
 array_c99_SOURCES = array_c99.c
+array_c99.c: array_c99.l $(FLEX)
 array_c99.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 basic_c99_SOURCES = basic_c99.c
+basic_c99.c: basic_c99.l $(FLEX)
 basic_c99.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 bol_c99_SOURCES = bol_c99.c
+bol_c99.c: bol_c99.l $(FLEX)
 bol_c99.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 ccl_c99_SOURCES = ccl_c99.c
+ccl_c99.c: ccl_c99.l $(FLEX)
 ccl_c99.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 debug_c99_SOURCES = debug_c99.c
+debug_c99.c: debug_c99.l $(FLEX)
 debug_c99.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 extended_c99_SOURCES = extended_c99.c
+extended_c99.c: extended_c99.l $(FLEX)
 extended_c99.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 fixedtrailing_c99_SOURCES = fixedtrailing_c99.c
+fixedtrailing_c99.c: fixedtrailing_c99.l $(FLEX)
 fixedtrailing_c99.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 flexname_c99_SOURCES = flexname_c99.c
+flexname_c99.c: flexname_c99.l $(FLEX)
 flexname_c99.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 lineno_c99_SOURCES = lineno_c99.c
+lineno_c99.c: lineno_c99.l $(FLEX)
 lineno_c99.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 posix_c99_SOURCES = posix_c99.c
+posix_c99.c: posix_c99.l $(FLEX)
 posix_c99.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 preposix_c99_SOURCES = preposix_c99.c
+preposix_c99.c: preposix_c99.l $(FLEX)
 preposix_c99.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 quoteincomment_c99_SOURCES = quoteincomment_c99.c
+quoteincomment_c99.c: quoteincomment_c99.l $(FLEX)
 quoteincomment_c99.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 reject_c99_SOURCES = reject_c99.c
+reject_c99.c: reject_c99.l $(FLEX)
 reject_c99.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_c99_SOURCES = tableopts_c99.c
+tableopts_c99.c: tableopts_c99.l $(FLEX)
 tableopts_c99.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 vartrailing_c99_SOURCES = vartrailing_c99.c
+vartrailing_c99.c: vartrailing_c99.l $(FLEX)
 vartrailing_c99.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyless_c99_SOURCES = yyless_c99.c
+yyless_c99.c: yyless_c99.l $(FLEX)
 yyless_c99.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearraybol_c99_SOURCES = yymorearraybol_c99.c
+yymorearraybol_c99.c: yymorearraybol_c99.l $(FLEX)
 yymorearraybol_c99.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearray_c99_SOURCES = yymorearray_c99.c
+yymorearray_c99.c: yymorearray_c99.l $(FLEX)
 yymorearray_c99.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymore_c99_SOURCES = yymore_c99.c
+yymore_c99.c: yymore_c99.l $(FLEX)
 yymore_c99.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyunput_c99_SOURCES = yyunput_c99.c
+yyunput_c99.c: yyunput_c99.l $(FLEX)
 yyunput_c99.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_c99_Ca_opt_SOURCES = tableopts_opt_c99-Ca.opt.l
 tableopts_opt_c99-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -647,84 +714,104 @@ tableopts_ver_c99-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
 array_go_SOURCES = array_go.go
+array_go.go: array_go.l $(FLEX)
 array_go.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 basic_go_SOURCES = basic_go.go
+basic_go.go: basic_go.l $(FLEX)
 basic_go.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 bol_go_SOURCES = bol_go.go
+bol_go.go: bol_go.l $(FLEX)
 bol_go.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 ccl_go_SOURCES = ccl_go.go
+ccl_go.go: ccl_go.l $(FLEX)
 ccl_go.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 debug_go_SOURCES = debug_go.go
+debug_go.go: debug_go.l $(FLEX)
 debug_go.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 extended_go_SOURCES = extended_go.go
+extended_go.go: extended_go.l $(FLEX)
 extended_go.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 fixedtrailing_go_SOURCES = fixedtrailing_go.go
+fixedtrailing_go.go: fixedtrailing_go.l $(FLEX)
 fixedtrailing_go.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 flexname_go_SOURCES = flexname_go.go
+flexname_go.go: flexname_go.l $(FLEX)
 flexname_go.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 lineno_go_SOURCES = lineno_go.go
+lineno_go.go: lineno_go.l $(FLEX)
 lineno_go.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 posix_go_SOURCES = posix_go.go
+posix_go.go: posix_go.l $(FLEX)
 posix_go.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 preposix_go_SOURCES = preposix_go.go
+preposix_go.go: preposix_go.l $(FLEX)
 preposix_go.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 quoteincomment_go_SOURCES = quoteincomment_go.go
+quoteincomment_go.go: quoteincomment_go.l $(FLEX)
 quoteincomment_go.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 reject_go_SOURCES = reject_go.go
+reject_go.go: reject_go.l $(FLEX)
 reject_go.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_go_SOURCES = tableopts_go.go
+tableopts_go.go: tableopts_go.l $(FLEX)
 tableopts_go.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 vartrailing_go_SOURCES = vartrailing_go.go
+vartrailing_go.go: vartrailing_go.l $(FLEX)
 vartrailing_go.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyless_go_SOURCES = yyless_go.go
+yyless_go.go: yyless_go.l $(FLEX)
 yyless_go.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearraybol_go_SOURCES = yymorearraybol_go.go
+yymorearraybol_go.go: yymorearraybol_go.l $(FLEX)
 yymorearraybol_go.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymorearray_go_SOURCES = yymorearray_go.go
+yymorearray_go.go: yymorearray_go.l $(FLEX)
 yymorearray_go.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yymore_go_SOURCES = yymore_go.go
+yymore_go.go: yymore_go.l $(FLEX)
 yymore_go.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 yyunput_go_SOURCES = yyunput_go.go
+yyunput_go.go: yyunput_go.l $(FLEX)
 yyunput_go.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_go_Ca_opt_SOURCES = tableopts_opt_go-Ca.opt.l
 tableopts_opt_go-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -859,84 +946,164 @@ tableopts_ver_go-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
 array_rust_SOURCES = array_rust.rs
+array_rust.rs: array_rust.l $(FLEX)
 array_rust.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+array_rust$(EXEEXT): $(array_rust_SOURCES)
+	$(AM_V_at)rm -f array_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name array_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 basic_rust_SOURCES = basic_rust.rs
+basic_rust.rs: basic_rust.l $(FLEX)
 basic_rust.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+basic_rust$(EXEEXT): $(basic_rust_SOURCES)
+	$(AM_V_at)rm -f basic_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name basic_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 bol_rust_SOURCES = bol_rust.rs
+bol_rust.rs: bol_rust.l $(FLEX)
 bol_rust.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+bol_rust$(EXEEXT): $(bol_rust_SOURCES)
+	$(AM_V_at)rm -f bol_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name bol_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 ccl_rust_SOURCES = ccl_rust.rs
+ccl_rust.rs: ccl_rust.l $(FLEX)
 ccl_rust.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_rust$(EXEEXT): $(ccl_rust_SOURCES)
+	$(AM_V_at)rm -f ccl_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name ccl_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 debug_rust_SOURCES = debug_rust.rs
+debug_rust.rs: debug_rust.l $(FLEX)
 debug_rust.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+debug_rust$(EXEEXT): $(debug_rust_SOURCES)
+	$(AM_V_at)rm -f debug_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name debug_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 extended_rust_SOURCES = extended_rust.rs
+extended_rust.rs: extended_rust.l $(FLEX)
 extended_rust.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+extended_rust$(EXEEXT): $(extended_rust_SOURCES)
+	$(AM_V_at)rm -f extended_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name extended_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 fixedtrailing_rust_SOURCES = fixedtrailing_rust.rs
+fixedtrailing_rust.rs: fixedtrailing_rust.l $(FLEX)
 fixedtrailing_rust.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_rust$(EXEEXT): $(fixedtrailing_rust_SOURCES)
+	$(AM_V_at)rm -f fixedtrailing_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name fixedtrailing_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 flexname_rust_SOURCES = flexname_rust.rs
+flexname_rust.rs: flexname_rust.l $(FLEX)
 flexname_rust.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_rust$(EXEEXT): $(flexname_rust_SOURCES)
+	$(AM_V_at)rm -f flexname_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name flexname_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 lineno_rust_SOURCES = lineno_rust.rs
+lineno_rust.rs: lineno_rust.l $(FLEX)
 lineno_rust.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_rust$(EXEEXT): $(lineno_rust_SOURCES)
+	$(AM_V_at)rm -f lineno_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name lineno_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 posix_rust_SOURCES = posix_rust.rs
+posix_rust.rs: posix_rust.l $(FLEX)
 posix_rust.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+posix_rust$(EXEEXT): $(posix_rust_SOURCES)
+	$(AM_V_at)rm -f posix_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name posix_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 preposix_rust_SOURCES = preposix_rust.rs
+preposix_rust.rs: preposix_rust.l $(FLEX)
 preposix_rust.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_rust$(EXEEXT): $(preposix_rust_SOURCES)
+	$(AM_V_at)rm -f preposix_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name preposix_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 quoteincomment_rust_SOURCES = quoteincomment_rust.rs
+quoteincomment_rust.rs: quoteincomment_rust.l $(FLEX)
 quoteincomment_rust.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_rust$(EXEEXT): $(quoteincomment_rust_SOURCES)
+	$(AM_V_at)rm -f quoteincomment_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name quoteincomment_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 reject_rust_SOURCES = reject_rust.rs
+reject_rust.rs: reject_rust.l $(FLEX)
 reject_rust.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+reject_rust$(EXEEXT): $(reject_rust_SOURCES)
+	$(AM_V_at)rm -f reject_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name reject_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 tableopts_rust_SOURCES = tableopts_rust.rs
+tableopts_rust.rs: tableopts_rust.l $(FLEX)
 tableopts_rust.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_rust$(EXEEXT): $(tableopts_rust_SOURCES)
+	$(AM_V_at)rm -f tableopts_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name tableopts_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 vartrailing_rust_SOURCES = vartrailing_rust.rs
+vartrailing_rust.rs: vartrailing_rust.l $(FLEX)
 vartrailing_rust.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_rust$(EXEEXT): $(vartrailing_rust_SOURCES)
+	$(AM_V_at)rm -f vartrailing_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name vartrailing_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 yyless_rust_SOURCES = yyless_rust.rs
+yyless_rust.rs: yyless_rust.l $(FLEX)
 yyless_rust.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_rust$(EXEEXT): $(yyless_rust_SOURCES)
+	$(AM_V_at)rm -f yyless_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yyless_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 yymorearraybol_rust_SOURCES = yymorearraybol_rust.rs
+yymorearraybol_rust.rs: yymorearraybol_rust.l $(FLEX)
 yymorearraybol_rust.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_rust$(EXEEXT): $(yymorearraybol_rust_SOURCES)
+	$(AM_V_at)rm -f yymorearraybol_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymorearraybol_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 yymorearray_rust_SOURCES = yymorearray_rust.rs
+yymorearray_rust.rs: yymorearray_rust.l $(FLEX)
 yymorearray_rust.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_rust$(EXEEXT): $(yymorearray_rust_SOURCES)
+	$(AM_V_at)rm -f yymorearray_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymorearray_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 yymore_rust_SOURCES = yymore_rust.rs
+yymore_rust.rs: yymore_rust.l $(FLEX)
 yymore_rust.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_rust$(EXEEXT): $(yymore_rust_SOURCES)
+	$(AM_V_at)rm -f yymore_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymore_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 yyunput_rust_SOURCES = yyunput_rust.rs
+yyunput_rust.rs: yyunput_rust.l $(FLEX)
 yyunput_rust.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_rust$(EXEEXT): $(yyunput_rust_SOURCES)
+	$(AM_V_at)rm -f yyunput_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yyunput_rust --crate-type bin --edition 2018 -g -o $@ $<
 
 tableopts_opt_rust_Ca_opt_SOURCES = tableopts_opt_rust-Ca.opt.l
 tableopts_opt_rust-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4

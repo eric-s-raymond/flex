@@ -23,6 +23,14 @@ compatible() {
     [ "${mybackend}" = "nr" ] || [ "${myruleset}" != "lexcompat.rules" -a "${myruleset}" != "posixlycorrect.rules" ]
 }
 
+# shellcheck disable=SC2016
+echo 'AM_V_RUSTC = $(am__v_RUSTC_$(V))'
+# shellcheck disable=SC2016
+echo 'am__v_RUSTC_ = $(am__v_RUSTC_$(AM_DEFAULT_VERBOSITY))'
+printf 'am__v_RUSTC_0 = @echo "  RUSTC   " $@;\n'
+echo 'am__v_RUSTC_1 = '
+echo
+
 exts=""
 suffixes=""
 for backend in "$@" ; do
@@ -38,10 +46,6 @@ for ext in ${exts}; do
     suffixes=".${ext} ${suffixes}"
 done
 echo "SUFFIXES = ${suffixes}"
-#for ext in ${exts}; do
-#    # shellcheck disable=SC2016
-#    printf '%s%s: $(FLEX)\n\t$(AM_V_LEX)$(FLEX) $(TESTOPTS) -o $@ $<\n\n' ".l${ext}" ".${ext}"
-#done
 
 for backend in "$@" ; do
     case $backend in
@@ -52,18 +56,17 @@ for backend in "$@" ; do
     for ruleset in *.rules; do
 	if compatible "${backend}" "${ruleset}" ; then
 	    testname="${ruleset%.*}_${backend}"
-#            if [ "${ext}" = "c" ]; then
-#                echo "${testname}_SOURCES = ${testname}.l${ext}"
-#            else
-                echo "${testname}_SOURCES = ${testname}.${ext}"
-#            fi
-	    echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
+            echo "${testname}_SOURCES = ${testname}.${ext}"
+            echo "${testname}.${ext}: ${testname}.l \$(FLEX)"
+            echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
 	    # we're deliberately single-quoting this because we _don't_ want those variables to be expanded yet
 	    # shellcheck disable=2016
-	    printf '\t$(SHELL) $(srcdir)/testmaker.sh $@\n'
-#            if [ "${ext}" != "c" ]; then
-#                echo "${testname}.${ext}: ${testname}.l${ext}"
-#            fi
+	    printf '\t$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@\n'
+            if [ "${ext}" = "rs" ]; then
+                echo "${testname}\$(EXEEXT): \$(${testname}_SOURCES)"
+                printf "\t\$(AM_V_at)rm -f %s\$(EXEEXT)\n" "${testname}"
+                printf "\t\$(AM_V_RUSTC)rustc --crate-name %s --crate-type bin --edition 2018 -g -o \$@ \$<\n" "${testname}"
+            fi
             echo ""
 
 	    RULESET_TESTS="${RULESET_TESTS} ${testname}"
