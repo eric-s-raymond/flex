@@ -69,7 +69,7 @@ m4_define([[M4_HOOK_FATAL_ERROR]], [[panic!($1);]])
 m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
 
 m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
-m4_define([[yyless]], [[cp = self.less(cp, bp, $1);]])
+m4_define([[yyless]], [[#![allow(unused_assignments)] cp = self.less(cp, bp, $1);]])
 
 m4_define([[M4_CONTEXT_CALL]], [[m4_ifelse($1,[[unput]],[[self.$1(b$2, bp)]],[[self.$1($2)]])]])
 
@@ -917,6 +917,7 @@ m4_ifdef([[M4_MODE_NO_INTERACTIVE]], [[m4_dnl
 
                         'find_action: loop {
                             /* find the action number */
+                            #[allow(unused_assignments)]
                             m4_ifdef([[M4_MODE_NO_FULLSPD]], [[let mut act: usize = tables::accept[current_state as usize] as usize;]])
                             m4_ifdef([[M4_MODE_FULLSPD]], [[let mut act: usize = current_state.last().unwrap().nxt as usize;]])
                             m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[let mut act: usize = tables::accept[current_state as usize] as usize;]])
