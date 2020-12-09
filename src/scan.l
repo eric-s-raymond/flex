@@ -1122,6 +1122,7 @@ void context_member(char *txt, const char *prop) {
 		add_action(txt);
 	} else {
 		char buf[128];
+		txt += 2; // skip over the yy prefix
 		snprintf(buf, sizeof(buf), context_format, txt);
 		add_action(buf);
 	}

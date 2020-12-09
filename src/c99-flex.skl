@@ -33,8 +33,8 @@ m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[c]])
 m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^#line ([0-9]+) "(.*)"]])
 m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[#line %d "%s"]])
 m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[M4_CONTEXT_CALL(%s, %s)]])
-m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[yyscanner->%s_r]])
-m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[yyscanner->yy_buffer_stack[yyscanner->yy_buffer_stack_top]->bs_%s]])
+m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[yyscanner->yy%s_r]])
+m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[yyscanner->yy_buffer_stack[yyscanner->yy_buffer_stack_top]->bs_yy%s]])
 
 %# Macro hooks used by Flex code generators start here
 m4_define([[M4_HOOK_INT32]], [[int32_t]])
