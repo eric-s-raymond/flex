@@ -32,7 +32,7 @@ m4_define([[M4_PROPERTY_BACKEND_NAME]], [[C99]])
 m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[c]])
 m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^#line ([0-9]+) "(.*)"]])
 m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[#line %d "%s"]])
-m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[yy%s(%s, yyscanner)]])
+m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[M4_CONTEXT_CALL(%s, %s)]])
 m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[yyscanner->%s_r]])
 m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[yyscanner->yy_buffer_stack[yyscanner->yy_buffer_stack_top]->bs_%s]])
 
@@ -97,6 +97,8 @@ m4_define([[yyless]], [[
 		yy_do_before_action(yyscanner, yy_cp, yy_bp); /* set up yytext again */
 	} while ( 0 )
 ]])
+
+m4_define([[M4_CONTEXT_CALL]],[[m4_ifelse($2,[[]],[[yy$1(yyscanner)]],[[yy$1($2, yyscanner)]])]])
 
 %# Can't be a function given the context-arg treatment due to the goto.
 m4_define([[M4_HOOK_REJECT]], [[{
