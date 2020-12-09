@@ -56,16 +56,29 @@ for backend in "$@" ; do
     for ruleset in *.rules; do
 	if compatible "${backend}" "${ruleset}" ; then
 	    testname="${ruleset%.*}_${backend}"
-            echo "${testname}_SOURCES = ${testname}.${ext}"
-            echo "${testname}.${ext}: ${testname}.l \$(FLEX)"
+            if [ "${ext}" = "go" ]; then
+                echo "${testname}_SOURCES = ${testname}.c"
+            else
+                echo "${testname}_SOURCES = ${testname}.${ext}"
+            fi
+            echo "${testname}.l: \$(FLEX)"
+            echo "${testname}.${ext}: ${testname}.l"
             echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
 	    # we're deliberately single-quoting this because we _don't_ want those variables to be expanded yet
 	    # shellcheck disable=2016
 	    printf '\t$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@\n'
             if [ "${ext}" = "rs" ]; then
                 echo "${testname}\$(EXEEXT): \$(${testname}_SOURCES)"
-                printf "\t\$(AM_V_at)rm -f %s\$(EXEEXT)\n" "${testname}"
-                printf "\t\$(AM_V_RUSTC)rustc --crate-name %s --crate-type bin --edition 2018 -g -o \$@ \$<\n" "${testname}"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_at)rm -f %s$(EXEEXT)\n' "${testname}"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_RUSTC)rustc --crate-name %s --crate-type bin --edition 2018 -g -o $@ $<\n' "${testname}"
+            elif [ "${ext}" = "go" ]; then
+                echo "${testname}\$(EXEEXT): \$(${testname}_OBJECTS) \$(${testname}_DEPENDENCIES) \$(EXTRA_${testname}_DEPENDENCIES)"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_at)rm -f %s$(EXEEXT)\n' "${testname}"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_CCLD)$(LINK) $(%s_OBJECTS) $(%s_LDADD) $(LIBS)\n' "${testname}" "${testname}"
             fi
             echo ""
 
