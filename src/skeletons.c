@@ -144,7 +144,6 @@ const char *suffix (void)
 			suffix = "c";
 	} else {
 		suffix = skel_property("M4_PROPERTY_SOURCE_SUFFIX");
-                printf("suffix='%s'\n", suffix);
 	}
 	
 	return suffix;
