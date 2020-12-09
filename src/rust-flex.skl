@@ -633,7 +633,7 @@ m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[m4_dnl
         m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.leng.unwrap() >= YYLMAX {
             self.panic("token too large, exceeds YYLMAX");
         }]])
-        let range = self.text..=self.leng.unwrap();
+        let range = self.text..=self.text + self.leng.unwrap();
         self.text_buf.clear();
         // manually inlined current_buffer_unchecked here because borrow checker
         self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
