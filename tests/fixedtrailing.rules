@@ -32,7 +32,7 @@
 
 %%
 
-foo/a+		{M4_TEST_ASSERT(yyleng== 3)}
+foo/a+		{M4_TEST_ASSERT(yyleng == M4_TEST_LENGTH_VALUE(3))}
 foo		{M4_TEST_FAILMESSAGE}
 aa		{ }
 \n		{ }

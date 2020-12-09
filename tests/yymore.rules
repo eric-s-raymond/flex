@@ -30,6 +30,6 @@
 %option nounput noyywrap noyylineno warn noinput
 %%
 foo	{M4_TEST_DO(yymore())}
-bar	{M4_TEST_ASSERT(yyleng == 6)}
+bar	{M4_TEST_ASSERT(yyleng == M4_TEST_LENGTH_VALUE(6))}
 ###
 ^foobar
