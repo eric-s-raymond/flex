@@ -53,6 +53,8 @@ define(`M4_TEST_ASSERT', `if (!($1)) {fprintf(stderr,"ASSERT FAILED: %d:\"%s\"\n
 m4_ifdef(`M4_TEST_ENABLEDEBUG', `define(`M4_TEST_INITHOOK', `flex_debug = 1;')') 
 define(`M4_TEST_LEX_RV_SUCCESS', `$1')
 define(`M4_TEST_LENGTH_VALUE', `$1')
+define(`M4_TEST_INCREMENT', `++$1')
+define(`M4_TEST_DECREMENT', `--$1')
 define(`M4_TEST_POSTAMBLE', `dnl
 int main (int argc, char **argv)
 {
@@ -95,6 +97,8 @@ define(`M4_TEST_ASSERT', `if (!$1) {fprintf(stderr,"ASSERT FAILED: %d:\"%s\"\n",
 m4_ifdef(`M4_TEST_ENABLEDEBUG', `define(`M4_TEST_INITHOOK', `yyset_debug (yyget_debug(lexer), lexer);')') 
 define(`M4_TEST_LEX_RV_SUCCESS', `$1')
 define(`M4_TEST_LENGTH_VALUE', `$1')
+define(`M4_TEST_INCREMENT', `++$1')
+define(`M4_TEST_DECREMENT', `--$1')
 define(`M4_TEST_POSTAMBLE', `dnl
 int main (int argc, char **argv)
 {
@@ -143,6 +147,8 @@ define(`M4_TEST_ASSERT', `if (!$1) {fprintf(stderr,"ASSERT FAILED: %d:\"%s\"\n",
 m4_ifdef(`M4_TEST_ENABLEDEBUG', `define(`M4_TEST_INITHOOK', `yyset_debug (yyget_debug(lexer), lexer);')') 
 define(`M4_TEST_LEX_RV_SUCCESS', `$1')
 define(`M4_TEST_LENGTH_VALUE', `$1')
+define(`M4_TEST_INCREMENT', `++$1')
+define(`M4_TEST_DECREMENT', `--$1')
 define(`M4_TEST_POSTAMBLE', `dnl
 int main (int argc, char **argv)
 {
@@ -181,6 +187,8 @@ define(`M4_TEST_ASSERT', `if !$1 {fmt.Fprintf(os.Stderr,"ASSERT FAILED: %d:\"%s\
 m4_ifdef(`M4_TEST_ENABLEDEBUG', `define(`M4_TEST_INITHOOK', `lexer.yysetDebug(lexer.yygetDebug())')') 
 define(`M4_TEST_LEX_RV_SUCCESS', `$1')
 define(`M4_TEST_LENGTH_VALUE', `$1')
+define(`M4_TEST_INCREMENT', `++$1')
+define(`M4_TEST_DECREMENT', `--$1')
 define(`M4_TEST_POSTAMBLE', `dnl
 func main(void) {
 	lexer := new(FlexLexer)
@@ -204,6 +212,8 @@ define(`M4_TEST_FAILMESSAGE', `eprintln!("TEST FAILED."); std::process::exit(1);
 define(`M4_TEST_ASSERT', `if !($1) {eprintln!("ASSERT FAILED."); std::process::exit(1);}')dnl
 define(`M4_TEST_LEX_RV_SUCCESS', `Ok($1)')
 define(`M4_TEST_LENGTH_VALUE', `ifelse($1,`',`None',`Some($1)')')
+define(`M4_TEST_INCREMENT', `$1 += 1')
+define(`M4_TEST_DECREMENT', `$1 -= 1')
 define(`M4_TEST_POSTAMBLE', `dnl
 fn main() -> Result<()> {
     let mut lexer: Lexer<()> = Lexer::new();
