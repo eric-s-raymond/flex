@@ -61,9 +61,8 @@ for backend in "$@" ; do
             else
                 echo "${testname}_SOURCES = ${testname}.${ext}"
             fi
-            echo "${testname}.l: \$(FLEX)"
             echo "${testname}.${ext}: ${testname}.l"
-            echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
+            echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4 \$(FLEX)"
 	    # we're deliberately single-quoting this because we _don't_ want those variables to be expanded yet
 	    # shellcheck disable=2016
 	    printf '\t$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@\n'
