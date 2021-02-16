@@ -23,17 +23,66 @@ compatible() {
     [ "${mybackend}" = "nr" ] || [ "${myruleset}" != "lexcompat.rules" -a "${myruleset}" != "posixlycorrect.rules" ]
 }
 
+# shellcheck disable=SC2016
+echo 'AM_V_RUSTC = $(am__v_RUSTC_$(V))'
+# shellcheck disable=SC2016
+echo 'am__v_RUSTC_ = $(am__v_RUSTC_$(AM_DEFAULT_VERBOSITY))'
+printf 'am__v_RUSTC_0 = @echo "  RUSTC   " $@;\n'
+echo 'am__v_RUSTC_1 = '
+echo
+
+exts=""
+suffixes=""
 for backend in "$@" ; do
+    case $backend in
+	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
+	*) ext=${backend} ;;
+    esac
+    exts="$(printf "%s\n%s" "${ext}" "${exts}")"
+done
+exts="$(echo "${exts}" | sort -u)"
+for ext in ${exts}; do
+    suffixes=".${ext} ${suffixes}"
+done
+echo "SUFFIXES = ${suffixes}"
+
+for backend in "$@" ; do
+    case $backend in
+	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
+	*) ext=${backend} ;;
+    esac
     for ruleset in *.rules; do
 	if compatible "${backend}" "${ruleset}" ; then
 	    testname="${ruleset%.*}_${backend}"
-	    echo "${testname}_SOURCES = ${testname}.l"
-	    echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4"
+            if [ "${ext}" = "go" ]; then
+                echo "${testname}_SOURCES = ${testname}.c"
+            else
+                echo "${testname}_SOURCES = ${testname}.${ext}"
+            fi
+            echo "${testname}.${ext}: ${testname}.l"
+            echo "${testname}.l: \$(srcdir)/${ruleset} \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4 \$(FLEX)"
 	    # we're deliberately single-quoting this because we _don't_ want those variables to be expanded yet
 	    # shellcheck disable=2016
-	    printf '\t$(SHELL) $(srcdir)/testmaker.sh $@\n\n'
+	    printf '\t$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@\n'
+            if [ "${ext}" = "rs" ]; then
+                echo "${testname}\$(EXEEXT): \$(${testname}_SOURCES)"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_at)rm -f %s$(EXEEXT)\n' "${testname}"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_RUSTC)rustc --crate-name %s --crate-type bin --edition 2018 -g -o $@ $<\n' "${testname}"
+            elif [ "${ext}" = "go" ]; then
+                echo "${testname}\$(EXEEXT): \$(${testname}_OBJECTS) \$(${testname}_DEPENDENCIES) \$(EXTRA_${testname}_DEPENDENCIES)"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_at)rm -f %s$(EXEEXT)\n' "${testname}"
+                # shellcheck disable=2016
+                printf '\t$(AM_V_CCLD)$(LINK) $(%s_OBJECTS) $(%s_LDADD) $(LIBS)\n' "${testname}" "${testname}"
+            fi
+            echo ""
+
 	    RULESET_TESTS="${RULESET_TESTS} ${testname}"
-	    RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.c ${testname}.l ${ruleset%.*}.txt"
+	    RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.${ext} ${testname}.l ${ruleset%.*}.txt"
 	fi
     done
     for kind in opt ser ver ; do
@@ -43,7 +92,7 @@ for backend in "$@" ; do
             bare_opt=$(echo ${bare_opt}| sed 's/F$/xF/')
             testname=tableopts_${kind}_${backend}-${bare_opt}.${kind}
             RULESET_TESTS="${RULESET_TESTS} ${testname}"
-            RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.c ${testname}.l ${testname}.tables"
+            RULESET_REMOVABLES="${RULESET_REMOVABLES} ${testname} ${testname}.${ext} ${testname}.l ${testname}.tables"
             cat << EOF
 tableopts_${kind}_${backend}_${bare_opt}_${kind}_SOURCES = ${testname}.l
 ${testname}.l: \$(srcdir)/tableopts.rules \$(srcdir)/testmaker.sh \$(srcdir)/testmaker.m4
@@ -59,6 +108,7 @@ done
 for backend in "$@" ; do
     case $backend in
 	nr|r|c99) ext="c" ;;
+	rust) ext="rs" ;;
 	*) ext=${backend} ;;
     esac
     # shellcheck disable=SC2059
@@ -83,5 +133,3 @@ printf "# End generated test rules\n"
 echo RULESET_TESTS = "${RULESET_TESTS}"
 echo RULESET_REMOVABLES = "${RULESET_REMOVABLES}"
 echo
-
-

@@ -36,9 +36,9 @@ IDENT [[:alnum:]_-]
 WS    [[:blank:]]
 %%
 
-^{IDENT}+{WS}*={WS}*(true|false){WS}*\r?\n    { return 100;}
-^{IDENT}+{WS}*={WS}*\"[^\"\n\r]*\"{WS}*\r?\n  { return 101;}
-^{IDENT}+{WS}*={WS}*[[:digit:]]+{WS}*\r?\n    { return 102;}
+^{IDENT}+{WS}*={WS}*(true|false){WS}*\r?\n    { return M4_TEST_LEX_RV_SUCCESS(100);}
+^{IDENT}+{WS}*={WS}*\"[^\"\n\r]*\"{WS}*\r?\n  { return M4_TEST_LEX_RV_SUCCESS(101);}
+^{IDENT}+{WS}*={WS}*[[:digit:]]+{WS}*\r?\n    { return M4_TEST_LEX_RV_SUCCESS(102);}
 ^{WS}*#.*\r?\n     { }
 ^{WS}*\r?\n        { }
 .|\n  {M4_TEST_FAILMESSAGE}

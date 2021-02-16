@@ -1,0 +1,5 @@
+[package]
+name = "flex"
+version = "0.1.0"
+authors = ["Daniel Brooks <db48x@db48x.net>"]
+edition = "2018"

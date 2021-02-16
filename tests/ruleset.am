@@ -1,93 +1,121 @@
 
 # Begin generated test rules
 
-array_nr_SOURCES = array_nr.l
-array_nr.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+AM_V_RUSTC = $(am__v_RUSTC_$(V))
+am__v_RUSTC_ = $(am__v_RUSTC_$(AM_DEFAULT_VERBOSITY))
+am__v_RUSTC_0 = @echo "  RUSTC   " $@;
+am__v_RUSTC_1 = 
 
-basic_nr_SOURCES = basic_nr.l
-basic_nr.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+SUFFIXES = .rs .go .c 
+array_nr_SOURCES = array_nr.c
+array_nr.c: array_nr.l
+array_nr.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-bol_nr_SOURCES = bol_nr.l
-bol_nr.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+basic_nr_SOURCES = basic_nr.c
+basic_nr.c: basic_nr.l
+basic_nr.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-ccl_nr_SOURCES = ccl_nr.l
-ccl_nr.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+bol_nr_SOURCES = bol_nr.c
+bol_nr.c: bol_nr.l
+bol_nr.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-debug_nr_SOURCES = debug_nr.l
-debug_nr.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_nr_SOURCES = ccl_nr.c
+ccl_nr.c: ccl_nr.l
+ccl_nr.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-extended_nr_SOURCES = extended_nr.l
-extended_nr.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+debug_nr_SOURCES = debug_nr.c
+debug_nr.c: debug_nr.l
+debug_nr.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-fixedtrailing_nr_SOURCES = fixedtrailing_nr.l
-fixedtrailing_nr.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+extended_nr_SOURCES = extended_nr.c
+extended_nr.c: extended_nr.l
+extended_nr.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-flexname_nr_SOURCES = flexname_nr.l
-flexname_nr.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_nr_SOURCES = fixedtrailing_nr.c
+fixedtrailing_nr.c: fixedtrailing_nr.l
+fixedtrailing_nr.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-lexcompat_nr_SOURCES = lexcompat_nr.l
-lexcompat_nr.l: $(srcdir)/lexcompat.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_nr_SOURCES = flexname_nr.c
+flexname_nr.c: flexname_nr.l
+flexname_nr.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-lineno_nr_SOURCES = lineno_nr.l
-lineno_nr.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+lexcompat_nr_SOURCES = lexcompat_nr.c
+lexcompat_nr.c: lexcompat_nr.l
+lexcompat_nr.l: $(srcdir)/lexcompat.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-posixlycorrect_nr_SOURCES = posixlycorrect_nr.l
-posixlycorrect_nr.l: $(srcdir)/posixlycorrect.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_nr_SOURCES = lineno_nr.c
+lineno_nr.c: lineno_nr.l
+lineno_nr.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-posix_nr_SOURCES = posix_nr.l
-posix_nr.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+posixlycorrect_nr_SOURCES = posixlycorrect_nr.c
+posixlycorrect_nr.c: posixlycorrect_nr.l
+posixlycorrect_nr.l: $(srcdir)/posixlycorrect.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-preposix_nr_SOURCES = preposix_nr.l
-preposix_nr.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+posix_nr_SOURCES = posix_nr.c
+posix_nr.c: posix_nr.l
+posix_nr.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-quoteincomment_nr_SOURCES = quoteincomment_nr.l
-quoteincomment_nr.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_nr_SOURCES = preposix_nr.c
+preposix_nr.c: preposix_nr.l
+preposix_nr.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-reject_nr_SOURCES = reject_nr.l
-reject_nr.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_nr_SOURCES = quoteincomment_nr.c
+quoteincomment_nr.c: quoteincomment_nr.l
+quoteincomment_nr.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-tableopts_nr_SOURCES = tableopts_nr.l
-tableopts_nr.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+reject_nr_SOURCES = reject_nr.c
+reject_nr.c: reject_nr.l
+reject_nr.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-vartrailing_nr_SOURCES = vartrailing_nr.l
-vartrailing_nr.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_nr_SOURCES = tableopts_nr.c
+tableopts_nr.c: tableopts_nr.l
+tableopts_nr.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyless_nr_SOURCES = yyless_nr.l
-yyless_nr.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_nr_SOURCES = vartrailing_nr.c
+vartrailing_nr.c: vartrailing_nr.l
+vartrailing_nr.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearraybol_nr_SOURCES = yymorearraybol_nr.l
-yymorearraybol_nr.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_nr_SOURCES = yyless_nr.c
+yyless_nr.c: yyless_nr.l
+yyless_nr.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearray_nr_SOURCES = yymorearray_nr.l
-yymorearray_nr.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_nr_SOURCES = yymorearraybol_nr.c
+yymorearraybol_nr.c: yymorearraybol_nr.l
+yymorearraybol_nr.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymore_nr_SOURCES = yymore_nr.l
-yymore_nr.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_nr_SOURCES = yymorearray_nr.c
+yymorearray_nr.c: yymorearray_nr.l
+yymorearray_nr.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyunput_nr_SOURCES = yyunput_nr.l
-yyunput_nr.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_nr_SOURCES = yymore_nr.c
+yymore_nr.c: yymore_nr.l
+yymore_nr.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+
+yyunput_nr_SOURCES = yyunput_nr.c
+yyunput_nr.c: yyunput_nr.l
+yyunput_nr.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_nr_Ca_opt_SOURCES = tableopts_opt_nr-Ca.opt.l
 tableopts_opt_nr-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -221,85 +249,105 @@ tableopts_ver_nr_Caem_ver_SOURCES = tableopts_ver_nr-Caem.ver.l
 tableopts_ver_nr-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
-array_r_SOURCES = array_r.l
-array_r.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+array_r_SOURCES = array_r.c
+array_r.c: array_r.l
+array_r.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-basic_r_SOURCES = basic_r.l
-basic_r.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+basic_r_SOURCES = basic_r.c
+basic_r.c: basic_r.l
+basic_r.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-bol_r_SOURCES = bol_r.l
-bol_r.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+bol_r_SOURCES = bol_r.c
+bol_r.c: bol_r.l
+bol_r.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-ccl_r_SOURCES = ccl_r.l
-ccl_r.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_r_SOURCES = ccl_r.c
+ccl_r.c: ccl_r.l
+ccl_r.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-debug_r_SOURCES = debug_r.l
-debug_r.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+debug_r_SOURCES = debug_r.c
+debug_r.c: debug_r.l
+debug_r.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-extended_r_SOURCES = extended_r.l
-extended_r.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+extended_r_SOURCES = extended_r.c
+extended_r.c: extended_r.l
+extended_r.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-fixedtrailing_r_SOURCES = fixedtrailing_r.l
-fixedtrailing_r.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_r_SOURCES = fixedtrailing_r.c
+fixedtrailing_r.c: fixedtrailing_r.l
+fixedtrailing_r.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-flexname_r_SOURCES = flexname_r.l
-flexname_r.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_r_SOURCES = flexname_r.c
+flexname_r.c: flexname_r.l
+flexname_r.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-lineno_r_SOURCES = lineno_r.l
-lineno_r.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_r_SOURCES = lineno_r.c
+lineno_r.c: lineno_r.l
+lineno_r.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-posix_r_SOURCES = posix_r.l
-posix_r.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+posix_r_SOURCES = posix_r.c
+posix_r.c: posix_r.l
+posix_r.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-preposix_r_SOURCES = preposix_r.l
-preposix_r.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_r_SOURCES = preposix_r.c
+preposix_r.c: preposix_r.l
+preposix_r.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-quoteincomment_r_SOURCES = quoteincomment_r.l
-quoteincomment_r.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_r_SOURCES = quoteincomment_r.c
+quoteincomment_r.c: quoteincomment_r.l
+quoteincomment_r.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-reject_r_SOURCES = reject_r.l
-reject_r.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+reject_r_SOURCES = reject_r.c
+reject_r.c: reject_r.l
+reject_r.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-tableopts_r_SOURCES = tableopts_r.l
-tableopts_r.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_r_SOURCES = tableopts_r.c
+tableopts_r.c: tableopts_r.l
+tableopts_r.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-vartrailing_r_SOURCES = vartrailing_r.l
-vartrailing_r.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_r_SOURCES = vartrailing_r.c
+vartrailing_r.c: vartrailing_r.l
+vartrailing_r.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyless_r_SOURCES = yyless_r.l
-yyless_r.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_r_SOURCES = yyless_r.c
+yyless_r.c: yyless_r.l
+yyless_r.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearraybol_r_SOURCES = yymorearraybol_r.l
-yymorearraybol_r.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_r_SOURCES = yymorearraybol_r.c
+yymorearraybol_r.c: yymorearraybol_r.l
+yymorearraybol_r.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearray_r_SOURCES = yymorearray_r.l
-yymorearray_r.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_r_SOURCES = yymorearray_r.c
+yymorearray_r.c: yymorearray_r.l
+yymorearray_r.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymore_r_SOURCES = yymore_r.l
-yymore_r.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_r_SOURCES = yymore_r.c
+yymore_r.c: yymore_r.l
+yymore_r.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyunput_r_SOURCES = yyunput_r.l
-yyunput_r.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_r_SOURCES = yyunput_r.c
+yyunput_r.c: yyunput_r.l
+yyunput_r.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_r_Ca_opt_SOURCES = tableopts_opt_r-Ca.opt.l
 tableopts_opt_r-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -433,85 +481,105 @@ tableopts_ver_r_Caem_ver_SOURCES = tableopts_ver_r-Caem.ver.l
 tableopts_ver_r-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
-array_c99_SOURCES = array_c99.l
-array_c99.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+array_c99_SOURCES = array_c99.c
+array_c99.c: array_c99.l
+array_c99.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-basic_c99_SOURCES = basic_c99.l
-basic_c99.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+basic_c99_SOURCES = basic_c99.c
+basic_c99.c: basic_c99.l
+basic_c99.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-bol_c99_SOURCES = bol_c99.l
-bol_c99.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+bol_c99_SOURCES = bol_c99.c
+bol_c99.c: bol_c99.l
+bol_c99.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-ccl_c99_SOURCES = ccl_c99.l
-ccl_c99.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_c99_SOURCES = ccl_c99.c
+ccl_c99.c: ccl_c99.l
+ccl_c99.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-debug_c99_SOURCES = debug_c99.l
-debug_c99.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+debug_c99_SOURCES = debug_c99.c
+debug_c99.c: debug_c99.l
+debug_c99.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-extended_c99_SOURCES = extended_c99.l
-extended_c99.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+extended_c99_SOURCES = extended_c99.c
+extended_c99.c: extended_c99.l
+extended_c99.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-fixedtrailing_c99_SOURCES = fixedtrailing_c99.l
-fixedtrailing_c99.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_c99_SOURCES = fixedtrailing_c99.c
+fixedtrailing_c99.c: fixedtrailing_c99.l
+fixedtrailing_c99.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-flexname_c99_SOURCES = flexname_c99.l
-flexname_c99.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_c99_SOURCES = flexname_c99.c
+flexname_c99.c: flexname_c99.l
+flexname_c99.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-lineno_c99_SOURCES = lineno_c99.l
-lineno_c99.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_c99_SOURCES = lineno_c99.c
+lineno_c99.c: lineno_c99.l
+lineno_c99.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-posix_c99_SOURCES = posix_c99.l
-posix_c99.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+posix_c99_SOURCES = posix_c99.c
+posix_c99.c: posix_c99.l
+posix_c99.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-preposix_c99_SOURCES = preposix_c99.l
-preposix_c99.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_c99_SOURCES = preposix_c99.c
+preposix_c99.c: preposix_c99.l
+preposix_c99.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-quoteincomment_c99_SOURCES = quoteincomment_c99.l
-quoteincomment_c99.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_c99_SOURCES = quoteincomment_c99.c
+quoteincomment_c99.c: quoteincomment_c99.l
+quoteincomment_c99.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-reject_c99_SOURCES = reject_c99.l
-reject_c99.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+reject_c99_SOURCES = reject_c99.c
+reject_c99.c: reject_c99.l
+reject_c99.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-tableopts_c99_SOURCES = tableopts_c99.l
-tableopts_c99.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_c99_SOURCES = tableopts_c99.c
+tableopts_c99.c: tableopts_c99.l
+tableopts_c99.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-vartrailing_c99_SOURCES = vartrailing_c99.l
-vartrailing_c99.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_c99_SOURCES = vartrailing_c99.c
+vartrailing_c99.c: vartrailing_c99.l
+vartrailing_c99.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyless_c99_SOURCES = yyless_c99.l
-yyless_c99.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_c99_SOURCES = yyless_c99.c
+yyless_c99.c: yyless_c99.l
+yyless_c99.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearraybol_c99_SOURCES = yymorearraybol_c99.l
-yymorearraybol_c99.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_c99_SOURCES = yymorearraybol_c99.c
+yymorearraybol_c99.c: yymorearraybol_c99.l
+yymorearraybol_c99.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymorearray_c99_SOURCES = yymorearray_c99.l
-yymorearray_c99.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_c99_SOURCES = yymorearray_c99.c
+yymorearray_c99.c: yymorearray_c99.l
+yymorearray_c99.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yymore_c99_SOURCES = yymore_c99.l
-yymore_c99.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_c99_SOURCES = yymore_c99.c
+yymore_c99.c: yymore_c99.l
+yymore_c99.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
-yyunput_c99_SOURCES = yyunput_c99.l
-yyunput_c99.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_c99_SOURCES = yyunput_c99.c
+yyunput_c99.c: yyunput_c99.l
+yyunput_c99.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
 
 tableopts_opt_c99_Ca_opt_SOURCES = tableopts_opt_c99-Ca.opt.l
 tableopts_opt_c99-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -645,85 +713,165 @@ tableopts_ver_c99_Caem_ver_SOURCES = tableopts_ver_c99-Caem.ver.l
 tableopts_ver_c99-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
-array_go_SOURCES = array_go.l
-array_go.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+array_go_SOURCES = array_go.c
+array_go.go: array_go.l
+array_go.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+array_go$(EXEEXT): $(array_go_OBJECTS) $(array_go_DEPENDENCIES) $(EXTRA_array_go_DEPENDENCIES)
+	$(AM_V_at)rm -f array_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(array_go_OBJECTS) $(array_go_LDADD) $(LIBS)
 
-basic_go_SOURCES = basic_go.l
-basic_go.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+basic_go_SOURCES = basic_go.c
+basic_go.go: basic_go.l
+basic_go.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+basic_go$(EXEEXT): $(basic_go_OBJECTS) $(basic_go_DEPENDENCIES) $(EXTRA_basic_go_DEPENDENCIES)
+	$(AM_V_at)rm -f basic_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(basic_go_OBJECTS) $(basic_go_LDADD) $(LIBS)
 
-bol_go_SOURCES = bol_go.l
-bol_go.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+bol_go_SOURCES = bol_go.c
+bol_go.go: bol_go.l
+bol_go.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+bol_go$(EXEEXT): $(bol_go_OBJECTS) $(bol_go_DEPENDENCIES) $(EXTRA_bol_go_DEPENDENCIES)
+	$(AM_V_at)rm -f bol_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(bol_go_OBJECTS) $(bol_go_LDADD) $(LIBS)
 
-ccl_go_SOURCES = ccl_go.l
-ccl_go.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_go_SOURCES = ccl_go.c
+ccl_go.go: ccl_go.l
+ccl_go.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_go$(EXEEXT): $(ccl_go_OBJECTS) $(ccl_go_DEPENDENCIES) $(EXTRA_ccl_go_DEPENDENCIES)
+	$(AM_V_at)rm -f ccl_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ccl_go_OBJECTS) $(ccl_go_LDADD) $(LIBS)
 
-debug_go_SOURCES = debug_go.l
-debug_go.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+debug_go_SOURCES = debug_go.c
+debug_go.go: debug_go.l
+debug_go.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+debug_go$(EXEEXT): $(debug_go_OBJECTS) $(debug_go_DEPENDENCIES) $(EXTRA_debug_go_DEPENDENCIES)
+	$(AM_V_at)rm -f debug_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(debug_go_OBJECTS) $(debug_go_LDADD) $(LIBS)
 
-extended_go_SOURCES = extended_go.l
-extended_go.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+extended_go_SOURCES = extended_go.c
+extended_go.go: extended_go.l
+extended_go.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+extended_go$(EXEEXT): $(extended_go_OBJECTS) $(extended_go_DEPENDENCIES) $(EXTRA_extended_go_DEPENDENCIES)
+	$(AM_V_at)rm -f extended_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(extended_go_OBJECTS) $(extended_go_LDADD) $(LIBS)
 
-fixedtrailing_go_SOURCES = fixedtrailing_go.l
-fixedtrailing_go.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_go_SOURCES = fixedtrailing_go.c
+fixedtrailing_go.go: fixedtrailing_go.l
+fixedtrailing_go.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_go$(EXEEXT): $(fixedtrailing_go_OBJECTS) $(fixedtrailing_go_DEPENDENCIES) $(EXTRA_fixedtrailing_go_DEPENDENCIES)
+	$(AM_V_at)rm -f fixedtrailing_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(fixedtrailing_go_OBJECTS) $(fixedtrailing_go_LDADD) $(LIBS)
 
-flexname_go_SOURCES = flexname_go.l
-flexname_go.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_go_SOURCES = flexname_go.c
+flexname_go.go: flexname_go.l
+flexname_go.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_go$(EXEEXT): $(flexname_go_OBJECTS) $(flexname_go_DEPENDENCIES) $(EXTRA_flexname_go_DEPENDENCIES)
+	$(AM_V_at)rm -f flexname_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(flexname_go_OBJECTS) $(flexname_go_LDADD) $(LIBS)
 
-lineno_go_SOURCES = lineno_go.l
-lineno_go.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_go_SOURCES = lineno_go.c
+lineno_go.go: lineno_go.l
+lineno_go.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_go$(EXEEXT): $(lineno_go_OBJECTS) $(lineno_go_DEPENDENCIES) $(EXTRA_lineno_go_DEPENDENCIES)
+	$(AM_V_at)rm -f lineno_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(lineno_go_OBJECTS) $(lineno_go_LDADD) $(LIBS)
 
-posix_go_SOURCES = posix_go.l
-posix_go.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+posix_go_SOURCES = posix_go.c
+posix_go.go: posix_go.l
+posix_go.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+posix_go$(EXEEXT): $(posix_go_OBJECTS) $(posix_go_DEPENDENCIES) $(EXTRA_posix_go_DEPENDENCIES)
+	$(AM_V_at)rm -f posix_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(posix_go_OBJECTS) $(posix_go_LDADD) $(LIBS)
 
-preposix_go_SOURCES = preposix_go.l
-preposix_go.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_go_SOURCES = preposix_go.c
+preposix_go.go: preposix_go.l
+preposix_go.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_go$(EXEEXT): $(preposix_go_OBJECTS) $(preposix_go_DEPENDENCIES) $(EXTRA_preposix_go_DEPENDENCIES)
+	$(AM_V_at)rm -f preposix_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(preposix_go_OBJECTS) $(preposix_go_LDADD) $(LIBS)
 
-quoteincomment_go_SOURCES = quoteincomment_go.l
-quoteincomment_go.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_go_SOURCES = quoteincomment_go.c
+quoteincomment_go.go: quoteincomment_go.l
+quoteincomment_go.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_go$(EXEEXT): $(quoteincomment_go_OBJECTS) $(quoteincomment_go_DEPENDENCIES) $(EXTRA_quoteincomment_go_DEPENDENCIES)
+	$(AM_V_at)rm -f quoteincomment_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(quoteincomment_go_OBJECTS) $(quoteincomment_go_LDADD) $(LIBS)
 
-reject_go_SOURCES = reject_go.l
-reject_go.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+reject_go_SOURCES = reject_go.c
+reject_go.go: reject_go.l
+reject_go.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+reject_go$(EXEEXT): $(reject_go_OBJECTS) $(reject_go_DEPENDENCIES) $(EXTRA_reject_go_DEPENDENCIES)
+	$(AM_V_at)rm -f reject_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(reject_go_OBJECTS) $(reject_go_LDADD) $(LIBS)
 
-tableopts_go_SOURCES = tableopts_go.l
-tableopts_go.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_go_SOURCES = tableopts_go.c
+tableopts_go.go: tableopts_go.l
+tableopts_go.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_go$(EXEEXT): $(tableopts_go_OBJECTS) $(tableopts_go_DEPENDENCIES) $(EXTRA_tableopts_go_DEPENDENCIES)
+	$(AM_V_at)rm -f tableopts_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tableopts_go_OBJECTS) $(tableopts_go_LDADD) $(LIBS)
 
-vartrailing_go_SOURCES = vartrailing_go.l
-vartrailing_go.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_go_SOURCES = vartrailing_go.c
+vartrailing_go.go: vartrailing_go.l
+vartrailing_go.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_go$(EXEEXT): $(vartrailing_go_OBJECTS) $(vartrailing_go_DEPENDENCIES) $(EXTRA_vartrailing_go_DEPENDENCIES)
+	$(AM_V_at)rm -f vartrailing_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(vartrailing_go_OBJECTS) $(vartrailing_go_LDADD) $(LIBS)
 
-yyless_go_SOURCES = yyless_go.l
-yyless_go.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_go_SOURCES = yyless_go.c
+yyless_go.go: yyless_go.l
+yyless_go.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_go$(EXEEXT): $(yyless_go_OBJECTS) $(yyless_go_DEPENDENCIES) $(EXTRA_yyless_go_DEPENDENCIES)
+	$(AM_V_at)rm -f yyless_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yyless_go_OBJECTS) $(yyless_go_LDADD) $(LIBS)
 
-yymorearraybol_go_SOURCES = yymorearraybol_go.l
-yymorearraybol_go.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_go_SOURCES = yymorearraybol_go.c
+yymorearraybol_go.go: yymorearraybol_go.l
+yymorearraybol_go.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_go$(EXEEXT): $(yymorearraybol_go_OBJECTS) $(yymorearraybol_go_DEPENDENCIES) $(EXTRA_yymorearraybol_go_DEPENDENCIES)
+	$(AM_V_at)rm -f yymorearraybol_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yymorearraybol_go_OBJECTS) $(yymorearraybol_go_LDADD) $(LIBS)
 
-yymorearray_go_SOURCES = yymorearray_go.l
-yymorearray_go.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_go_SOURCES = yymorearray_go.c
+yymorearray_go.go: yymorearray_go.l
+yymorearray_go.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_go$(EXEEXT): $(yymorearray_go_OBJECTS) $(yymorearray_go_DEPENDENCIES) $(EXTRA_yymorearray_go_DEPENDENCIES)
+	$(AM_V_at)rm -f yymorearray_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yymorearray_go_OBJECTS) $(yymorearray_go_LDADD) $(LIBS)
 
-yymore_go_SOURCES = yymore_go.l
-yymore_go.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_go_SOURCES = yymore_go.c
+yymore_go.go: yymore_go.l
+yymore_go.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_go$(EXEEXT): $(yymore_go_OBJECTS) $(yymore_go_DEPENDENCIES) $(EXTRA_yymore_go_DEPENDENCIES)
+	$(AM_V_at)rm -f yymore_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yymore_go_OBJECTS) $(yymore_go_LDADD) $(LIBS)
 
-yyunput_go_SOURCES = yyunput_go.l
-yyunput_go.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
-	$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_go_SOURCES = yyunput_go.c
+yyunput_go.go: yyunput_go.l
+yyunput_go.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_go$(EXEEXT): $(yyunput_go_OBJECTS) $(yyunput_go_DEPENDENCIES) $(EXTRA_yyunput_go_DEPENDENCIES)
+	$(AM_V_at)rm -f yyunput_go$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(yyunput_go_OBJECTS) $(yyunput_go_LDADD) $(LIBS)
 
 tableopts_opt_go_Ca_opt_SOURCES = tableopts_opt_go-Ca.opt.l
 tableopts_opt_go-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
@@ -857,6 +1005,298 @@ tableopts_ver_go_Caem_ver_SOURCES = tableopts_ver_go-Caem.ver.l
 tableopts_ver_go-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
 	$(SHELL) $(srcdir)/testmaker.sh $@
 
+array_rust_SOURCES = array_rust.rs
+array_rust.rs: array_rust.l
+array_rust.l: $(srcdir)/array.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+array_rust$(EXEEXT): $(array_rust_SOURCES)
+	$(AM_V_at)rm -f array_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name array_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+basic_rust_SOURCES = basic_rust.rs
+basic_rust.rs: basic_rust.l
+basic_rust.l: $(srcdir)/basic.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+basic_rust$(EXEEXT): $(basic_rust_SOURCES)
+	$(AM_V_at)rm -f basic_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name basic_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+bol_rust_SOURCES = bol_rust.rs
+bol_rust.rs: bol_rust.l
+bol_rust.l: $(srcdir)/bol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+bol_rust$(EXEEXT): $(bol_rust_SOURCES)
+	$(AM_V_at)rm -f bol_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name bol_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+ccl_rust_SOURCES = ccl_rust.rs
+ccl_rust.rs: ccl_rust.l
+ccl_rust.l: $(srcdir)/ccl.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+ccl_rust$(EXEEXT): $(ccl_rust_SOURCES)
+	$(AM_V_at)rm -f ccl_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name ccl_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+debug_rust_SOURCES = debug_rust.rs
+debug_rust.rs: debug_rust.l
+debug_rust.l: $(srcdir)/debug.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+debug_rust$(EXEEXT): $(debug_rust_SOURCES)
+	$(AM_V_at)rm -f debug_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name debug_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+extended_rust_SOURCES = extended_rust.rs
+extended_rust.rs: extended_rust.l
+extended_rust.l: $(srcdir)/extended.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+extended_rust$(EXEEXT): $(extended_rust_SOURCES)
+	$(AM_V_at)rm -f extended_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name extended_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+fixedtrailing_rust_SOURCES = fixedtrailing_rust.rs
+fixedtrailing_rust.rs: fixedtrailing_rust.l
+fixedtrailing_rust.l: $(srcdir)/fixedtrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+fixedtrailing_rust$(EXEEXT): $(fixedtrailing_rust_SOURCES)
+	$(AM_V_at)rm -f fixedtrailing_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name fixedtrailing_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+flexname_rust_SOURCES = flexname_rust.rs
+flexname_rust.rs: flexname_rust.l
+flexname_rust.l: $(srcdir)/flexname.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+flexname_rust$(EXEEXT): $(flexname_rust_SOURCES)
+	$(AM_V_at)rm -f flexname_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name flexname_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+lineno_rust_SOURCES = lineno_rust.rs
+lineno_rust.rs: lineno_rust.l
+lineno_rust.l: $(srcdir)/lineno.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+lineno_rust$(EXEEXT): $(lineno_rust_SOURCES)
+	$(AM_V_at)rm -f lineno_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name lineno_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+posix_rust_SOURCES = posix_rust.rs
+posix_rust.rs: posix_rust.l
+posix_rust.l: $(srcdir)/posix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+posix_rust$(EXEEXT): $(posix_rust_SOURCES)
+	$(AM_V_at)rm -f posix_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name posix_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+preposix_rust_SOURCES = preposix_rust.rs
+preposix_rust.rs: preposix_rust.l
+preposix_rust.l: $(srcdir)/preposix.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+preposix_rust$(EXEEXT): $(preposix_rust_SOURCES)
+	$(AM_V_at)rm -f preposix_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name preposix_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+quoteincomment_rust_SOURCES = quoteincomment_rust.rs
+quoteincomment_rust.rs: quoteincomment_rust.l
+quoteincomment_rust.l: $(srcdir)/quoteincomment.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+quoteincomment_rust$(EXEEXT): $(quoteincomment_rust_SOURCES)
+	$(AM_V_at)rm -f quoteincomment_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name quoteincomment_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+reject_rust_SOURCES = reject_rust.rs
+reject_rust.rs: reject_rust.l
+reject_rust.l: $(srcdir)/reject.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+reject_rust$(EXEEXT): $(reject_rust_SOURCES)
+	$(AM_V_at)rm -f reject_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name reject_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+tableopts_rust_SOURCES = tableopts_rust.rs
+tableopts_rust.rs: tableopts_rust.l
+tableopts_rust.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+tableopts_rust$(EXEEXT): $(tableopts_rust_SOURCES)
+	$(AM_V_at)rm -f tableopts_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name tableopts_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+vartrailing_rust_SOURCES = vartrailing_rust.rs
+vartrailing_rust.rs: vartrailing_rust.l
+vartrailing_rust.l: $(srcdir)/vartrailing.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+vartrailing_rust$(EXEEXT): $(vartrailing_rust_SOURCES)
+	$(AM_V_at)rm -f vartrailing_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name vartrailing_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+yyless_rust_SOURCES = yyless_rust.rs
+yyless_rust.rs: yyless_rust.l
+yyless_rust.l: $(srcdir)/yyless.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyless_rust$(EXEEXT): $(yyless_rust_SOURCES)
+	$(AM_V_at)rm -f yyless_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yyless_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+yymorearraybol_rust_SOURCES = yymorearraybol_rust.rs
+yymorearraybol_rust.rs: yymorearraybol_rust.l
+yymorearraybol_rust.l: $(srcdir)/yymorearraybol.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearraybol_rust$(EXEEXT): $(yymorearraybol_rust_SOURCES)
+	$(AM_V_at)rm -f yymorearraybol_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymorearraybol_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+yymorearray_rust_SOURCES = yymorearray_rust.rs
+yymorearray_rust.rs: yymorearray_rust.l
+yymorearray_rust.l: $(srcdir)/yymorearray.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymorearray_rust$(EXEEXT): $(yymorearray_rust_SOURCES)
+	$(AM_V_at)rm -f yymorearray_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymorearray_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+yymore_rust_SOURCES = yymore_rust.rs
+yymore_rust.rs: yymore_rust.l
+yymore_rust.l: $(srcdir)/yymore.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yymore_rust$(EXEEXT): $(yymore_rust_SOURCES)
+	$(AM_V_at)rm -f yymore_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yymore_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+yyunput_rust_SOURCES = yyunput_rust.rs
+yyunput_rust.rs: yyunput_rust.l
+yyunput_rust.l: $(srcdir)/yyunput.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4 $(FLEX)
+	$(AM_V_GEN)$(SHELL) $(srcdir)/testmaker.sh $@
+yyunput_rust$(EXEEXT): $(yyunput_rust_SOURCES)
+	$(AM_V_at)rm -f yyunput_rust$(EXEEXT)
+	$(AM_V_RUSTC)rustc --crate-name yyunput_rust --crate-type bin --edition 2018 -g -o $@ $<
+
+tableopts_opt_rust_Ca_opt_SOURCES = tableopts_opt_rust-Ca.opt.l
+tableopts_opt_rust-Ca.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Ce_opt_SOURCES = tableopts_opt_rust-Ce.opt.l
+tableopts_opt_rust-Ce.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Cf_opt_SOURCES = tableopts_opt_rust-Cf.opt.l
+tableopts_opt_rust-Cf.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_CxF_opt_SOURCES = tableopts_opt_rust-CxF.opt.l
+tableopts_opt_rust-CxF.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Cm_opt_SOURCES = tableopts_opt_rust-Cm.opt.l
+tableopts_opt_rust-Cm.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Cem_opt_SOURCES = tableopts_opt_rust-Cem.opt.l
+tableopts_opt_rust-Cem.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Cae_opt_SOURCES = tableopts_opt_rust-Cae.opt.l
+tableopts_opt_rust-Cae.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Caef_opt_SOURCES = tableopts_opt_rust-Caef.opt.l
+tableopts_opt_rust-Caef.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_CaexF_opt_SOURCES = tableopts_opt_rust-CaexF.opt.l
+tableopts_opt_rust-CaexF.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Cam_opt_SOURCES = tableopts_opt_rust-Cam.opt.l
+tableopts_opt_rust-Cam.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_opt_rust_Caem_opt_SOURCES = tableopts_opt_rust-Caem.opt.l
+tableopts_opt_rust-Caem.opt.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Ca_ser_SOURCES = tableopts_ser_rust-Ca.ser.l
+tableopts_ser_rust-Ca.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Ce_ser_SOURCES = tableopts_ser_rust-Ce.ser.l
+tableopts_ser_rust-Ce.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Cf_ser_SOURCES = tableopts_ser_rust-Cf.ser.l
+tableopts_ser_rust-Cf.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_CxF_ser_SOURCES = tableopts_ser_rust-CxF.ser.l
+tableopts_ser_rust-CxF.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Cm_ser_SOURCES = tableopts_ser_rust-Cm.ser.l
+tableopts_ser_rust-Cm.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Cem_ser_SOURCES = tableopts_ser_rust-Cem.ser.l
+tableopts_ser_rust-Cem.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Cae_ser_SOURCES = tableopts_ser_rust-Cae.ser.l
+tableopts_ser_rust-Cae.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Caef_ser_SOURCES = tableopts_ser_rust-Caef.ser.l
+tableopts_ser_rust-Caef.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_CaexF_ser_SOURCES = tableopts_ser_rust-CaexF.ser.l
+tableopts_ser_rust-CaexF.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Cam_ser_SOURCES = tableopts_ser_rust-Cam.ser.l
+tableopts_ser_rust-Cam.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ser_rust_Caem_ser_SOURCES = tableopts_ser_rust-Caem.ser.l
+tableopts_ser_rust-Caem.ser.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Ca_ver_SOURCES = tableopts_ver_rust-Ca.ver.l
+tableopts_ver_rust-Ca.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Ce_ver_SOURCES = tableopts_ver_rust-Ce.ver.l
+tableopts_ver_rust-Ce.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Cf_ver_SOURCES = tableopts_ver_rust-Cf.ver.l
+tableopts_ver_rust-Cf.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_CxF_ver_SOURCES = tableopts_ver_rust-CxF.ver.l
+tableopts_ver_rust-CxF.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Cm_ver_SOURCES = tableopts_ver_rust-Cm.ver.l
+tableopts_ver_rust-Cm.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Cem_ver_SOURCES = tableopts_ver_rust-Cem.ver.l
+tableopts_ver_rust-Cem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Cae_ver_SOURCES = tableopts_ver_rust-Cae.ver.l
+tableopts_ver_rust-Cae.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Caef_ver_SOURCES = tableopts_ver_rust-Caef.ver.l
+tableopts_ver_rust-Caef.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_CaexF_ver_SOURCES = tableopts_ver_rust-CaexF.ver.l
+tableopts_ver_rust-CaexF.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Cam_ver_SOURCES = tableopts_ver_rust-Cam.ver.l
+tableopts_ver_rust-Cam.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
+tableopts_ver_rust_Caem_ver_SOURCES = tableopts_ver_rust-Caem.ver.l
+tableopts_ver_rust-Caem.ver.l: $(srcdir)/tableopts.rules $(srcdir)/testmaker.sh $(srcdir)/testmaker.m4
+	$(SHELL) $(srcdir)/testmaker.sh $@
+
 posixlycorrect_nr.c: posixlycorrect_nr.l $(FLEX)
 	$(AM_V_LEX)POSIXLY_CORRECT=1 $(FLEX) $(TESTOPTS) -o $@ $<
 
@@ -885,8 +1325,15 @@ test-yydecl-go.sh$(EXEEXT): test-yydecl-gen.sh
 	$(SHELL) test-yydecl-gen.sh go >test-yydecl-go.sh$(EXEEXT)
 	chmod a+x test-yydecl-go.sh$(EXEEXT)
 
+posixlycorrect_rust.rs: posixlycorrect_rust.l $(FLEX)
+	$(AM_V_LEX)POSIXLY_CORRECT=1 $(FLEX) $(TESTOPTS) -o $@ $<
+
+test-yydecl-rust.sh$(EXEEXT): test-yydecl-gen.sh
+	$(SHELL) test-yydecl-gen.sh rust >test-yydecl-rust.sh$(EXEEXT)
+	chmod a+x test-yydecl-rust.sh$(EXEEXT)
+
 
 # End generated test rules
-RULESET_TESTS =  array_nr basic_nr bol_nr ccl_nr debug_nr extended_nr fixedtrailing_nr flexname_nr lexcompat_nr lineno_nr posixlycorrect_nr posix_nr preposix_nr quoteincomment_nr reject_nr tableopts_nr vartrailing_nr yyless_nr yymorearraybol_nr yymorearray_nr yymore_nr yyunput_nr tableopts_opt_nr-Ca.opt tableopts_opt_nr-Ce.opt tableopts_opt_nr-Cf.opt tableopts_opt_nr-CxF.opt tableopts_opt_nr-Cm.opt tableopts_opt_nr-Cem.opt tableopts_opt_nr-Cae.opt tableopts_opt_nr-Caef.opt tableopts_opt_nr-CaexF.opt tableopts_opt_nr-Cam.opt tableopts_opt_nr-Caem.opt tableopts_ser_nr-Ca.ser tableopts_ser_nr-Ce.ser tableopts_ser_nr-Cf.ser tableopts_ser_nr-CxF.ser tableopts_ser_nr-Cm.ser tableopts_ser_nr-Cem.ser tableopts_ser_nr-Cae.ser tableopts_ser_nr-Caef.ser tableopts_ser_nr-CaexF.ser tableopts_ser_nr-Cam.ser tableopts_ser_nr-Caem.ser tableopts_ver_nr-Ca.ver tableopts_ver_nr-Ce.ver tableopts_ver_nr-Cf.ver tableopts_ver_nr-CxF.ver tableopts_ver_nr-Cm.ver tableopts_ver_nr-Cem.ver tableopts_ver_nr-Cae.ver tableopts_ver_nr-Caef.ver tableopts_ver_nr-CaexF.ver tableopts_ver_nr-Cam.ver tableopts_ver_nr-Caem.ver array_r basic_r bol_r ccl_r debug_r extended_r fixedtrailing_r flexname_r lineno_r posix_r preposix_r quoteincomment_r reject_r tableopts_r vartrailing_r yyless_r yymorearraybol_r yymorearray_r yymore_r yyunput_r tableopts_opt_r-Ca.opt tableopts_opt_r-Ce.opt tableopts_opt_r-Cf.opt tableopts_opt_r-CxF.opt tableopts_opt_r-Cm.opt tableopts_opt_r-Cem.opt tableopts_opt_r-Cae.opt tableopts_opt_r-Caef.opt tableopts_opt_r-CaexF.opt tableopts_opt_r-Cam.opt tableopts_opt_r-Caem.opt tableopts_ser_r-Ca.ser tableopts_ser_r-Ce.ser tableopts_ser_r-Cf.ser tableopts_ser_r-CxF.ser tableopts_ser_r-Cm.ser tableopts_ser_r-Cem.ser tableopts_ser_r-Cae.ser tableopts_ser_r-Caef.ser tableopts_ser_r-CaexF.ser tableopts_ser_r-Cam.ser tableopts_ser_r-Caem.ser tableopts_ver_r-Ca.ver tableopts_ver_r-Ce.ver tableopts_ver_r-Cf.ver tableopts_ver_r-CxF.ver tableopts_ver_r-Cm.ver tableopts_ver_r-Cem.ver tableopts_ver_r-Cae.ver tableopts_ver_r-Caef.ver tableopts_ver_r-CaexF.ver tableopts_ver_r-Cam.ver tableopts_ver_r-Caem.ver array_c99 basic_c99 bol_c99 ccl_c99 debug_c99 extended_c99 fixedtrailing_c99 flexname_c99 lineno_c99 posix_c99 preposix_c99 quoteincomment_c99 reject_c99 tableopts_c99 vartrailing_c99 yyless_c99 yymorearraybol_c99 yymorearray_c99 yymore_c99 yyunput_c99 tableopts_opt_c99-Ca.opt tableopts_opt_c99-Ce.opt tableopts_opt_c99-Cf.opt tableopts_opt_c99-CxF.opt tableopts_opt_c99-Cm.opt tableopts_opt_c99-Cem.opt tableopts_opt_c99-Cae.opt tableopts_opt_c99-Caef.opt tableopts_opt_c99-CaexF.opt tableopts_opt_c99-Cam.opt tableopts_opt_c99-Caem.opt tableopts_ser_c99-Ca.ser tableopts_ser_c99-Ce.ser tableopts_ser_c99-Cf.ser tableopts_ser_c99-CxF.ser tableopts_ser_c99-Cm.ser tableopts_ser_c99-Cem.ser tableopts_ser_c99-Cae.ser tableopts_ser_c99-Caef.ser tableopts_ser_c99-CaexF.ser tableopts_ser_c99-Cam.ser tableopts_ser_c99-Caem.ser tableopts_ver_c99-Ca.ver tableopts_ver_c99-Ce.ver tableopts_ver_c99-Cf.ver tableopts_ver_c99-CxF.ver tableopts_ver_c99-Cm.ver tableopts_ver_c99-Cem.ver tableopts_ver_c99-Cae.ver tableopts_ver_c99-Caef.ver tableopts_ver_c99-CaexF.ver tableopts_ver_c99-Cam.ver tableopts_ver_c99-Caem.ver array_go basic_go bol_go ccl_go debug_go extended_go fixedtrailing_go flexname_go lineno_go posix_go preposix_go quoteincomment_go reject_go tableopts_go vartrailing_go yyless_go yymorearraybol_go yymorearray_go yymore_go yyunput_go tableopts_opt_go-Ca.opt tableopts_opt_go-Ce.opt tableopts_opt_go-Cf.opt tableopts_opt_go-CxF.opt tableopts_opt_go-Cm.opt tableopts_opt_go-Cem.opt tableopts_opt_go-Cae.opt tableopts_opt_go-Caef.opt tableopts_opt_go-CaexF.opt tableopts_opt_go-Cam.opt tableopts_opt_go-Caem.opt tableopts_ser_go-Ca.ser tableopts_ser_go-Ce.ser tableopts_ser_go-Cf.ser tableopts_ser_go-CxF.ser tableopts_ser_go-Cm.ser tableopts_ser_go-Cem.ser tableopts_ser_go-Cae.ser tableopts_ser_go-Caef.ser tableopts_ser_go-CaexF.ser tableopts_ser_go-Cam.ser tableopts_ser_go-Caem.ser tableopts_ver_go-Ca.ver tableopts_ver_go-Ce.ver tableopts_ver_go-Cf.ver tableopts_ver_go-CxF.ver tableopts_ver_go-Cm.ver tableopts_ver_go-Cem.ver tableopts_ver_go-Cae.ver tableopts_ver_go-Caef.ver tableopts_ver_go-CaexF.ver tableopts_ver_go-Cam.ver tableopts_ver_go-Caem.ver test-yydecl-nr.sh test-yydecl-r.sh test-yydecl-c99.sh test-yydecl-go.sh
-RULESET_REMOVABLES =  array_nr array_nr.c array_nr.l array.txt basic_nr basic_nr.c basic_nr.l basic.txt bol_nr bol_nr.c bol_nr.l bol.txt ccl_nr ccl_nr.c ccl_nr.l ccl.txt debug_nr debug_nr.c debug_nr.l debug.txt extended_nr extended_nr.c extended_nr.l extended.txt fixedtrailing_nr fixedtrailing_nr.c fixedtrailing_nr.l fixedtrailing.txt flexname_nr flexname_nr.c flexname_nr.l flexname.txt lexcompat_nr lexcompat_nr.c lexcompat_nr.l lexcompat.txt lineno_nr lineno_nr.c lineno_nr.l lineno.txt posixlycorrect_nr posixlycorrect_nr.c posixlycorrect_nr.l posixlycorrect.txt posix_nr posix_nr.c posix_nr.l posix.txt preposix_nr preposix_nr.c preposix_nr.l preposix.txt quoteincomment_nr quoteincomment_nr.c quoteincomment_nr.l quoteincomment.txt reject_nr reject_nr.c reject_nr.l reject.txt tableopts_nr tableopts_nr.c tableopts_nr.l tableopts.txt vartrailing_nr vartrailing_nr.c vartrailing_nr.l vartrailing.txt yyless_nr yyless_nr.c yyless_nr.l yyless.txt yymorearraybol_nr yymorearraybol_nr.c yymorearraybol_nr.l yymorearraybol.txt yymorearray_nr yymorearray_nr.c yymorearray_nr.l yymorearray.txt yymore_nr yymore_nr.c yymore_nr.l yymore.txt yyunput_nr yyunput_nr.c yyunput_nr.l yyunput.txt tableopts_opt_nr-Ca.opt tableopts_opt_nr-Ca.opt.c tableopts_opt_nr-Ca.opt.l tableopts_opt_nr-Ca.opt.tables tableopts_opt_nr-Ce.opt tableopts_opt_nr-Ce.opt.c tableopts_opt_nr-Ce.opt.l tableopts_opt_nr-Ce.opt.tables tableopts_opt_nr-Cf.opt tableopts_opt_nr-Cf.opt.c tableopts_opt_nr-Cf.opt.l tableopts_opt_nr-Cf.opt.tables tableopts_opt_nr-CxF.opt tableopts_opt_nr-CxF.opt.c tableopts_opt_nr-CxF.opt.l tableopts_opt_nr-CxF.opt.tables tableopts_opt_nr-Cm.opt tableopts_opt_nr-Cm.opt.c tableopts_opt_nr-Cm.opt.l tableopts_opt_nr-Cm.opt.tables tableopts_opt_nr-Cem.opt tableopts_opt_nr-Cem.opt.c tableopts_opt_nr-Cem.opt.l tableopts_opt_nr-Cem.opt.tables tableopts_opt_nr-Cae.opt tableopts_opt_nr-Cae.opt.c tableopts_opt_nr-Cae.opt.l tableopts_opt_nr-Cae.opt.tables tableopts_opt_nr-Caef.opt tableopts_opt_nr-Caef.opt.c tableopts_opt_nr-Caef.opt.l tableopts_opt_nr-Caef.opt.tables tableopts_opt_nr-CaexF.opt tableopts_opt_nr-CaexF.opt.c tableopts_opt_nr-CaexF.opt.l tableopts_opt_nr-CaexF.opt.tables tableopts_opt_nr-Cam.opt tableopts_opt_nr-Cam.opt.c tableopts_opt_nr-Cam.opt.l tableopts_opt_nr-Cam.opt.tables tableopts_opt_nr-Caem.opt tableopts_opt_nr-Caem.opt.c tableopts_opt_nr-Caem.opt.l tableopts_opt_nr-Caem.opt.tables tableopts_ser_nr-Ca.ser tableopts_ser_nr-Ca.ser.c tableopts_ser_nr-Ca.ser.l tableopts_ser_nr-Ca.ser.tables tableopts_ser_nr-Ce.ser tableopts_ser_nr-Ce.ser.c tableopts_ser_nr-Ce.ser.l tableopts_ser_nr-Ce.ser.tables tableopts_ser_nr-Cf.ser tableopts_ser_nr-Cf.ser.c tableopts_ser_nr-Cf.ser.l tableopts_ser_nr-Cf.ser.tables tableopts_ser_nr-CxF.ser tableopts_ser_nr-CxF.ser.c tableopts_ser_nr-CxF.ser.l tableopts_ser_nr-CxF.ser.tables tableopts_ser_nr-Cm.ser tableopts_ser_nr-Cm.ser.c tableopts_ser_nr-Cm.ser.l tableopts_ser_nr-Cm.ser.tables tableopts_ser_nr-Cem.ser tableopts_ser_nr-Cem.ser.c tableopts_ser_nr-Cem.ser.l tableopts_ser_nr-Cem.ser.tables tableopts_ser_nr-Cae.ser tableopts_ser_nr-Cae.ser.c tableopts_ser_nr-Cae.ser.l tableopts_ser_nr-Cae.ser.tables tableopts_ser_nr-Caef.ser tableopts_ser_nr-Caef.ser.c tableopts_ser_nr-Caef.ser.l tableopts_ser_nr-Caef.ser.tables tableopts_ser_nr-CaexF.ser tableopts_ser_nr-CaexF.ser.c tableopts_ser_nr-CaexF.ser.l tableopts_ser_nr-CaexF.ser.tables tableopts_ser_nr-Cam.ser tableopts_ser_nr-Cam.ser.c tableopts_ser_nr-Cam.ser.l tableopts_ser_nr-Cam.ser.tables tableopts_ser_nr-Caem.ser tableopts_ser_nr-Caem.ser.c tableopts_ser_nr-Caem.ser.l tableopts_ser_nr-Caem.ser.tables tableopts_ver_nr-Ca.ver tableopts_ver_nr-Ca.ver.c tableopts_ver_nr-Ca.ver.l tableopts_ver_nr-Ca.ver.tables tableopts_ver_nr-Ce.ver tableopts_ver_nr-Ce.ver.c tableopts_ver_nr-Ce.ver.l tableopts_ver_nr-Ce.ver.tables tableopts_ver_nr-Cf.ver tableopts_ver_nr-Cf.ver.c tableopts_ver_nr-Cf.ver.l tableopts_ver_nr-Cf.ver.tables tableopts_ver_nr-CxF.ver tableopts_ver_nr-CxF.ver.c tableopts_ver_nr-CxF.ver.l tableopts_ver_nr-CxF.ver.tables tableopts_ver_nr-Cm.ver tableopts_ver_nr-Cm.ver.c tableopts_ver_nr-Cm.ver.l tableopts_ver_nr-Cm.ver.tables tableopts_ver_nr-Cem.ver tableopts_ver_nr-Cem.ver.c tableopts_ver_nr-Cem.ver.l tableopts_ver_nr-Cem.ver.tables tableopts_ver_nr-Cae.ver tableopts_ver_nr-Cae.ver.c tableopts_ver_nr-Cae.ver.l tableopts_ver_nr-Cae.ver.tables tableopts_ver_nr-Caef.ver tableopts_ver_nr-Caef.ver.c tableopts_ver_nr-Caef.ver.l tableopts_ver_nr-Caef.ver.tables tableopts_ver_nr-CaexF.ver tableopts_ver_nr-CaexF.ver.c tableopts_ver_nr-CaexF.ver.l tableopts_ver_nr-CaexF.ver.tables tableopts_ver_nr-Cam.ver tableopts_ver_nr-Cam.ver.c tableopts_ver_nr-Cam.ver.l tableopts_ver_nr-Cam.ver.tables tableopts_ver_nr-Caem.ver tableopts_ver_nr-Caem.ver.c tableopts_ver_nr-Caem.ver.l tableopts_ver_nr-Caem.ver.tables array_r array_r.c array_r.l array.txt basic_r basic_r.c basic_r.l basic.txt bol_r bol_r.c bol_r.l bol.txt ccl_r ccl_r.c ccl_r.l ccl.txt debug_r debug_r.c debug_r.l debug.txt extended_r extended_r.c extended_r.l extended.txt fixedtrailing_r fixedtrailing_r.c fixedtrailing_r.l fixedtrailing.txt flexname_r flexname_r.c flexname_r.l flexname.txt lineno_r lineno_r.c lineno_r.l lineno.txt posix_r posix_r.c posix_r.l posix.txt preposix_r preposix_r.c preposix_r.l preposix.txt quoteincomment_r quoteincomment_r.c quoteincomment_r.l quoteincomment.txt reject_r reject_r.c reject_r.l reject.txt tableopts_r tableopts_r.c tableopts_r.l tableopts.txt vartrailing_r vartrailing_r.c vartrailing_r.l vartrailing.txt yyless_r yyless_r.c yyless_r.l yyless.txt yymorearraybol_r yymorearraybol_r.c yymorearraybol_r.l yymorearraybol.txt yymorearray_r yymorearray_r.c yymorearray_r.l yymorearray.txt yymore_r yymore_r.c yymore_r.l yymore.txt yyunput_r yyunput_r.c yyunput_r.l yyunput.txt tableopts_opt_r-Ca.opt tableopts_opt_r-Ca.opt.c tableopts_opt_r-Ca.opt.l tableopts_opt_r-Ca.opt.tables tableopts_opt_r-Ce.opt tableopts_opt_r-Ce.opt.c tableopts_opt_r-Ce.opt.l tableopts_opt_r-Ce.opt.tables tableopts_opt_r-Cf.opt tableopts_opt_r-Cf.opt.c tableopts_opt_r-Cf.opt.l tableopts_opt_r-Cf.opt.tables tableopts_opt_r-CxF.opt tableopts_opt_r-CxF.opt.c tableopts_opt_r-CxF.opt.l tableopts_opt_r-CxF.opt.tables tableopts_opt_r-Cm.opt tableopts_opt_r-Cm.opt.c tableopts_opt_r-Cm.opt.l tableopts_opt_r-Cm.opt.tables tableopts_opt_r-Cem.opt tableopts_opt_r-Cem.opt.c tableopts_opt_r-Cem.opt.l tableopts_opt_r-Cem.opt.tables tableopts_opt_r-Cae.opt tableopts_opt_r-Cae.opt.c tableopts_opt_r-Cae.opt.l tableopts_opt_r-Cae.opt.tables tableopts_opt_r-Caef.opt tableopts_opt_r-Caef.opt.c tableopts_opt_r-Caef.opt.l tableopts_opt_r-Caef.opt.tables tableopts_opt_r-CaexF.opt tableopts_opt_r-CaexF.opt.c tableopts_opt_r-CaexF.opt.l tableopts_opt_r-CaexF.opt.tables tableopts_opt_r-Cam.opt tableopts_opt_r-Cam.opt.c tableopts_opt_r-Cam.opt.l tableopts_opt_r-Cam.opt.tables tableopts_opt_r-Caem.opt tableopts_opt_r-Caem.opt.c tableopts_opt_r-Caem.opt.l tableopts_opt_r-Caem.opt.tables tableopts_ser_r-Ca.ser tableopts_ser_r-Ca.ser.c tableopts_ser_r-Ca.ser.l tableopts_ser_r-Ca.ser.tables tableopts_ser_r-Ce.ser tableopts_ser_r-Ce.ser.c tableopts_ser_r-Ce.ser.l tableopts_ser_r-Ce.ser.tables tableopts_ser_r-Cf.ser tableopts_ser_r-Cf.ser.c tableopts_ser_r-Cf.ser.l tableopts_ser_r-Cf.ser.tables tableopts_ser_r-CxF.ser tableopts_ser_r-CxF.ser.c tableopts_ser_r-CxF.ser.l tableopts_ser_r-CxF.ser.tables tableopts_ser_r-Cm.ser tableopts_ser_r-Cm.ser.c tableopts_ser_r-Cm.ser.l tableopts_ser_r-Cm.ser.tables tableopts_ser_r-Cem.ser tableopts_ser_r-Cem.ser.c tableopts_ser_r-Cem.ser.l tableopts_ser_r-Cem.ser.tables tableopts_ser_r-Cae.ser tableopts_ser_r-Cae.ser.c tableopts_ser_r-Cae.ser.l tableopts_ser_r-Cae.ser.tables tableopts_ser_r-Caef.ser tableopts_ser_r-Caef.ser.c tableopts_ser_r-Caef.ser.l tableopts_ser_r-Caef.ser.tables tableopts_ser_r-CaexF.ser tableopts_ser_r-CaexF.ser.c tableopts_ser_r-CaexF.ser.l tableopts_ser_r-CaexF.ser.tables tableopts_ser_r-Cam.ser tableopts_ser_r-Cam.ser.c tableopts_ser_r-Cam.ser.l tableopts_ser_r-Cam.ser.tables tableopts_ser_r-Caem.ser tableopts_ser_r-Caem.ser.c tableopts_ser_r-Caem.ser.l tableopts_ser_r-Caem.ser.tables tableopts_ver_r-Ca.ver tableopts_ver_r-Ca.ver.c tableopts_ver_r-Ca.ver.l tableopts_ver_r-Ca.ver.tables tableopts_ver_r-Ce.ver tableopts_ver_r-Ce.ver.c tableopts_ver_r-Ce.ver.l tableopts_ver_r-Ce.ver.tables tableopts_ver_r-Cf.ver tableopts_ver_r-Cf.ver.c tableopts_ver_r-Cf.ver.l tableopts_ver_r-Cf.ver.tables tableopts_ver_r-CxF.ver tableopts_ver_r-CxF.ver.c tableopts_ver_r-CxF.ver.l tableopts_ver_r-CxF.ver.tables tableopts_ver_r-Cm.ver tableopts_ver_r-Cm.ver.c tableopts_ver_r-Cm.ver.l tableopts_ver_r-Cm.ver.tables tableopts_ver_r-Cem.ver tableopts_ver_r-Cem.ver.c tableopts_ver_r-Cem.ver.l tableopts_ver_r-Cem.ver.tables tableopts_ver_r-Cae.ver tableopts_ver_r-Cae.ver.c tableopts_ver_r-Cae.ver.l tableopts_ver_r-Cae.ver.tables tableopts_ver_r-Caef.ver tableopts_ver_r-Caef.ver.c tableopts_ver_r-Caef.ver.l tableopts_ver_r-Caef.ver.tables tableopts_ver_r-CaexF.ver tableopts_ver_r-CaexF.ver.c tableopts_ver_r-CaexF.ver.l tableopts_ver_r-CaexF.ver.tables tableopts_ver_r-Cam.ver tableopts_ver_r-Cam.ver.c tableopts_ver_r-Cam.ver.l tableopts_ver_r-Cam.ver.tables tableopts_ver_r-Caem.ver tableopts_ver_r-Caem.ver.c tableopts_ver_r-Caem.ver.l tableopts_ver_r-Caem.ver.tables array_c99 array_c99.c array_c99.l array.txt basic_c99 basic_c99.c basic_c99.l basic.txt bol_c99 bol_c99.c bol_c99.l bol.txt ccl_c99 ccl_c99.c ccl_c99.l ccl.txt debug_c99 debug_c99.c debug_c99.l debug.txt extended_c99 extended_c99.c extended_c99.l extended.txt fixedtrailing_c99 fixedtrailing_c99.c fixedtrailing_c99.l fixedtrailing.txt flexname_c99 flexname_c99.c flexname_c99.l flexname.txt lineno_c99 lineno_c99.c lineno_c99.l lineno.txt posix_c99 posix_c99.c posix_c99.l posix.txt preposix_c99 preposix_c99.c preposix_c99.l preposix.txt quoteincomment_c99 quoteincomment_c99.c quoteincomment_c99.l quoteincomment.txt reject_c99 reject_c99.c reject_c99.l reject.txt tableopts_c99 tableopts_c99.c tableopts_c99.l tableopts.txt vartrailing_c99 vartrailing_c99.c vartrailing_c99.l vartrailing.txt yyless_c99 yyless_c99.c yyless_c99.l yyless.txt yymorearraybol_c99 yymorearraybol_c99.c yymorearraybol_c99.l yymorearraybol.txt yymorearray_c99 yymorearray_c99.c yymorearray_c99.l yymorearray.txt yymore_c99 yymore_c99.c yymore_c99.l yymore.txt yyunput_c99 yyunput_c99.c yyunput_c99.l yyunput.txt tableopts_opt_c99-Ca.opt tableopts_opt_c99-Ca.opt.c tableopts_opt_c99-Ca.opt.l tableopts_opt_c99-Ca.opt.tables tableopts_opt_c99-Ce.opt tableopts_opt_c99-Ce.opt.c tableopts_opt_c99-Ce.opt.l tableopts_opt_c99-Ce.opt.tables tableopts_opt_c99-Cf.opt tableopts_opt_c99-Cf.opt.c tableopts_opt_c99-Cf.opt.l tableopts_opt_c99-Cf.opt.tables tableopts_opt_c99-CxF.opt tableopts_opt_c99-CxF.opt.c tableopts_opt_c99-CxF.opt.l tableopts_opt_c99-CxF.opt.tables tableopts_opt_c99-Cm.opt tableopts_opt_c99-Cm.opt.c tableopts_opt_c99-Cm.opt.l tableopts_opt_c99-Cm.opt.tables tableopts_opt_c99-Cem.opt tableopts_opt_c99-Cem.opt.c tableopts_opt_c99-Cem.opt.l tableopts_opt_c99-Cem.opt.tables tableopts_opt_c99-Cae.opt tableopts_opt_c99-Cae.opt.c tableopts_opt_c99-Cae.opt.l tableopts_opt_c99-Cae.opt.tables tableopts_opt_c99-Caef.opt tableopts_opt_c99-Caef.opt.c tableopts_opt_c99-Caef.opt.l tableopts_opt_c99-Caef.opt.tables tableopts_opt_c99-CaexF.opt tableopts_opt_c99-CaexF.opt.c tableopts_opt_c99-CaexF.opt.l tableopts_opt_c99-CaexF.opt.tables tableopts_opt_c99-Cam.opt tableopts_opt_c99-Cam.opt.c tableopts_opt_c99-Cam.opt.l tableopts_opt_c99-Cam.opt.tables tableopts_opt_c99-Caem.opt tableopts_opt_c99-Caem.opt.c tableopts_opt_c99-Caem.opt.l tableopts_opt_c99-Caem.opt.tables tableopts_ser_c99-Ca.ser tableopts_ser_c99-Ca.ser.c tableopts_ser_c99-Ca.ser.l tableopts_ser_c99-Ca.ser.tables tableopts_ser_c99-Ce.ser tableopts_ser_c99-Ce.ser.c tableopts_ser_c99-Ce.ser.l tableopts_ser_c99-Ce.ser.tables tableopts_ser_c99-Cf.ser tableopts_ser_c99-Cf.ser.c tableopts_ser_c99-Cf.ser.l tableopts_ser_c99-Cf.ser.tables tableopts_ser_c99-CxF.ser tableopts_ser_c99-CxF.ser.c tableopts_ser_c99-CxF.ser.l tableopts_ser_c99-CxF.ser.tables tableopts_ser_c99-Cm.ser tableopts_ser_c99-Cm.ser.c tableopts_ser_c99-Cm.ser.l tableopts_ser_c99-Cm.ser.tables tableopts_ser_c99-Cem.ser tableopts_ser_c99-Cem.ser.c tableopts_ser_c99-Cem.ser.l tableopts_ser_c99-Cem.ser.tables tableopts_ser_c99-Cae.ser tableopts_ser_c99-Cae.ser.c tableopts_ser_c99-Cae.ser.l tableopts_ser_c99-Cae.ser.tables tableopts_ser_c99-Caef.ser tableopts_ser_c99-Caef.ser.c tableopts_ser_c99-Caef.ser.l tableopts_ser_c99-Caef.ser.tables tableopts_ser_c99-CaexF.ser tableopts_ser_c99-CaexF.ser.c tableopts_ser_c99-CaexF.ser.l tableopts_ser_c99-CaexF.ser.tables tableopts_ser_c99-Cam.ser tableopts_ser_c99-Cam.ser.c tableopts_ser_c99-Cam.ser.l tableopts_ser_c99-Cam.ser.tables tableopts_ser_c99-Caem.ser tableopts_ser_c99-Caem.ser.c tableopts_ser_c99-Caem.ser.l tableopts_ser_c99-Caem.ser.tables tableopts_ver_c99-Ca.ver tableopts_ver_c99-Ca.ver.c tableopts_ver_c99-Ca.ver.l tableopts_ver_c99-Ca.ver.tables tableopts_ver_c99-Ce.ver tableopts_ver_c99-Ce.ver.c tableopts_ver_c99-Ce.ver.l tableopts_ver_c99-Ce.ver.tables tableopts_ver_c99-Cf.ver tableopts_ver_c99-Cf.ver.c tableopts_ver_c99-Cf.ver.l tableopts_ver_c99-Cf.ver.tables tableopts_ver_c99-CxF.ver tableopts_ver_c99-CxF.ver.c tableopts_ver_c99-CxF.ver.l tableopts_ver_c99-CxF.ver.tables tableopts_ver_c99-Cm.ver tableopts_ver_c99-Cm.ver.c tableopts_ver_c99-Cm.ver.l tableopts_ver_c99-Cm.ver.tables tableopts_ver_c99-Cem.ver tableopts_ver_c99-Cem.ver.c tableopts_ver_c99-Cem.ver.l tableopts_ver_c99-Cem.ver.tables tableopts_ver_c99-Cae.ver tableopts_ver_c99-Cae.ver.c tableopts_ver_c99-Cae.ver.l tableopts_ver_c99-Cae.ver.tables tableopts_ver_c99-Caef.ver tableopts_ver_c99-Caef.ver.c tableopts_ver_c99-Caef.ver.l tableopts_ver_c99-Caef.ver.tables tableopts_ver_c99-CaexF.ver tableopts_ver_c99-CaexF.ver.c tableopts_ver_c99-CaexF.ver.l tableopts_ver_c99-CaexF.ver.tables tableopts_ver_c99-Cam.ver tableopts_ver_c99-Cam.ver.c tableopts_ver_c99-Cam.ver.l tableopts_ver_c99-Cam.ver.tables tableopts_ver_c99-Caem.ver tableopts_ver_c99-Caem.ver.c tableopts_ver_c99-Caem.ver.l tableopts_ver_c99-Caem.ver.tables array_go array_go.c array_go.l array.txt basic_go basic_go.c basic_go.l basic.txt bol_go bol_go.c bol_go.l bol.txt ccl_go ccl_go.c ccl_go.l ccl.txt debug_go debug_go.c debug_go.l debug.txt extended_go extended_go.c extended_go.l extended.txt fixedtrailing_go fixedtrailing_go.c fixedtrailing_go.l fixedtrailing.txt flexname_go flexname_go.c flexname_go.l flexname.txt lineno_go lineno_go.c lineno_go.l lineno.txt posix_go posix_go.c posix_go.l posix.txt preposix_go preposix_go.c preposix_go.l preposix.txt quoteincomment_go quoteincomment_go.c quoteincomment_go.l quoteincomment.txt reject_go reject_go.c reject_go.l reject.txt tableopts_go tableopts_go.c tableopts_go.l tableopts.txt vartrailing_go vartrailing_go.c vartrailing_go.l vartrailing.txt yyless_go yyless_go.c yyless_go.l yyless.txt yymorearraybol_go yymorearraybol_go.c yymorearraybol_go.l yymorearraybol.txt yymorearray_go yymorearray_go.c yymorearray_go.l yymorearray.txt yymore_go yymore_go.c yymore_go.l yymore.txt yyunput_go yyunput_go.c yyunput_go.l yyunput.txt tableopts_opt_go-Ca.opt tableopts_opt_go-Ca.opt.c tableopts_opt_go-Ca.opt.l tableopts_opt_go-Ca.opt.tables tableopts_opt_go-Ce.opt tableopts_opt_go-Ce.opt.c tableopts_opt_go-Ce.opt.l tableopts_opt_go-Ce.opt.tables tableopts_opt_go-Cf.opt tableopts_opt_go-Cf.opt.c tableopts_opt_go-Cf.opt.l tableopts_opt_go-Cf.opt.tables tableopts_opt_go-CxF.opt tableopts_opt_go-CxF.opt.c tableopts_opt_go-CxF.opt.l tableopts_opt_go-CxF.opt.tables tableopts_opt_go-Cm.opt tableopts_opt_go-Cm.opt.c tableopts_opt_go-Cm.opt.l tableopts_opt_go-Cm.opt.tables tableopts_opt_go-Cem.opt tableopts_opt_go-Cem.opt.c tableopts_opt_go-Cem.opt.l tableopts_opt_go-Cem.opt.tables tableopts_opt_go-Cae.opt tableopts_opt_go-Cae.opt.c tableopts_opt_go-Cae.opt.l tableopts_opt_go-Cae.opt.tables tableopts_opt_go-Caef.opt tableopts_opt_go-Caef.opt.c tableopts_opt_go-Caef.opt.l tableopts_opt_go-Caef.opt.tables tableopts_opt_go-CaexF.opt tableopts_opt_go-CaexF.opt.c tableopts_opt_go-CaexF.opt.l tableopts_opt_go-CaexF.opt.tables tableopts_opt_go-Cam.opt tableopts_opt_go-Cam.opt.c tableopts_opt_go-Cam.opt.l tableopts_opt_go-Cam.opt.tables tableopts_opt_go-Caem.opt tableopts_opt_go-Caem.opt.c tableopts_opt_go-Caem.opt.l tableopts_opt_go-Caem.opt.tables tableopts_ser_go-Ca.ser tableopts_ser_go-Ca.ser.c tableopts_ser_go-Ca.ser.l tableopts_ser_go-Ca.ser.tables tableopts_ser_go-Ce.ser tableopts_ser_go-Ce.ser.c tableopts_ser_go-Ce.ser.l tableopts_ser_go-Ce.ser.tables tableopts_ser_go-Cf.ser tableopts_ser_go-Cf.ser.c tableopts_ser_go-Cf.ser.l tableopts_ser_go-Cf.ser.tables tableopts_ser_go-CxF.ser tableopts_ser_go-CxF.ser.c tableopts_ser_go-CxF.ser.l tableopts_ser_go-CxF.ser.tables tableopts_ser_go-Cm.ser tableopts_ser_go-Cm.ser.c tableopts_ser_go-Cm.ser.l tableopts_ser_go-Cm.ser.tables tableopts_ser_go-Cem.ser tableopts_ser_go-Cem.ser.c tableopts_ser_go-Cem.ser.l tableopts_ser_go-Cem.ser.tables tableopts_ser_go-Cae.ser tableopts_ser_go-Cae.ser.c tableopts_ser_go-Cae.ser.l tableopts_ser_go-Cae.ser.tables tableopts_ser_go-Caef.ser tableopts_ser_go-Caef.ser.c tableopts_ser_go-Caef.ser.l tableopts_ser_go-Caef.ser.tables tableopts_ser_go-CaexF.ser tableopts_ser_go-CaexF.ser.c tableopts_ser_go-CaexF.ser.l tableopts_ser_go-CaexF.ser.tables tableopts_ser_go-Cam.ser tableopts_ser_go-Cam.ser.c tableopts_ser_go-Cam.ser.l tableopts_ser_go-Cam.ser.tables tableopts_ser_go-Caem.ser tableopts_ser_go-Caem.ser.c tableopts_ser_go-Caem.ser.l tableopts_ser_go-Caem.ser.tables tableopts_ver_go-Ca.ver tableopts_ver_go-Ca.ver.c tableopts_ver_go-Ca.ver.l tableopts_ver_go-Ca.ver.tables tableopts_ver_go-Ce.ver tableopts_ver_go-Ce.ver.c tableopts_ver_go-Ce.ver.l tableopts_ver_go-Ce.ver.tables tableopts_ver_go-Cf.ver tableopts_ver_go-Cf.ver.c tableopts_ver_go-Cf.ver.l tableopts_ver_go-Cf.ver.tables tableopts_ver_go-CxF.ver tableopts_ver_go-CxF.ver.c tableopts_ver_go-CxF.ver.l tableopts_ver_go-CxF.ver.tables tableopts_ver_go-Cm.ver tableopts_ver_go-Cm.ver.c tableopts_ver_go-Cm.ver.l tableopts_ver_go-Cm.ver.tables tableopts_ver_go-Cem.ver tableopts_ver_go-Cem.ver.c tableopts_ver_go-Cem.ver.l tableopts_ver_go-Cem.ver.tables tableopts_ver_go-Cae.ver tableopts_ver_go-Cae.ver.c tableopts_ver_go-Cae.ver.l tableopts_ver_go-Cae.ver.tables tableopts_ver_go-Caef.ver tableopts_ver_go-Caef.ver.c tableopts_ver_go-Caef.ver.l tableopts_ver_go-Caef.ver.tables tableopts_ver_go-CaexF.ver tableopts_ver_go-CaexF.ver.c tableopts_ver_go-CaexF.ver.l tableopts_ver_go-CaexF.ver.tables tableopts_ver_go-Cam.ver tableopts_ver_go-Cam.ver.c tableopts_ver_go-Cam.ver.l tableopts_ver_go-Cam.ver.tables tableopts_ver_go-Caem.ver tableopts_ver_go-Caem.ver.c tableopts_ver_go-Caem.ver.l tableopts_ver_go-Caem.ver.tables test-yydecl-nr.sh test-yydecl-r.sh test-yydecl-c99.sh test-yydecl-go.sh
+RULESET_TESTS =  array_nr basic_nr bol_nr ccl_nr debug_nr extended_nr fixedtrailing_nr flexname_nr lexcompat_nr lineno_nr posixlycorrect_nr posix_nr preposix_nr quoteincomment_nr reject_nr tableopts_nr vartrailing_nr yyless_nr yymorearraybol_nr yymorearray_nr yymore_nr yyunput_nr tableopts_opt_nr-Ca.opt tableopts_opt_nr-Ce.opt tableopts_opt_nr-Cf.opt tableopts_opt_nr-CxF.opt tableopts_opt_nr-Cm.opt tableopts_opt_nr-Cem.opt tableopts_opt_nr-Cae.opt tableopts_opt_nr-Caef.opt tableopts_opt_nr-CaexF.opt tableopts_opt_nr-Cam.opt tableopts_opt_nr-Caem.opt tableopts_ser_nr-Ca.ser tableopts_ser_nr-Ce.ser tableopts_ser_nr-Cf.ser tableopts_ser_nr-CxF.ser tableopts_ser_nr-Cm.ser tableopts_ser_nr-Cem.ser tableopts_ser_nr-Cae.ser tableopts_ser_nr-Caef.ser tableopts_ser_nr-CaexF.ser tableopts_ser_nr-Cam.ser tableopts_ser_nr-Caem.ser tableopts_ver_nr-Ca.ver tableopts_ver_nr-Ce.ver tableopts_ver_nr-Cf.ver tableopts_ver_nr-CxF.ver tableopts_ver_nr-Cm.ver tableopts_ver_nr-Cem.ver tableopts_ver_nr-Cae.ver tableopts_ver_nr-Caef.ver tableopts_ver_nr-CaexF.ver tableopts_ver_nr-Cam.ver tableopts_ver_nr-Caem.ver array_r basic_r bol_r ccl_r debug_r extended_r fixedtrailing_r flexname_r lineno_r posix_r preposix_r quoteincomment_r reject_r tableopts_r vartrailing_r yyless_r yymorearraybol_r yymorearray_r yymore_r yyunput_r tableopts_opt_r-Ca.opt tableopts_opt_r-Ce.opt tableopts_opt_r-Cf.opt tableopts_opt_r-CxF.opt tableopts_opt_r-Cm.opt tableopts_opt_r-Cem.opt tableopts_opt_r-Cae.opt tableopts_opt_r-Caef.opt tableopts_opt_r-CaexF.opt tableopts_opt_r-Cam.opt tableopts_opt_r-Caem.opt tableopts_ser_r-Ca.ser tableopts_ser_r-Ce.ser tableopts_ser_r-Cf.ser tableopts_ser_r-CxF.ser tableopts_ser_r-Cm.ser tableopts_ser_r-Cem.ser tableopts_ser_r-Cae.ser tableopts_ser_r-Caef.ser tableopts_ser_r-CaexF.ser tableopts_ser_r-Cam.ser tableopts_ser_r-Caem.ser tableopts_ver_r-Ca.ver tableopts_ver_r-Ce.ver tableopts_ver_r-Cf.ver tableopts_ver_r-CxF.ver tableopts_ver_r-Cm.ver tableopts_ver_r-Cem.ver tableopts_ver_r-Cae.ver tableopts_ver_r-Caef.ver tableopts_ver_r-CaexF.ver tableopts_ver_r-Cam.ver tableopts_ver_r-Caem.ver array_c99 basic_c99 bol_c99 ccl_c99 debug_c99 extended_c99 fixedtrailing_c99 flexname_c99 lineno_c99 posix_c99 preposix_c99 quoteincomment_c99 reject_c99 tableopts_c99 vartrailing_c99 yyless_c99 yymorearraybol_c99 yymorearray_c99 yymore_c99 yyunput_c99 tableopts_opt_c99-Ca.opt tableopts_opt_c99-Ce.opt tableopts_opt_c99-Cf.opt tableopts_opt_c99-CxF.opt tableopts_opt_c99-Cm.opt tableopts_opt_c99-Cem.opt tableopts_opt_c99-Cae.opt tableopts_opt_c99-Caef.opt tableopts_opt_c99-CaexF.opt tableopts_opt_c99-Cam.opt tableopts_opt_c99-Caem.opt tableopts_ser_c99-Ca.ser tableopts_ser_c99-Ce.ser tableopts_ser_c99-Cf.ser tableopts_ser_c99-CxF.ser tableopts_ser_c99-Cm.ser tableopts_ser_c99-Cem.ser tableopts_ser_c99-Cae.ser tableopts_ser_c99-Caef.ser tableopts_ser_c99-CaexF.ser tableopts_ser_c99-Cam.ser tableopts_ser_c99-Caem.ser tableopts_ver_c99-Ca.ver tableopts_ver_c99-Ce.ver tableopts_ver_c99-Cf.ver tableopts_ver_c99-CxF.ver tableopts_ver_c99-Cm.ver tableopts_ver_c99-Cem.ver tableopts_ver_c99-Cae.ver tableopts_ver_c99-Caef.ver tableopts_ver_c99-CaexF.ver tableopts_ver_c99-Cam.ver tableopts_ver_c99-Caem.ver array_go basic_go bol_go ccl_go debug_go extended_go fixedtrailing_go flexname_go lineno_go posix_go preposix_go quoteincomment_go reject_go tableopts_go vartrailing_go yyless_go yymorearraybol_go yymorearray_go yymore_go yyunput_go tableopts_opt_go-Ca.opt tableopts_opt_go-Ce.opt tableopts_opt_go-Cf.opt tableopts_opt_go-CxF.opt tableopts_opt_go-Cm.opt tableopts_opt_go-Cem.opt tableopts_opt_go-Cae.opt tableopts_opt_go-Caef.opt tableopts_opt_go-CaexF.opt tableopts_opt_go-Cam.opt tableopts_opt_go-Caem.opt tableopts_ser_go-Ca.ser tableopts_ser_go-Ce.ser tableopts_ser_go-Cf.ser tableopts_ser_go-CxF.ser tableopts_ser_go-Cm.ser tableopts_ser_go-Cem.ser tableopts_ser_go-Cae.ser tableopts_ser_go-Caef.ser tableopts_ser_go-CaexF.ser tableopts_ser_go-Cam.ser tableopts_ser_go-Caem.ser tableopts_ver_go-Ca.ver tableopts_ver_go-Ce.ver tableopts_ver_go-Cf.ver tableopts_ver_go-CxF.ver tableopts_ver_go-Cm.ver tableopts_ver_go-Cem.ver tableopts_ver_go-Cae.ver tableopts_ver_go-Caef.ver tableopts_ver_go-CaexF.ver tableopts_ver_go-Cam.ver tableopts_ver_go-Caem.ver array_rust basic_rust bol_rust ccl_rust debug_rust extended_rust fixedtrailing_rust flexname_rust lineno_rust posix_rust preposix_rust quoteincomment_rust reject_rust tableopts_rust vartrailing_rust yyless_rust yymorearraybol_rust yymorearray_rust yymore_rust yyunput_rust tableopts_opt_rust-Ca.opt tableopts_opt_rust-Ce.opt tableopts_opt_rust-Cf.opt tableopts_opt_rust-CxF.opt tableopts_opt_rust-Cm.opt tableopts_opt_rust-Cem.opt tableopts_opt_rust-Cae.opt tableopts_opt_rust-Caef.opt tableopts_opt_rust-CaexF.opt tableopts_opt_rust-Cam.opt tableopts_opt_rust-Caem.opt tableopts_ser_rust-Ca.ser tableopts_ser_rust-Ce.ser tableopts_ser_rust-Cf.ser tableopts_ser_rust-CxF.ser tableopts_ser_rust-Cm.ser tableopts_ser_rust-Cem.ser tableopts_ser_rust-Cae.ser tableopts_ser_rust-Caef.ser tableopts_ser_rust-CaexF.ser tableopts_ser_rust-Cam.ser tableopts_ser_rust-Caem.ser tableopts_ver_rust-Ca.ver tableopts_ver_rust-Ce.ver tableopts_ver_rust-Cf.ver tableopts_ver_rust-CxF.ver tableopts_ver_rust-Cm.ver tableopts_ver_rust-Cem.ver tableopts_ver_rust-Cae.ver tableopts_ver_rust-Caef.ver tableopts_ver_rust-CaexF.ver tableopts_ver_rust-Cam.ver tableopts_ver_rust-Caem.ver test-yydecl-nr.sh test-yydecl-r.sh test-yydecl-c99.sh test-yydecl-go.sh test-yydecl-rust.sh
+RULESET_REMOVABLES =  array_nr array_nr.c array_nr.l array.txt basic_nr basic_nr.c basic_nr.l basic.txt bol_nr bol_nr.c bol_nr.l bol.txt ccl_nr ccl_nr.c ccl_nr.l ccl.txt debug_nr debug_nr.c debug_nr.l debug.txt extended_nr extended_nr.c extended_nr.l extended.txt fixedtrailing_nr fixedtrailing_nr.c fixedtrailing_nr.l fixedtrailing.txt flexname_nr flexname_nr.c flexname_nr.l flexname.txt lexcompat_nr lexcompat_nr.c lexcompat_nr.l lexcompat.txt lineno_nr lineno_nr.c lineno_nr.l lineno.txt posixlycorrect_nr posixlycorrect_nr.c posixlycorrect_nr.l posixlycorrect.txt posix_nr posix_nr.c posix_nr.l posix.txt preposix_nr preposix_nr.c preposix_nr.l preposix.txt quoteincomment_nr quoteincomment_nr.c quoteincomment_nr.l quoteincomment.txt reject_nr reject_nr.c reject_nr.l reject.txt tableopts_nr tableopts_nr.c tableopts_nr.l tableopts.txt vartrailing_nr vartrailing_nr.c vartrailing_nr.l vartrailing.txt yyless_nr yyless_nr.c yyless_nr.l yyless.txt yymorearraybol_nr yymorearraybol_nr.c yymorearraybol_nr.l yymorearraybol.txt yymorearray_nr yymorearray_nr.c yymorearray_nr.l yymorearray.txt yymore_nr yymore_nr.c yymore_nr.l yymore.txt yyunput_nr yyunput_nr.c yyunput_nr.l yyunput.txt tableopts_opt_nr-Ca.opt tableopts_opt_nr-Ca.opt.c tableopts_opt_nr-Ca.opt.l tableopts_opt_nr-Ca.opt.tables tableopts_opt_nr-Ce.opt tableopts_opt_nr-Ce.opt.c tableopts_opt_nr-Ce.opt.l tableopts_opt_nr-Ce.opt.tables tableopts_opt_nr-Cf.opt tableopts_opt_nr-Cf.opt.c tableopts_opt_nr-Cf.opt.l tableopts_opt_nr-Cf.opt.tables tableopts_opt_nr-CxF.opt tableopts_opt_nr-CxF.opt.c tableopts_opt_nr-CxF.opt.l tableopts_opt_nr-CxF.opt.tables tableopts_opt_nr-Cm.opt tableopts_opt_nr-Cm.opt.c tableopts_opt_nr-Cm.opt.l tableopts_opt_nr-Cm.opt.tables tableopts_opt_nr-Cem.opt tableopts_opt_nr-Cem.opt.c tableopts_opt_nr-Cem.opt.l tableopts_opt_nr-Cem.opt.tables tableopts_opt_nr-Cae.opt tableopts_opt_nr-Cae.opt.c tableopts_opt_nr-Cae.opt.l tableopts_opt_nr-Cae.opt.tables tableopts_opt_nr-Caef.opt tableopts_opt_nr-Caef.opt.c tableopts_opt_nr-Caef.opt.l tableopts_opt_nr-Caef.opt.tables tableopts_opt_nr-CaexF.opt tableopts_opt_nr-CaexF.opt.c tableopts_opt_nr-CaexF.opt.l tableopts_opt_nr-CaexF.opt.tables tableopts_opt_nr-Cam.opt tableopts_opt_nr-Cam.opt.c tableopts_opt_nr-Cam.opt.l tableopts_opt_nr-Cam.opt.tables tableopts_opt_nr-Caem.opt tableopts_opt_nr-Caem.opt.c tableopts_opt_nr-Caem.opt.l tableopts_opt_nr-Caem.opt.tables tableopts_ser_nr-Ca.ser tableopts_ser_nr-Ca.ser.c tableopts_ser_nr-Ca.ser.l tableopts_ser_nr-Ca.ser.tables tableopts_ser_nr-Ce.ser tableopts_ser_nr-Ce.ser.c tableopts_ser_nr-Ce.ser.l tableopts_ser_nr-Ce.ser.tables tableopts_ser_nr-Cf.ser tableopts_ser_nr-Cf.ser.c tableopts_ser_nr-Cf.ser.l tableopts_ser_nr-Cf.ser.tables tableopts_ser_nr-CxF.ser tableopts_ser_nr-CxF.ser.c tableopts_ser_nr-CxF.ser.l tableopts_ser_nr-CxF.ser.tables tableopts_ser_nr-Cm.ser tableopts_ser_nr-Cm.ser.c tableopts_ser_nr-Cm.ser.l tableopts_ser_nr-Cm.ser.tables tableopts_ser_nr-Cem.ser tableopts_ser_nr-Cem.ser.c tableopts_ser_nr-Cem.ser.l tableopts_ser_nr-Cem.ser.tables tableopts_ser_nr-Cae.ser tableopts_ser_nr-Cae.ser.c tableopts_ser_nr-Cae.ser.l tableopts_ser_nr-Cae.ser.tables tableopts_ser_nr-Caef.ser tableopts_ser_nr-Caef.ser.c tableopts_ser_nr-Caef.ser.l tableopts_ser_nr-Caef.ser.tables tableopts_ser_nr-CaexF.ser tableopts_ser_nr-CaexF.ser.c tableopts_ser_nr-CaexF.ser.l tableopts_ser_nr-CaexF.ser.tables tableopts_ser_nr-Cam.ser tableopts_ser_nr-Cam.ser.c tableopts_ser_nr-Cam.ser.l tableopts_ser_nr-Cam.ser.tables tableopts_ser_nr-Caem.ser tableopts_ser_nr-Caem.ser.c tableopts_ser_nr-Caem.ser.l tableopts_ser_nr-Caem.ser.tables tableopts_ver_nr-Ca.ver tableopts_ver_nr-Ca.ver.c tableopts_ver_nr-Ca.ver.l tableopts_ver_nr-Ca.ver.tables tableopts_ver_nr-Ce.ver tableopts_ver_nr-Ce.ver.c tableopts_ver_nr-Ce.ver.l tableopts_ver_nr-Ce.ver.tables tableopts_ver_nr-Cf.ver tableopts_ver_nr-Cf.ver.c tableopts_ver_nr-Cf.ver.l tableopts_ver_nr-Cf.ver.tables tableopts_ver_nr-CxF.ver tableopts_ver_nr-CxF.ver.c tableopts_ver_nr-CxF.ver.l tableopts_ver_nr-CxF.ver.tables tableopts_ver_nr-Cm.ver tableopts_ver_nr-Cm.ver.c tableopts_ver_nr-Cm.ver.l tableopts_ver_nr-Cm.ver.tables tableopts_ver_nr-Cem.ver tableopts_ver_nr-Cem.ver.c tableopts_ver_nr-Cem.ver.l tableopts_ver_nr-Cem.ver.tables tableopts_ver_nr-Cae.ver tableopts_ver_nr-Cae.ver.c tableopts_ver_nr-Cae.ver.l tableopts_ver_nr-Cae.ver.tables tableopts_ver_nr-Caef.ver tableopts_ver_nr-Caef.ver.c tableopts_ver_nr-Caef.ver.l tableopts_ver_nr-Caef.ver.tables tableopts_ver_nr-CaexF.ver tableopts_ver_nr-CaexF.ver.c tableopts_ver_nr-CaexF.ver.l tableopts_ver_nr-CaexF.ver.tables tableopts_ver_nr-Cam.ver tableopts_ver_nr-Cam.ver.c tableopts_ver_nr-Cam.ver.l tableopts_ver_nr-Cam.ver.tables tableopts_ver_nr-Caem.ver tableopts_ver_nr-Caem.ver.c tableopts_ver_nr-Caem.ver.l tableopts_ver_nr-Caem.ver.tables array_r array_r.c array_r.l array.txt basic_r basic_r.c basic_r.l basic.txt bol_r bol_r.c bol_r.l bol.txt ccl_r ccl_r.c ccl_r.l ccl.txt debug_r debug_r.c debug_r.l debug.txt extended_r extended_r.c extended_r.l extended.txt fixedtrailing_r fixedtrailing_r.c fixedtrailing_r.l fixedtrailing.txt flexname_r flexname_r.c flexname_r.l flexname.txt lineno_r lineno_r.c lineno_r.l lineno.txt posix_r posix_r.c posix_r.l posix.txt preposix_r preposix_r.c preposix_r.l preposix.txt quoteincomment_r quoteincomment_r.c quoteincomment_r.l quoteincomment.txt reject_r reject_r.c reject_r.l reject.txt tableopts_r tableopts_r.c tableopts_r.l tableopts.txt vartrailing_r vartrailing_r.c vartrailing_r.l vartrailing.txt yyless_r yyless_r.c yyless_r.l yyless.txt yymorearraybol_r yymorearraybol_r.c yymorearraybol_r.l yymorearraybol.txt yymorearray_r yymorearray_r.c yymorearray_r.l yymorearray.txt yymore_r yymore_r.c yymore_r.l yymore.txt yyunput_r yyunput_r.c yyunput_r.l yyunput.txt tableopts_opt_r-Ca.opt tableopts_opt_r-Ca.opt.c tableopts_opt_r-Ca.opt.l tableopts_opt_r-Ca.opt.tables tableopts_opt_r-Ce.opt tableopts_opt_r-Ce.opt.c tableopts_opt_r-Ce.opt.l tableopts_opt_r-Ce.opt.tables tableopts_opt_r-Cf.opt tableopts_opt_r-Cf.opt.c tableopts_opt_r-Cf.opt.l tableopts_opt_r-Cf.opt.tables tableopts_opt_r-CxF.opt tableopts_opt_r-CxF.opt.c tableopts_opt_r-CxF.opt.l tableopts_opt_r-CxF.opt.tables tableopts_opt_r-Cm.opt tableopts_opt_r-Cm.opt.c tableopts_opt_r-Cm.opt.l tableopts_opt_r-Cm.opt.tables tableopts_opt_r-Cem.opt tableopts_opt_r-Cem.opt.c tableopts_opt_r-Cem.opt.l tableopts_opt_r-Cem.opt.tables tableopts_opt_r-Cae.opt tableopts_opt_r-Cae.opt.c tableopts_opt_r-Cae.opt.l tableopts_opt_r-Cae.opt.tables tableopts_opt_r-Caef.opt tableopts_opt_r-Caef.opt.c tableopts_opt_r-Caef.opt.l tableopts_opt_r-Caef.opt.tables tableopts_opt_r-CaexF.opt tableopts_opt_r-CaexF.opt.c tableopts_opt_r-CaexF.opt.l tableopts_opt_r-CaexF.opt.tables tableopts_opt_r-Cam.opt tableopts_opt_r-Cam.opt.c tableopts_opt_r-Cam.opt.l tableopts_opt_r-Cam.opt.tables tableopts_opt_r-Caem.opt tableopts_opt_r-Caem.opt.c tableopts_opt_r-Caem.opt.l tableopts_opt_r-Caem.opt.tables tableopts_ser_r-Ca.ser tableopts_ser_r-Ca.ser.c tableopts_ser_r-Ca.ser.l tableopts_ser_r-Ca.ser.tables tableopts_ser_r-Ce.ser tableopts_ser_r-Ce.ser.c tableopts_ser_r-Ce.ser.l tableopts_ser_r-Ce.ser.tables tableopts_ser_r-Cf.ser tableopts_ser_r-Cf.ser.c tableopts_ser_r-Cf.ser.l tableopts_ser_r-Cf.ser.tables tableopts_ser_r-CxF.ser tableopts_ser_r-CxF.ser.c tableopts_ser_r-CxF.ser.l tableopts_ser_r-CxF.ser.tables tableopts_ser_r-Cm.ser tableopts_ser_r-Cm.ser.c tableopts_ser_r-Cm.ser.l tableopts_ser_r-Cm.ser.tables tableopts_ser_r-Cem.ser tableopts_ser_r-Cem.ser.c tableopts_ser_r-Cem.ser.l tableopts_ser_r-Cem.ser.tables tableopts_ser_r-Cae.ser tableopts_ser_r-Cae.ser.c tableopts_ser_r-Cae.ser.l tableopts_ser_r-Cae.ser.tables tableopts_ser_r-Caef.ser tableopts_ser_r-Caef.ser.c tableopts_ser_r-Caef.ser.l tableopts_ser_r-Caef.ser.tables tableopts_ser_r-CaexF.ser tableopts_ser_r-CaexF.ser.c tableopts_ser_r-CaexF.ser.l tableopts_ser_r-CaexF.ser.tables tableopts_ser_r-Cam.ser tableopts_ser_r-Cam.ser.c tableopts_ser_r-Cam.ser.l tableopts_ser_r-Cam.ser.tables tableopts_ser_r-Caem.ser tableopts_ser_r-Caem.ser.c tableopts_ser_r-Caem.ser.l tableopts_ser_r-Caem.ser.tables tableopts_ver_r-Ca.ver tableopts_ver_r-Ca.ver.c tableopts_ver_r-Ca.ver.l tableopts_ver_r-Ca.ver.tables tableopts_ver_r-Ce.ver tableopts_ver_r-Ce.ver.c tableopts_ver_r-Ce.ver.l tableopts_ver_r-Ce.ver.tables tableopts_ver_r-Cf.ver tableopts_ver_r-Cf.ver.c tableopts_ver_r-Cf.ver.l tableopts_ver_r-Cf.ver.tables tableopts_ver_r-CxF.ver tableopts_ver_r-CxF.ver.c tableopts_ver_r-CxF.ver.l tableopts_ver_r-CxF.ver.tables tableopts_ver_r-Cm.ver tableopts_ver_r-Cm.ver.c tableopts_ver_r-Cm.ver.l tableopts_ver_r-Cm.ver.tables tableopts_ver_r-Cem.ver tableopts_ver_r-Cem.ver.c tableopts_ver_r-Cem.ver.l tableopts_ver_r-Cem.ver.tables tableopts_ver_r-Cae.ver tableopts_ver_r-Cae.ver.c tableopts_ver_r-Cae.ver.l tableopts_ver_r-Cae.ver.tables tableopts_ver_r-Caef.ver tableopts_ver_r-Caef.ver.c tableopts_ver_r-Caef.ver.l tableopts_ver_r-Caef.ver.tables tableopts_ver_r-CaexF.ver tableopts_ver_r-CaexF.ver.c tableopts_ver_r-CaexF.ver.l tableopts_ver_r-CaexF.ver.tables tableopts_ver_r-Cam.ver tableopts_ver_r-Cam.ver.c tableopts_ver_r-Cam.ver.l tableopts_ver_r-Cam.ver.tables tableopts_ver_r-Caem.ver tableopts_ver_r-Caem.ver.c tableopts_ver_r-Caem.ver.l tableopts_ver_r-Caem.ver.tables array_c99 array_c99.c array_c99.l array.txt basic_c99 basic_c99.c basic_c99.l basic.txt bol_c99 bol_c99.c bol_c99.l bol.txt ccl_c99 ccl_c99.c ccl_c99.l ccl.txt debug_c99 debug_c99.c debug_c99.l debug.txt extended_c99 extended_c99.c extended_c99.l extended.txt fixedtrailing_c99 fixedtrailing_c99.c fixedtrailing_c99.l fixedtrailing.txt flexname_c99 flexname_c99.c flexname_c99.l flexname.txt lineno_c99 lineno_c99.c lineno_c99.l lineno.txt posix_c99 posix_c99.c posix_c99.l posix.txt preposix_c99 preposix_c99.c preposix_c99.l preposix.txt quoteincomment_c99 quoteincomment_c99.c quoteincomment_c99.l quoteincomment.txt reject_c99 reject_c99.c reject_c99.l reject.txt tableopts_c99 tableopts_c99.c tableopts_c99.l tableopts.txt vartrailing_c99 vartrailing_c99.c vartrailing_c99.l vartrailing.txt yyless_c99 yyless_c99.c yyless_c99.l yyless.txt yymorearraybol_c99 yymorearraybol_c99.c yymorearraybol_c99.l yymorearraybol.txt yymorearray_c99 yymorearray_c99.c yymorearray_c99.l yymorearray.txt yymore_c99 yymore_c99.c yymore_c99.l yymore.txt yyunput_c99 yyunput_c99.c yyunput_c99.l yyunput.txt tableopts_opt_c99-Ca.opt tableopts_opt_c99-Ca.opt.c tableopts_opt_c99-Ca.opt.l tableopts_opt_c99-Ca.opt.tables tableopts_opt_c99-Ce.opt tableopts_opt_c99-Ce.opt.c tableopts_opt_c99-Ce.opt.l tableopts_opt_c99-Ce.opt.tables tableopts_opt_c99-Cf.opt tableopts_opt_c99-Cf.opt.c tableopts_opt_c99-Cf.opt.l tableopts_opt_c99-Cf.opt.tables tableopts_opt_c99-CxF.opt tableopts_opt_c99-CxF.opt.c tableopts_opt_c99-CxF.opt.l tableopts_opt_c99-CxF.opt.tables tableopts_opt_c99-Cm.opt tableopts_opt_c99-Cm.opt.c tableopts_opt_c99-Cm.opt.l tableopts_opt_c99-Cm.opt.tables tableopts_opt_c99-Cem.opt tableopts_opt_c99-Cem.opt.c tableopts_opt_c99-Cem.opt.l tableopts_opt_c99-Cem.opt.tables tableopts_opt_c99-Cae.opt tableopts_opt_c99-Cae.opt.c tableopts_opt_c99-Cae.opt.l tableopts_opt_c99-Cae.opt.tables tableopts_opt_c99-Caef.opt tableopts_opt_c99-Caef.opt.c tableopts_opt_c99-Caef.opt.l tableopts_opt_c99-Caef.opt.tables tableopts_opt_c99-CaexF.opt tableopts_opt_c99-CaexF.opt.c tableopts_opt_c99-CaexF.opt.l tableopts_opt_c99-CaexF.opt.tables tableopts_opt_c99-Cam.opt tableopts_opt_c99-Cam.opt.c tableopts_opt_c99-Cam.opt.l tableopts_opt_c99-Cam.opt.tables tableopts_opt_c99-Caem.opt tableopts_opt_c99-Caem.opt.c tableopts_opt_c99-Caem.opt.l tableopts_opt_c99-Caem.opt.tables tableopts_ser_c99-Ca.ser tableopts_ser_c99-Ca.ser.c tableopts_ser_c99-Ca.ser.l tableopts_ser_c99-Ca.ser.tables tableopts_ser_c99-Ce.ser tableopts_ser_c99-Ce.ser.c tableopts_ser_c99-Ce.ser.l tableopts_ser_c99-Ce.ser.tables tableopts_ser_c99-Cf.ser tableopts_ser_c99-Cf.ser.c tableopts_ser_c99-Cf.ser.l tableopts_ser_c99-Cf.ser.tables tableopts_ser_c99-CxF.ser tableopts_ser_c99-CxF.ser.c tableopts_ser_c99-CxF.ser.l tableopts_ser_c99-CxF.ser.tables tableopts_ser_c99-Cm.ser tableopts_ser_c99-Cm.ser.c tableopts_ser_c99-Cm.ser.l tableopts_ser_c99-Cm.ser.tables tableopts_ser_c99-Cem.ser tableopts_ser_c99-Cem.ser.c tableopts_ser_c99-Cem.ser.l tableopts_ser_c99-Cem.ser.tables tableopts_ser_c99-Cae.ser tableopts_ser_c99-Cae.ser.c tableopts_ser_c99-Cae.ser.l tableopts_ser_c99-Cae.ser.tables tableopts_ser_c99-Caef.ser tableopts_ser_c99-Caef.ser.c tableopts_ser_c99-Caef.ser.l tableopts_ser_c99-Caef.ser.tables tableopts_ser_c99-CaexF.ser tableopts_ser_c99-CaexF.ser.c tableopts_ser_c99-CaexF.ser.l tableopts_ser_c99-CaexF.ser.tables tableopts_ser_c99-Cam.ser tableopts_ser_c99-Cam.ser.c tableopts_ser_c99-Cam.ser.l tableopts_ser_c99-Cam.ser.tables tableopts_ser_c99-Caem.ser tableopts_ser_c99-Caem.ser.c tableopts_ser_c99-Caem.ser.l tableopts_ser_c99-Caem.ser.tables tableopts_ver_c99-Ca.ver tableopts_ver_c99-Ca.ver.c tableopts_ver_c99-Ca.ver.l tableopts_ver_c99-Ca.ver.tables tableopts_ver_c99-Ce.ver tableopts_ver_c99-Ce.ver.c tableopts_ver_c99-Ce.ver.l tableopts_ver_c99-Ce.ver.tables tableopts_ver_c99-Cf.ver tableopts_ver_c99-Cf.ver.c tableopts_ver_c99-Cf.ver.l tableopts_ver_c99-Cf.ver.tables tableopts_ver_c99-CxF.ver tableopts_ver_c99-CxF.ver.c tableopts_ver_c99-CxF.ver.l tableopts_ver_c99-CxF.ver.tables tableopts_ver_c99-Cm.ver tableopts_ver_c99-Cm.ver.c tableopts_ver_c99-Cm.ver.l tableopts_ver_c99-Cm.ver.tables tableopts_ver_c99-Cem.ver tableopts_ver_c99-Cem.ver.c tableopts_ver_c99-Cem.ver.l tableopts_ver_c99-Cem.ver.tables tableopts_ver_c99-Cae.ver tableopts_ver_c99-Cae.ver.c tableopts_ver_c99-Cae.ver.l tableopts_ver_c99-Cae.ver.tables tableopts_ver_c99-Caef.ver tableopts_ver_c99-Caef.ver.c tableopts_ver_c99-Caef.ver.l tableopts_ver_c99-Caef.ver.tables tableopts_ver_c99-CaexF.ver tableopts_ver_c99-CaexF.ver.c tableopts_ver_c99-CaexF.ver.l tableopts_ver_c99-CaexF.ver.tables tableopts_ver_c99-Cam.ver tableopts_ver_c99-Cam.ver.c tableopts_ver_c99-Cam.ver.l tableopts_ver_c99-Cam.ver.tables tableopts_ver_c99-Caem.ver tableopts_ver_c99-Caem.ver.c tableopts_ver_c99-Caem.ver.l tableopts_ver_c99-Caem.ver.tables array_go array_go.go array_go.l array.txt basic_go basic_go.go basic_go.l basic.txt bol_go bol_go.go bol_go.l bol.txt ccl_go ccl_go.go ccl_go.l ccl.txt debug_go debug_go.go debug_go.l debug.txt extended_go extended_go.go extended_go.l extended.txt fixedtrailing_go fixedtrailing_go.go fixedtrailing_go.l fixedtrailing.txt flexname_go flexname_go.go flexname_go.l flexname.txt lineno_go lineno_go.go lineno_go.l lineno.txt posix_go posix_go.go posix_go.l posix.txt preposix_go preposix_go.go preposix_go.l preposix.txt quoteincomment_go quoteincomment_go.go quoteincomment_go.l quoteincomment.txt reject_go reject_go.go reject_go.l reject.txt tableopts_go tableopts_go.go tableopts_go.l tableopts.txt vartrailing_go vartrailing_go.go vartrailing_go.l vartrailing.txt yyless_go yyless_go.go yyless_go.l yyless.txt yymorearraybol_go yymorearraybol_go.go yymorearraybol_go.l yymorearraybol.txt yymorearray_go yymorearray_go.go yymorearray_go.l yymorearray.txt yymore_go yymore_go.go yymore_go.l yymore.txt yyunput_go yyunput_go.go yyunput_go.l yyunput.txt tableopts_opt_go-Ca.opt tableopts_opt_go-Ca.opt.go tableopts_opt_go-Ca.opt.l tableopts_opt_go-Ca.opt.tables tableopts_opt_go-Ce.opt tableopts_opt_go-Ce.opt.go tableopts_opt_go-Ce.opt.l tableopts_opt_go-Ce.opt.tables tableopts_opt_go-Cf.opt tableopts_opt_go-Cf.opt.go tableopts_opt_go-Cf.opt.l tableopts_opt_go-Cf.opt.tables tableopts_opt_go-CxF.opt tableopts_opt_go-CxF.opt.go tableopts_opt_go-CxF.opt.l tableopts_opt_go-CxF.opt.tables tableopts_opt_go-Cm.opt tableopts_opt_go-Cm.opt.go tableopts_opt_go-Cm.opt.l tableopts_opt_go-Cm.opt.tables tableopts_opt_go-Cem.opt tableopts_opt_go-Cem.opt.go tableopts_opt_go-Cem.opt.l tableopts_opt_go-Cem.opt.tables tableopts_opt_go-Cae.opt tableopts_opt_go-Cae.opt.go tableopts_opt_go-Cae.opt.l tableopts_opt_go-Cae.opt.tables tableopts_opt_go-Caef.opt tableopts_opt_go-Caef.opt.go tableopts_opt_go-Caef.opt.l tableopts_opt_go-Caef.opt.tables tableopts_opt_go-CaexF.opt tableopts_opt_go-CaexF.opt.go tableopts_opt_go-CaexF.opt.l tableopts_opt_go-CaexF.opt.tables tableopts_opt_go-Cam.opt tableopts_opt_go-Cam.opt.go tableopts_opt_go-Cam.opt.l tableopts_opt_go-Cam.opt.tables tableopts_opt_go-Caem.opt tableopts_opt_go-Caem.opt.go tableopts_opt_go-Caem.opt.l tableopts_opt_go-Caem.opt.tables tableopts_ser_go-Ca.ser tableopts_ser_go-Ca.ser.go tableopts_ser_go-Ca.ser.l tableopts_ser_go-Ca.ser.tables tableopts_ser_go-Ce.ser tableopts_ser_go-Ce.ser.go tableopts_ser_go-Ce.ser.l tableopts_ser_go-Ce.ser.tables tableopts_ser_go-Cf.ser tableopts_ser_go-Cf.ser.go tableopts_ser_go-Cf.ser.l tableopts_ser_go-Cf.ser.tables tableopts_ser_go-CxF.ser tableopts_ser_go-CxF.ser.go tableopts_ser_go-CxF.ser.l tableopts_ser_go-CxF.ser.tables tableopts_ser_go-Cm.ser tableopts_ser_go-Cm.ser.go tableopts_ser_go-Cm.ser.l tableopts_ser_go-Cm.ser.tables tableopts_ser_go-Cem.ser tableopts_ser_go-Cem.ser.go tableopts_ser_go-Cem.ser.l tableopts_ser_go-Cem.ser.tables tableopts_ser_go-Cae.ser tableopts_ser_go-Cae.ser.go tableopts_ser_go-Cae.ser.l tableopts_ser_go-Cae.ser.tables tableopts_ser_go-Caef.ser tableopts_ser_go-Caef.ser.go tableopts_ser_go-Caef.ser.l tableopts_ser_go-Caef.ser.tables tableopts_ser_go-CaexF.ser tableopts_ser_go-CaexF.ser.go tableopts_ser_go-CaexF.ser.l tableopts_ser_go-CaexF.ser.tables tableopts_ser_go-Cam.ser tableopts_ser_go-Cam.ser.go tableopts_ser_go-Cam.ser.l tableopts_ser_go-Cam.ser.tables tableopts_ser_go-Caem.ser tableopts_ser_go-Caem.ser.go tableopts_ser_go-Caem.ser.l tableopts_ser_go-Caem.ser.tables tableopts_ver_go-Ca.ver tableopts_ver_go-Ca.ver.go tableopts_ver_go-Ca.ver.l tableopts_ver_go-Ca.ver.tables tableopts_ver_go-Ce.ver tableopts_ver_go-Ce.ver.go tableopts_ver_go-Ce.ver.l tableopts_ver_go-Ce.ver.tables tableopts_ver_go-Cf.ver tableopts_ver_go-Cf.ver.go tableopts_ver_go-Cf.ver.l tableopts_ver_go-Cf.ver.tables tableopts_ver_go-CxF.ver tableopts_ver_go-CxF.ver.go tableopts_ver_go-CxF.ver.l tableopts_ver_go-CxF.ver.tables tableopts_ver_go-Cm.ver tableopts_ver_go-Cm.ver.go tableopts_ver_go-Cm.ver.l tableopts_ver_go-Cm.ver.tables tableopts_ver_go-Cem.ver tableopts_ver_go-Cem.ver.go tableopts_ver_go-Cem.ver.l tableopts_ver_go-Cem.ver.tables tableopts_ver_go-Cae.ver tableopts_ver_go-Cae.ver.go tableopts_ver_go-Cae.ver.l tableopts_ver_go-Cae.ver.tables tableopts_ver_go-Caef.ver tableopts_ver_go-Caef.ver.go tableopts_ver_go-Caef.ver.l tableopts_ver_go-Caef.ver.tables tableopts_ver_go-CaexF.ver tableopts_ver_go-CaexF.ver.go tableopts_ver_go-CaexF.ver.l tableopts_ver_go-CaexF.ver.tables tableopts_ver_go-Cam.ver tableopts_ver_go-Cam.ver.go tableopts_ver_go-Cam.ver.l tableopts_ver_go-Cam.ver.tables tableopts_ver_go-Caem.ver tableopts_ver_go-Caem.ver.go tableopts_ver_go-Caem.ver.l tableopts_ver_go-Caem.ver.tables array_rust array_rust.rs array_rust.l array.txt basic_rust basic_rust.rs basic_rust.l basic.txt bol_rust bol_rust.rs bol_rust.l bol.txt ccl_rust ccl_rust.rs ccl_rust.l ccl.txt debug_rust debug_rust.rs debug_rust.l debug.txt extended_rust extended_rust.rs extended_rust.l extended.txt fixedtrailing_rust fixedtrailing_rust.rs fixedtrailing_rust.l fixedtrailing.txt flexname_rust flexname_rust.rs flexname_rust.l flexname.txt lineno_rust lineno_rust.rs lineno_rust.l lineno.txt posix_rust posix_rust.rs posix_rust.l posix.txt preposix_rust preposix_rust.rs preposix_rust.l preposix.txt quoteincomment_rust quoteincomment_rust.rs quoteincomment_rust.l quoteincomment.txt reject_rust reject_rust.rs reject_rust.l reject.txt tableopts_rust tableopts_rust.rs tableopts_rust.l tableopts.txt vartrailing_rust vartrailing_rust.rs vartrailing_rust.l vartrailing.txt yyless_rust yyless_rust.rs yyless_rust.l yyless.txt yymorearraybol_rust yymorearraybol_rust.rs yymorearraybol_rust.l yymorearraybol.txt yymorearray_rust yymorearray_rust.rs yymorearray_rust.l yymorearray.txt yymore_rust yymore_rust.rs yymore_rust.l yymore.txt yyunput_rust yyunput_rust.rs yyunput_rust.l yyunput.txt tableopts_opt_rust-Ca.opt tableopts_opt_rust-Ca.opt.rs tableopts_opt_rust-Ca.opt.l tableopts_opt_rust-Ca.opt.tables tableopts_opt_rust-Ce.opt tableopts_opt_rust-Ce.opt.rs tableopts_opt_rust-Ce.opt.l tableopts_opt_rust-Ce.opt.tables tableopts_opt_rust-Cf.opt tableopts_opt_rust-Cf.opt.rs tableopts_opt_rust-Cf.opt.l tableopts_opt_rust-Cf.opt.tables tableopts_opt_rust-CxF.opt tableopts_opt_rust-CxF.opt.rs tableopts_opt_rust-CxF.opt.l tableopts_opt_rust-CxF.opt.tables tableopts_opt_rust-Cm.opt tableopts_opt_rust-Cm.opt.rs tableopts_opt_rust-Cm.opt.l tableopts_opt_rust-Cm.opt.tables tableopts_opt_rust-Cem.opt tableopts_opt_rust-Cem.opt.rs tableopts_opt_rust-Cem.opt.l tableopts_opt_rust-Cem.opt.tables tableopts_opt_rust-Cae.opt tableopts_opt_rust-Cae.opt.rs tableopts_opt_rust-Cae.opt.l tableopts_opt_rust-Cae.opt.tables tableopts_opt_rust-Caef.opt tableopts_opt_rust-Caef.opt.rs tableopts_opt_rust-Caef.opt.l tableopts_opt_rust-Caef.opt.tables tableopts_opt_rust-CaexF.opt tableopts_opt_rust-CaexF.opt.rs tableopts_opt_rust-CaexF.opt.l tableopts_opt_rust-CaexF.opt.tables tableopts_opt_rust-Cam.opt tableopts_opt_rust-Cam.opt.rs tableopts_opt_rust-Cam.opt.l tableopts_opt_rust-Cam.opt.tables tableopts_opt_rust-Caem.opt tableopts_opt_rust-Caem.opt.rs tableopts_opt_rust-Caem.opt.l tableopts_opt_rust-Caem.opt.tables tableopts_ser_rust-Ca.ser tableopts_ser_rust-Ca.ser.rs tableopts_ser_rust-Ca.ser.l tableopts_ser_rust-Ca.ser.tables tableopts_ser_rust-Ce.ser tableopts_ser_rust-Ce.ser.rs tableopts_ser_rust-Ce.ser.l tableopts_ser_rust-Ce.ser.tables tableopts_ser_rust-Cf.ser tableopts_ser_rust-Cf.ser.rs tableopts_ser_rust-Cf.ser.l tableopts_ser_rust-Cf.ser.tables tableopts_ser_rust-CxF.ser tableopts_ser_rust-CxF.ser.rs tableopts_ser_rust-CxF.ser.l tableopts_ser_rust-CxF.ser.tables tableopts_ser_rust-Cm.ser tableopts_ser_rust-Cm.ser.rs tableopts_ser_rust-Cm.ser.l tableopts_ser_rust-Cm.ser.tables tableopts_ser_rust-Cem.ser tableopts_ser_rust-Cem.ser.rs tableopts_ser_rust-Cem.ser.l tableopts_ser_rust-Cem.ser.tables tableopts_ser_rust-Cae.ser tableopts_ser_rust-Cae.ser.rs tableopts_ser_rust-Cae.ser.l tableopts_ser_rust-Cae.ser.tables tableopts_ser_rust-Caef.ser tableopts_ser_rust-Caef.ser.rs tableopts_ser_rust-Caef.ser.l tableopts_ser_rust-Caef.ser.tables tableopts_ser_rust-CaexF.ser tableopts_ser_rust-CaexF.ser.rs tableopts_ser_rust-CaexF.ser.l tableopts_ser_rust-CaexF.ser.tables tableopts_ser_rust-Cam.ser tableopts_ser_rust-Cam.ser.rs tableopts_ser_rust-Cam.ser.l tableopts_ser_rust-Cam.ser.tables tableopts_ser_rust-Caem.ser tableopts_ser_rust-Caem.ser.rs tableopts_ser_rust-Caem.ser.l tableopts_ser_rust-Caem.ser.tables tableopts_ver_rust-Ca.ver tableopts_ver_rust-Ca.ver.rs tableopts_ver_rust-Ca.ver.l tableopts_ver_rust-Ca.ver.tables tableopts_ver_rust-Ce.ver tableopts_ver_rust-Ce.ver.rs tableopts_ver_rust-Ce.ver.l tableopts_ver_rust-Ce.ver.tables tableopts_ver_rust-Cf.ver tableopts_ver_rust-Cf.ver.rs tableopts_ver_rust-Cf.ver.l tableopts_ver_rust-Cf.ver.tables tableopts_ver_rust-CxF.ver tableopts_ver_rust-CxF.ver.rs tableopts_ver_rust-CxF.ver.l tableopts_ver_rust-CxF.ver.tables tableopts_ver_rust-Cm.ver tableopts_ver_rust-Cm.ver.rs tableopts_ver_rust-Cm.ver.l tableopts_ver_rust-Cm.ver.tables tableopts_ver_rust-Cem.ver tableopts_ver_rust-Cem.ver.rs tableopts_ver_rust-Cem.ver.l tableopts_ver_rust-Cem.ver.tables tableopts_ver_rust-Cae.ver tableopts_ver_rust-Cae.ver.rs tableopts_ver_rust-Cae.ver.l tableopts_ver_rust-Cae.ver.tables tableopts_ver_rust-Caef.ver tableopts_ver_rust-Caef.ver.rs tableopts_ver_rust-Caef.ver.l tableopts_ver_rust-Caef.ver.tables tableopts_ver_rust-CaexF.ver tableopts_ver_rust-CaexF.ver.rs tableopts_ver_rust-CaexF.ver.l tableopts_ver_rust-CaexF.ver.tables tableopts_ver_rust-Cam.ver tableopts_ver_rust-Cam.ver.rs tableopts_ver_rust-Cam.ver.l tableopts_ver_rust-Cam.ver.tables tableopts_ver_rust-Caem.ver tableopts_ver_rust-Caem.ver.rs tableopts_ver_rust-Caem.ver.l tableopts_ver_rust-Caem.ver.tables test-yydecl-nr.sh test-yydecl-r.sh test-yydecl-c99.sh test-yydecl-go.sh test-yydecl-rust.sh
 

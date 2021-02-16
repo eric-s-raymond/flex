@@ -244,6 +244,7 @@ int flex_main (int argc, char *argv[])
 
 	if (did_eof_rule) {
 		out ("M4_HOOK_EOF_STATE_CASE_TERMINATE");
+                outc('\n');
 	}
 
 	skelout (true);
@@ -1810,7 +1811,7 @@ void usage (void)
 		  "  -I, --interactive       generate interactive scanner (opposite of -B)\n"
 		  "      --yylineno          track line count in yylineno\n"
 		  "\n" "Generated code:\n"
-		  "  -+,  --c++               generate C++ scanner class\n"
+		  "  -+,  --c++               cpp backend generates C++ scanner class instead of C\n"
 		  "  -Dmacro[=defn]           #define macro defn  (default defn is '1')\n"
 		  "  -e,  --emit=LANG         Specify target language\n"
 		  "  -L,  --noline            suppress #line directives in scanner\n"

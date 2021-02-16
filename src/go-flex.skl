@@ -38,8 +38,9 @@ m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[go]])
 m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^#line ([0-9]+) "(.*)"]])
 m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[#line %d "%s"]])
 m4_define([[M4_PROPERTY_CONTEXT_ARG]], [[yyscanner]])
-m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[yyscanner->%s]])
-m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[yyscanner->yyBufferStack[yyscanner->yyBufferStackTop]->bs_%s]])
+m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[M4_CONTEXT_CALL(%s, %s)]])
+m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[yyscanner->yy%s]])
+m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[yyscanner->yyBufferStack[yyscanner->yyBufferStackTop]->bs_yy%s]])
 m4_define([[M4_PROPERTY_PREFIX]], [main]])
 
 %# Macro hooks used by Flex code generators start here
@@ -103,6 +104,8 @@ m4_define([[yyless]], [[
 		yyDoBeforeAction(yyscanner, yyCp, yyBp); /* set up yytext again */
 	} while (0)
 ]])
+
+m4_define([[M4_CONTEXT_CALL]],[[m4_ifelse($2,[[]],[[yy$1(yyscanner)]],[[yy$1($2, yyscanner)]])]])
 
 %# Can't be a function given the context-arg treatment due to the goto.
 m4_define([[M4_HOOK_REJECT]], [[{

@@ -1,0 +1,1652 @@
+%# -*-M4-*- vi: set ft=c:
+%#
+%# This is the Rust front end.
+
+%#  Macros for preproc stage.
+m4preproc_changecom
+
+%# Macros for runtime processing stage.
+m4_changecom
+m4_changequote
+m4_changequote([[, ]])
+
+%# Properties not used in the skeleton - meant to be read by the Flex code
+m4_define([[M4_PROPERTY_BACKEND_NAME]], [[Rust]])
+m4_define([[M4_PROPERTY_SOURCE_SUFFIX]], [[rs]])
+m4_define([[M4_PROPERTY_TRACE_LINE_REGEXP]], [[^//#line ([0-9]+) "(.*)"]])
+m4_define([[M4_PROPERTY_TRACE_LINE_TEMPLATE]], [[//#line %d "%s"]])
+m4_define([[M4_PROPERTY_CONTEXT_CALL_FORMAT]], [[M4_CONTEXT_CALL(%s, %s)]])
+m4_define([[M4_PROPERTY_CONTEXT_FORMAT]], [[self.%s]])
+m4_define([[M4_PROPERTY_BUFFERSTACK_CONTEXT_FORMAT]], [[self.current_buffer_unchecked_mut().%s]])
+%#m4_define([[M4_PROPERTY_PREFIX]], [[FlexLexer]])
+
+%# Macro hooks used by Flex code generators start here
+m4_define([[M4_HOOK_INT32]], [[i32]])
+m4_define([[M4_HOOK_INT16]], [[i16]])
+m4_define([[M4_HOOK_COMMENT_OPEN]], [[/*]])
+m4_define([[M4_HOOK_COMMENT_CLOSE]], [[*/]])
+%# If this is not defined, no trace lines will be generated.
+m4_define([[M4_HOOK_TRACE_LINE_FORMAT]], [[//#line $1 "$2"
+]])
+m4_define([[M4_HOOK_TABLE_OPENER]], [[{]])
+m4_define([[M4_HOOK_TABLE_CONTINUE]], [[},]])
+m4_define([[M4_HOOK_TABLE_CLOSER]], [[};]])
+m4_define([[M4_HOOK_RELATIVIZE]], [[$1]])
+m4_define([[M4_HOOK_STATE_ENTRY_FORMAT]], [[&transition[$1],
+]])
+m4_define([[M4_HOOK_NORMAL_STATE_CASE_ARM]], [[$1 => {]])
+m4_define([[M4_HOOK_EOF_STATE_CASE_ARM]], [[s if s == YY_STATE_EOF($1) => {]])
+m4_define([[M4_HOOK_EOF_STATE_CASE_FALLTHROUGH]], [[yyterminate; },
+]])
+m4_define([[M4_HOOK_EOF_STATE_CASE_TERMINATE]], [[]])
+m4_define([[M4_HOOK_TAKE_YYTEXT]], [[self.do_before_action(cp, bp); /* set up yytext */]])
+m4_define([[M4_HOOK_RELEASE_YYTEXT]], [[self.set_ch(cp, self.hold_char); /* undo effects of setting up yytext */]])
+m4_define([[M4_HOOK_CHAR_REWIND]], [[cp -= $1; self.c_buf_p = cp;]])
+m4_define([[M4_HOOK_LINE_REWIND]], [[self.lineno_rewind_to(cp, cp - $1);]])
+m4_define([[M4_HOOK_CHAR_FORWARD]], [[cp = bp + $1; self.c_buf_p = cp;]])
+m4_define([[M4_HOOK_LINE_FORWARD]], [[self.lineno_rewind_to(cp, bp + $1);]])
+m4_define([[M4_HOOK_CONST_DEFINE_BYTE]], [[const $1: u8 = $2;
+]])
+m4_define([[M4_HOOK_CONST_DEFINE_STATE]], [[const $1: State = $2;
+]])
+m4_define([[M4_HOOK_CONST_DEFINE_UINT]], [[const $1: usize = $2;
+]])
+m4_define([[M4_HOOK_CONST_DEFINE_BOOL]], [[const $1: bool = $2;
+]])
+m4_define([[M4_HOOK_CONST_DEFINE_UNKNOWN]], [[m4_define($1, [[$2]])]])
+m4_define([[M4_HOOK_SET_YY_DECL]], [[m4_define([[YY_DECL]], [[$1]])]])
+m4_define([[M4_HOOK_SET_OFFSET_TYPE]], [[m4_define([[YY_OFFSET_TYPE]], [[$1]])]])
+m4_define([[M4_HOOK_SET_USERINIT]], [[m4_define([[YY_USER_INIT]], [[$1]])]])
+m4_define([[M4_HOOK_SET_RULE_SETUP]], [[m4_ifdef([[M4_MODE_BOL_NEEDED]], [[
+self.rule_check_bol();
+]])
+m4_ifdef([[YY_USER_ACTION]], YY_USER_ACTION)
+]])
+m4_define([[M4_HOOK_SET_PREACTION]], [[m4_define([[YY_USER_ACTION]], [[$1]])]])
+m4_define([[M4_HOOK_STATE_CASE_BREAK]], [[}]])
+m4_define([[M4_HOOK_SET_POSTACTION]], [[m4_define([[M4_HOOK_STATE_CASE_BREAK]], [[$1; continue; }]])]])
+m4_define([[M4_HOOK_FATAL_ERROR]], [[panic!($1);]])
+m4_define([[M4_HOOK_ECHO]], [[self.echo()?;]])
+
+m4_define([[yyterminate]], m4_ifdef([[M4_MODE_YYTERMINATE]], [[M4_MODE_YYTERMINATE /* $1 */]], [[return Ok(0) /* $1 */]]))
+m4_define([[yyless]], [[#![allow(unused_assignments)] cp = self.less(cp, bp, $1);]])
+
+m4_define([[M4_CONTEXT_CALL]], [[m4_ifelse($1,[[unput]],[[self.$1(b$2, bp)]],[[self.$1($2)]])]])
+
+#![allow(non_snake_case, non_upper_case_globals, unused_variables, dead_code, unused_must_use, unused_braces, redundant_semicolons)]
+
+use std::cell::RefCell;
+use std::io;
+use std::ptr;
+use std::rc::Rc;
+
+%# Can't be a function given the context-arg treatment due to the goto.
+m4_define([[M4_HOOK_REJECT]], [[{
+self.set_ch(cp, self.hold_char); /* undo effects of setting up yytext */
+cp = self.full_match; /* restore possibly backed-over text */
+m4_ifdef([[M4_MODE_VARIABLE_TRAILING_CONTEXT_RULES]], [[m4_dnl
+self.lp = self.full_lp; /* restore orig. accepting pos. */
+// TODO(db48x): investigate; probably just need to pop the stack
+//self.state_ptr = self.full_state; /* restore orig. state */
+//current_state = *self.state_ptr; /* restore curr. state */
+]])m4_dnl
+self.lp += 1;
+continue 'find_rule;
+}
+]])m4_dnl
+
+%% [0.0] Make hook macros available to Flex
+
+const FLEX_SCANNER: bool = true;
+const MAJOR_VERSION: usize = 2;
+const MINOR_VERSION: usize = 6;
+const SUBMINOR_VERSION: usize = 4;
+const FLEX_BETA: bool = SUBMINOR_VERSION > 0;
+
+type Result<T> = std::result::Result<T, String>;
+
+const END_OF_BUFFER_CHAR: u8 = 0;
+
+/*
+ * Amount of stuff to slurp up with each read.
+ */
+const READ_BUF_SIZE: usize = 32 * 1024;
+
+/* Size of default input buffer. We want to be able to fit two
+ * OS-level reads, but efficiency gains as the buffer size
+ * increases fall off after that
+ */
+const BUF_SIZE: usize = m4_ifdef([[M4_MODE_YY_BUFSIZE]], [[M4_MODE_YY_BUFSIZE]], [[2 * READ_BUF_SIZE]]);
+
+/* Returned upon end-of-file. */
+const NULL: u8 = 0;
+
+/* Action number for EOF rule of a given start state. */
+m4_define([[YY_STATE_EOF]], [[(YY_END_OF_BUFFER as isize + $1 as isize + 1) as usize]])m4_dnl
+
+/* The state buf must be large enough to hold one state per character in the main buffer. */
+m4_define([[YY_STATE_BUF_SIZE]], [[(BUF_SIZE + 2) * std::mem::size_of::<State>()]])m4_dnl
+
+%# These are not part of the exported interface and can safely be renamed
+#[derive(PartialEq, Eq)]
+enum EndOfBufferAction {
+    ContinueScan,
+    EndOfFile,
+    LastMatch,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum BufferStatus {
+    New,
+    Normal,
+    /** When an EOF's been seen but there's still some text to process
+      * then we mark the buffer as EOF_PENDING, to indicate that we
+      * shouldn't try reading from the input source any more.  We might
+      * still have a bunch of tokens to match, though, because of
+      * possible backing-up.
+      *
+      * When we actually see the EOF, we change the status to "new"
+      * (via restart()), so that the user can continue scanning by
+      * just pointing in at a new input file.
+      */
+    EOFPending,
+}
+
+#[derive(Default)]
+pub struct Lexer<T> {
+    /// User-defined. Not touched by flex.
+    extra: Option<T>,
+    pub input: Option<Rc<RefCell<dyn io::Read>>>,
+    output: Option<Box<dyn io::Write>>,
+    buffer_stack: Vec<BufferState>,
+    hold_char: u8,
+    n_chars: usize,
+    leng: Option<usize>,
+    c_buf_p: usize,
+    init: bool,
+    start: State,
+    did_buffer_switch_on_eof: bool,
+    start_stack_ptr: usize,
+    start_stack_depth: usize,
+    start_stack: Vec<Start>,
+    last_accepting_state: State,
+    last_accepting_cpos: usize,
+m4_ifdef([[M4_MODE_USES_REJECT]], [[m4_dnl
+    state_buf: Vec<State>,
+    full_match: usize,
+    lp: usize,
+
+    /* These three are only needed for trailing context rules, but
+     * there's no conditional variable for that yet. */
+    looking_for_trail_begin: usize,
+    full_lp: usize,
+    full_state: usize,
+]])m4_dnl
+m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[m4_dnl
+    text_buf: Vec<u8>,
+    text: usize,
+    more_offset: usize,
+    prev_more_offset: usize,
+]], [[m4_dnl
+    text: usize,
+    more_flag: bool,
+    more_len: usize,
+]])m4_dnl
+    lineno: usize,
+    debug: bool,
+}
+
+/* Begin user sect3 */
+
+const DEBUG: bool = m4_ifdef([[M4_MODE_DEBUG]], [[true]], [[false]]);
+
+m4_ifdef([[M4_MODE_FULLSPD]], [[m4_dnl
+type State = TranslationInfo;
+type Start = isize;
+]], [[m4_dnl
+type State = i16;
+type Start = isize;
+]])m4_dnl
+
+%% [1.0] DFA
+
+struct TranslationInfo {
+    /* We require that verify and nxt must be of the same size int. */
+m4_ifdef([[M4_MODE_REAL_FULLSPD]], [[m4_dnl
+    verify: YY_OFFSET_TYPE,
+
+    /** In cases where its sister verify *is* a "yes, there is a
+      * transition", nxt is the offset (in records) to the next state.
+      * In most cases where there is no transition, the value of nxt
+      * is irrelevant.  If nxt is the -1th record of a state, though,
+      * then nxt is the action number for that state.
+      */
+     nxt: YY_OFFSET_TYPE,
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_REAL_FULLSPD]], [[m4_dnl
+    /* We generate a bogus 'struct yy_trans_info' data type
+     * so we can guarantee that it is always declared in the skel.
+     * This is so we can compile "sizeof(struct yy_trans_info)"
+     * in any scanner.
+     */
+    verify: i32,
+    nxt: i32,
+]])m4_dnl
+}
+
+%% [2.0] data tables for the DFA are inserted here
+/// Data tables for the DFA
+mod tables {
+m4_ifdef([[M4_HOOK_NXT_ROWS]],[[m4_dnl
+    pub const M4_HOOK_NXT_TYPE nxt: [M4_HOOK_NXT_TYPE; M4_HOOK_NXT_ROWS] = [
+M4_HOOK_NXT_BODY
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_MODE_YYLINENO]],[[m4_dnl
+    /** Table of booleans, true if rule could match eol. */
+    pub const rule_can_match_eol: [M4_HOOK_EOLTABLE_TYPE; M4_HOOK_EOLTABLE_SIZE] = [ 0,
+M4_HOOK_EOLTABLE_BODY
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_NEED_ACCEPT]],[[m4_dnl
+    pub const accept: [M4_HOOK_ACCEPT_TYPE; M4_HOOK_ACCEPT_SIZE] = [ 0,
+M4_HOOK_ACCEPT_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_MODE_USEECS]],[[m4_dnl
+    /** Character equivalence-class mapping */
+    pub const ec: [u8; M4_HOOK_ECSTABLE_SIZE] = [ 0,
+M4_HOOK_ECSTABLE_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_MODE_USEMECS]],[[m4_dnl
+    /** Character meta-equivalence-class mappings */
+    pub const meta: [u8; M4_HOOK_MECSTABLE_SIZE] = [ 0,
+M4_HOOK_MECSTABLE_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_TRANSTABLE_SIZE]],[[m4_dnl
+    /** The transition table */
+    pub const transition: [TransitionInfo; M4_HOOK_TRANSTABLE_SIZE] = [
+M4_HOOK_TRANSTABLE_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_STARTTABLE_SIZE]],[[m4_dnl
+    /** Table of pointers to start states. */
+    pub const start_state_list: [&TransitionInfo; M4_HOOK_STARTTABLE_SIZE] = [
+M4_HOOK_STARTTABLE_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_ACCLIST_TYPE]],[[m4_dnl
+    pub const acclist: [M4_HOOK_ACCLIST_TYPE; M4_HOOK_ACCLIST_SIZE] = [ 0,
+M4_HOOK_ACCLIST_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_BASE_TYPE]],[[m4_dnl
+    pub const base: [M4_HOOK_BASE_TYPE; M4_HOOK_BASE_SIZE] = [ 0,
+M4_HOOK_BASE_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_DEF_TYPE]],[[m4_dnl
+    pub const def: [M4_HOOK_DEF_TYPE; M4_HOOK_DEF_SIZE] = [ 0,
+M4_HOOK_DEF_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_YYNXT_TYPE]],[[m4_dnl
+    pub const nxt: [M4_HOOK_YYNXT_TYPE; M4_HOOK_YYNXT_SIZE] = [ 0,
+M4_HOOK_YYNXT_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_CHK_TYPE]],[[m4_dnl
+    pub const chk: [M4_HOOK_CHK_TYPE; M4_HOOK_CHK_SIZE] = [ 0,
+M4_HOOK_CHK_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_HOOK_NULTRANS_SIZE]],[[m4_dnl
+    pub const NUL_trans: [State; M4_HOOK_NULTRANS_SIZE] = [ 0,
+M4_HOOK_NULTRANS_BODY[[]]m4_dnl
+    ];
+
+]])m4_dnl
+m4_ifdef([[M4_MODE_DEBUG]],[[m4_dnl
+    /** Rule to line-number mapping */
+    pub const rule_linenum: [M4_HOOK_DEBUGTABLE_TYPE; M4_HOOK_DEBUGTABLE_SIZE] = [ 0,
+M4_HOOK_DEBUGTABLE_BODY[[]]m4_dnl
+    ];
+]])m4_dnl
+}
+
+%% [3.0] static declarations conditional on mode switches go here
+
+/** Number of entries by which start-condition stack grows. */
+const START_STACK_INCR: usize = 25;
+
+M4_YY_SC_DEFS
+
+m4_ifdef([[M4_MODE_VARIABLE_TRAILING_CONTEXT_RULES]], [[m4_dnl
+%# These must match the values in the file flexdef.h
+%# of the flex source code, otherwise havoc will ensue.
+const TRAILING_MASK: usize = 0x2000;
+const TRAILING_HEAD_MASK: usize = 0x4000;
+]])m4_dnl
+
+%# Default declaration of generated scanner - a define so the user can
+%# easily add parameters.
+m4_ifdef([[YY_DECL]],, [[m4_dnl
+m4_define([[YY_DECL]], [[fn lex<D>(&mut self, _user_data: &mut D) -> Result<isize>]])m4_dnl
+]])m4_dnl
+
+impl<T: Default> Lexer<T> {
+    pub fn new() -> Self {
+        let mut s: Lexer<T> = Default::default();
+        s.init(true);
+        s
+    }
+}
+
+impl<T> Lexer<T> {
+    fn init(&mut self, stdinit: bool) {
+        self.buffer_stack = Vec::new();
+        self.c_buf_p = 0;
+        self.init = false;
+        self.start = 0;
+
+        self.start_stack = Vec::new();
+        self.start_stack_depth = 0;
+
+m4_ifdef([[M4_MODE_USES_REJECT]],
+[[m4_dnl
+        self.state_buf = Vec::with_capacity(YY_STATE_BUF_SIZE);
+        self.full_match = 0;
+        self.lp = 0;
+]])m4_dnl
+
+m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]],
+[[m4_dnl
+        self.text_buf = Vec::with_capacity(YYLMAX);
+        self.text = 0;
+        self.more_offset = 0;
+        self.prev_more_offset = 0;
+]])m4_dnl
+
+        if stdinit {
+            self.input = Some(Rc::new(RefCell::new(io::stdin())));
+            self.output = Some(Box::new(io::stdout()));
+        }
+
+m4_ifdef([[M4_MODE_DEBUG]],m4_dnl
+[[m4_dnl
+        self.debug = DEBUG;
+]])m4_dnl
+    }
+
+    /** Returns the top buffer of the stack, or None. */
+    fn current_buffer(&self) -> Option<&BufferState> {
+        self.buffer_stack.last()
+    }
+
+    /** Returns the top buffer of the stack, mutably, or None. */
+    fn current_buffer_mut(&mut self) -> Option<&mut BufferState> {
+        self.buffer_stack.last_mut()
+    }
+
+    /** Same as current_buffer, but useful when we know that the
+      * buffer stack is not None. For internal use only.
+      */
+    fn current_buffer_unchecked(&self) -> &BufferState {
+        self.buffer_stack.last().expect("stack should not be empty")
+    }
+
+    /** Same as current_buffer_mut, but useful when we know that the
+      * buffer stack is not None. For internal use only.
+      */
+    fn current_buffer_unchecked_mut(&mut self) -> &mut BufferState {
+        self.buffer_stack.last_mut().expect("stack should not be empty")
+    }
+
+    fn ch(&self, cp: usize) -> u8 {
+        self.current_buffer_unchecked().ch_buf[cp]
+    }
+
+    fn set_ch(&mut self, cp: usize, c: u8) {
+        self.current_buffer_unchecked_mut().ch_buf[cp] = c;
+    }
+
+    /* START special functions
+     *
+     * Flex's scanner knows these are special and inserts the yyscanner argument
+     * at the end of the argument list.  TODO: support OO languages with a
+     * property that causes it to be prepended with a dot instead.
+     */
+
+    /** Enter a start condition. */
+    fn begin(&mut self, s: Start) {
+        self.start = (1 + 2 * s) as State;
+    }
+
+    /** Translate the current start state into a value that can be later handed
+      * to yybegin() to return to the state.
+      */
+    fn start(&self) -> Start {
+        ((self.start - 1) / 2) as Start
+    }
+
+    /** Write the current token to the output stream. */
+    fn echo(&mut self) -> Result<()> {
+       if self.leng.is_some() {
+           let token = self.current_buffer_unchecked().ch_buf[self.text..self.text + self.leng.unwrap()].to_owned();
+           if let Some(output) = &mut self.output {
+               output.write_all(&token).map_err(|e| e.to_string())
+           } else {
+               self.panic("No output stream available to echo to");
+           }
+       } else {
+           self.panic("Attempted to echo a token while self.leng was negative");
+       }
+    }
+
+m4_ifdef([[M4_YY_NO_YYUNPUT]],, [[m4_dnl
+    fn unput(&mut self, c: u8, bp: usize) {
+        let mut cp = self.c_buf_p;
+        // undo effects of setting up text
+        self.set_ch(cp, self.hold_char);
+        // TODO(db48x): this code originally said "need to shift things up to make room +2 for EOB
+        // chars."; might need to put that back in.
+        if cp == 0 {
+            self.current_buffer_unchecked_mut().ch_buf.insert(0, c);
+        } else {
+            cp -= 1;
+            self.set_ch(cp, c);
+        }
+        self.text = bp;
+m4_ifdef([[M4_MODE_YYLINENO]],
+[[m4_dnl
+        if c == b'\n' {
+            self.current_buffer_unchecked_mut().lineno -= 1;
+        }
+]])m4_dnl
+        self.hold_char = self.ch(cp);
+        self.c_buf_p = cp;
+    }
+]])m4_dnl
+
+    fn input(&mut self) -> Result<u8> {
+        let p = self.c_buf_p;
+        self.set_ch(p, self.hold_char);
+
+        if self.ch(self.c_buf_p) == END_OF_BUFFER_CHAR {
+            // c_buf_p now points to the character we want to return.  If this occurs *before*
+            // the EOB characters, then it's a valid NUL; if not, then we've hit the end of the
+            // buffer.
+            if self.c_buf_p < self.n_chars {
+                // This was really a NUL.
+                let p = self.c_buf_p;
+                self.set_ch(p, b'\0');
+            } else {
+                // need more input
+                let offset = self.c_buf_p - self.text;
+                self.c_buf_p += 1;
+
+                match self.get_next_buffer()? {
+                    Some(EndOfBufferAction::LastMatch) => {
+                        // This happens because g_n_b() sees that we've accumulated a token and
+                        // flags that we need to try matching the token before proceeding.  But for
+                        // input(), there's no matching to consider.  So convert the
+                        // EOB_ACT_LAST_MATCH to EOB_ACT_END_OF_FILE.
+
+                        // Reset buffer status.
+                        self.restart(self.input.clone());
+
+                        if self.wrap() {
+                            return Ok(b'\0');
+                        }
+                        if !self.did_buffer_switch_on_eof {
+                            // YY_NEW_FILE
+                            self.restart(self.input.clone());
+                        }
+                        return self.input();
+                    }
+
+                    Some(EndOfBufferAction::EndOfFile) => {
+                        if self.wrap() {
+                            return Ok(b'\0');
+                        }
+                        if !self.did_buffer_switch_on_eof {
+                            // YY_NEW_FILE
+                            self.restart(self.input.clone());
+                        }
+                        return self.input();
+                    }
+
+                    Some(EndOfBufferAction::ContinueScan) => {
+                        self.c_buf_p = self.text + offset;
+                    }
+
+                    None => { unreachable!(); }
+                }
+            }
+        }
+
+        let c = self.ch(self.c_buf_p);
+        let p = self.c_buf_p;
+        self.set_ch(p, b'\0');
+        self.c_buf_p += 1;
+        self.hold_char = self.ch(self.c_buf_p);
+m4_ifdef([[M4_MODE_BOL_NEEDED]], [[m4_dnl
+        self.current_buffer_unchecked_mut().at_bol = c == b'\n';
+m4_ifdef([[M4_MODE_YYLINENO]], [[m4_dnl
+        if self.current_buffer_unchecked_mut().at_bol {
+            self.bumpline();
+        }
+]])]])m4_dnl
+m4_ifdef([[M4_MODE_NO_BOL_NEEDED]], [[m4_dnl
+m4_ifdef([[M4_MODE_YYLINENO]], [[m4_dnl
+        if c == b'\n' {
+            self.bumpline();
+        }
+]])]])m4_dnl
+        Ok(c)
+    }
+
+/* ENDS special functions */
+
+/* Macros after this point can all be overridden by user definitions in
+ * section 1.
+ */
+
+m4_ifdef([[M4_YY_NO_YYPANIC]],, [[m4_dnl
+    fn panic<M: AsRef<[u8]> + Send + 'static>(&self, msg: M) -> ! {
+        panic!(msg);
+    }
+]])m4_dnl
+
+    /** Gets input and stuffs it into "buf".  Returns number of
+      * characters read.
+      */
+    fn read(&mut self, offset: usize, max_size: usize) -> Result<usize> {
+        if let Some(file) = &self.input.clone() {
+            let buf = self.current_buffer_unchecked_mut();
+            buf.ch_buf.truncate(offset);
+            buf.ch_buf.resize(max_size + offset, END_OF_BUFFER_CHAR);
+m4_ifdef([[M4_MODE_CPP_USE_READ]], [[m4_dnl
+            let reader = read_file;
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_CPP_USE_READ]], [[m4_dnl
+            let reader = if buf.is_interactive { read_interactive } else { read_file };
+]])m4_dnl
+            let bytes = reader(buf, file, offset, max_size)?;
+            buf.ch_buf.truncate(bytes + offset);
+            Ok(bytes)
+        } else {
+            Err("read called with no open input file".to_owned())
+        }
+    }
+
+m4_ifdef([[M4_MODE_BOL_NEEDED]], [[m4_dnl
+    fn rule_check_bol(&mut self) {
+        if self.leng.is_some() {
+            self.current_buffer_unchecked_mut().at_bol = self.ch(self.text + self.leng.unwrap() - 1) == b'\n';
+        }
+    }
+]])m4_dnl
+
+    /** Done after the current pattern has been matched and before the
+      * corresponding action - sets up text.
+      */
+    fn do_before_action(&mut self, cp: usize, bp: usize) {
+        self.text = bp;
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m4_dnl
+        self.text -= self.more_len;
+        self.leng = cp.checked_sub(self.text);]])]])m4_dnl
+        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[self.leng = cp.checked_sub(bp);]])m4_dnl
+        m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.leng = cp.checked_sub(bp);]])m4_dnl
+        self.hold_char = self.ch(cp);
+        self.set_ch(cp, b'\0');
+m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[m4_dnl
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_dnl
+        if self.leng.unwrap() + self.more_offset >= YYLMAX {
+            self.panic("token too large, exceeds YYLMAX");
+        }
+        let length = self.leng.unwrap();
+        let range = self.text..=self.text + length;
+        let dest = self.more_offset;
+        self.text_buf.resize(dest, b'\0');
+        // manually inlined current_buffer_unchecked here because borrow checker
+        self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
+        self.leng = Some(self.leng.unwrap() + self.more_offset);
+        self.prev_more_offset = self.more_offset;
+        self.more_offset = 0;
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[m4_dnl
+        m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[if self.leng.unwrap() >= YYLMAX {
+            self.panic("token too large, exceeds YYLMAX");
+        }]])m4_dnl
+        let range = self.text..=self.text + self.leng.unwrap();
+        self.text_buf.clear();
+        // manually inlined current_buffer_unchecked here because borrow checker
+        self.text_buf.extend_from_slice(&self.buffer_stack.last().unwrap().ch_buf[range]);
+]])m4_dnl
+]])m4_dnl
+        self.c_buf_p = cp;
+    }
+
+m4_ifdef([[M4_MODE_YYLINENO]], [[m4_dnl
+    /* FIXME: gate on yy_rule_can_match_eol, this is no longer a macro
+     * and we can get at yy_act */
+    fn less_lineno(&mut self, n: usize) {
+        self.lineno_rewind_to(self.text + n, self.leng.unwrap());
+    }
+
+    fn lineno_rewind_to(&mut self, cp: usize, dst: usize) {
+        let count = self.current_buffer_unchecked().ch_buf[dst..cp].iter().filter(|c| **c == b'\n').count();
+        self.current_buffer_unchecked_mut().lineno -= count;
+    }
+
+    fn lineno_wind_to(&mut self, cp: usize, dst: usize) {
+        let count = self.current_buffer_unchecked().ch_buf[cp..=dst].iter().filter(|c| **c == b'\n').count();
+        self.current_buffer_unchecked_mut().lineno += count;
+    }
+]])m4_dnl
+
+    fn flush_current_buffer(&mut self) {
+        self.current_buffer_unchecked_mut().flush();
+    }
+
+    pub fn set_interactive(&mut self, is_interactive: bool) {
+        if self.buffer_stack.is_empty() {
+            self.push_new_buffer(self.input.clone(), BUF_SIZE);
+        }
+        if let Some(buf) = self.current_buffer_mut() {
+            buf.is_interactive = is_interactive;
+        }
+    }
+
+    fn bumpline(&mut self) {
+        self.current_buffer_unchecked_mut().lineno += 1;
+        self.current_buffer_unchecked_mut().column = 0;
+    }
+
+    fn bumpline_n(&mut self, n: usize) {
+        self.current_buffer_unchecked_mut().lineno += n;
+        self.current_buffer_unchecked_mut().column = 0;
+    }
+
+    /** Return all but the first "n" matched characters back to the input stream. */
+    fn less(&mut self, cp: usize, bp: usize, n: usize) -> usize {
+        /* Undo effects of setting up yytext. */
+        m4_ifdef([[M4_MODE_YYLINENO]], [[self.less_lineno(n);]])m4_dnl
+        self.set_ch(cp, self.hold_char);
+        self.restore_more_offset();
+        let cp = bp + n - self.more_adj();
+        self.c_buf_p = cp;
+        self.do_before_action(cp, bp); /* set up yytext again */
+        cp
+    }
+
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_dnl
+m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[m4_dnl
+    fn more(&mut self) {
+        self.more_offset = self.current_buffer_unchecked().ch_buf[self.text..].iter().take_while(|c| **c != b'\0').count();
+    }
+
+    fn more_adj(&self) -> usize {
+        0
+    }
+
+    fn restore_more_offset(&mut self)
+    {
+        self.more_offset = self.prev_more_offset;
+        self.leng = Some(self.leng.unwrap() - self.more_offset);
+    }
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m4_dnl
+    fn more(&mut self) {
+        self.more_flag = true;
+    }
+
+    fn more_adj(&self) -> usize {
+        self.more_len
+    }
+
+    fn restore_more_offset(&mut self) { }
+]])m4_dnl
+]])m4_dnl
+
+m4_ifdef([[M4_MODE_NO_YYMORE_USED]], [[m4_dnl
+    fn more(&mut self) {
+    }
+
+    fn more_adj(&self) -> usize {
+        0
+    }
+
+    fn restore_more_offset(&mut self) { }
+]])m4_dnl
+
+    pub fn set_bol(&mut self, at_bol: bool) {
+        if self.buffer_stack.is_empty() {
+            self.push_new_buffer(self.input.clone(), BUF_SIZE);
+        }
+        if let Some(buf) = self.current_buffer_mut() {
+            buf.at_bol = at_bol;
+        }
+    }
+
+    fn at_bol(&self) -> bool {
+        self.current_buffer().map(|buf| buf.at_bol).unwrap_or(false)
+    }
+
+%# Code snippets used in various cases of code generation in the main scanner.
+
+m4_define([[M4_GEN_BACKING_UP]], [[m4_dnl
+m4_ifdef([[M4_MODE_NO_USES_REJECT]], [[m4_dnl
+m4_ifdef([[M4_MODE_HAS_BACKING_UP]], [[m4_dnl
+        /* Keep backing-up information. */
+m4_ifdef([[M4_MODE_FULLSPD]], [[m4_dnl
+        if current_state.last().unwrap().nxt != 0 {
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_FULLSPD]], [[m4_dnl
+        if tables::accept[current_state as usize] != 0 {
+]])m4_dnl
+            self.last_accepting_state = current_state;
+            self.last_accepting_cpos = cp;
+        }
+]])m4_dnl
+]])m4_dnl
+]])m4_dnl
+
+%# yy_c was formerly YY_CHAR, changed to int because table can now
+%# have up to 0x101 entries, since we no longer generate a separate
+%# NUL table.
+%#
+%# Note: on x86-64 architecture with gcc -O2, we save an instruction
+%# in the main loop, since the character can now be zero-extended in
+%# the process of retrieving it from the input stream or the yy_ec[]
+%# or yy_meta[] arrays, whereas previously it was zero-extended by a
+%# register-to-register move just prior to the yy_chk[] table lookup
+m4_define([[M4_GEN_NEXT_COMPRESSED_STATE]], [[m4_dnl
+        {
+            #[allow(unused_mut)]
+            let mut class: usize = $1 as usize;
+            /* Save the backing-up info \before/ computing the next state because we
+             * always compute one more state than needed - we always proceed until we
+             * reach a jam state
+             */
+M4_GEN_BACKING_UP
+
+            while tables::chk[tables::base[current_state as usize] as usize + class] != current_state {
+                current_state = tables::def[current_state as usize];
+
+m4_ifdef([[M4_MODE_USEMECS]], [[m4_dnl
+                /* We've arranged it so that templates are never chained to one another.
+                 * This means we can afford to make a very simple test to see if we need
+                 * to convert to c's meta-equivalence class without worrying about
+                 * erroneously looking up the meta-equivalence class twice
+                 */
+
+                // lastdfa + 2 == YY_JAMSTATE + 1 is the beginning of the templates
+                if current_state >= YY_JAMSTATE + 1 {
+                    class = tables::meta[class] as usize;
+                }
+]])m4_dnl
+            }
+            current_state = tables::nxt[tables::base[current_state as usize] as usize + class];
+        }
+]])m4_dnl
+
+m4_define([[M4_GEN_START_STATE]], [[m4_dnl
+        /* Find the start state. */
+m4_ifdef([[M4_MODE_FULLSPD]], [[m4_dnl
+m4_ifdef([[M4_MODE_BOL_NEEDED]], [[m4_dnl
+        current_state = tables::start_state_list[self.start + (if self.at_bol() { 1 } else { 0 })];
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_BOL_NEEDED]], [[m4_dnl
+        current_state = tables::start_state_list[self.start];
+]])m4_dnl
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_FULLSPD]], [[m4_dnl
+        current_state = self.start;
+m4_ifdef([[M4_MODE_BOL_NEEDED]], [[current_state += if self.at_bol() { 1 } else { 0 };]])m4_dnl
+        /* Set up for storing up states. */
+m4_ifdef([[M4_MODE_USES_REJECT]], [[m4_dnl
+        self.state_buf.push(current_state);
+]])m4_dnl
+]])m4_dnl
+]])m4_dnl
+
+m4_define([[M4_GEN_NEXT_MATCH_FULLSPD]], [[m4_dnl
+        current_state += self.current_buffer_unchecked()
+            .ch_buf[$1..]
+            .map(|c| current_state[c])
+            .take_while(|ti| ti.verify != c)
+            .for_each(|ti| {
+M4_GEN_BACKING_UP
+            })
+            .fold(0u, |a, ti| a + e.nxt);
+]])m4_dnl
+
+    /** The main scanner function which does all the work. */
+    YY_DECL {
+        if !self.init {
+            self.init = true;
+            m4_ifdef([[YY_USER_INIT]], [[YY_USER_INIT]])m4_dnl
+            if self.start == 0 {
+                self.start = 1; // first start state
+            }
+            self.push_new_buffer(self.input.clone(), BUF_SIZE);
+            self.load_buffer_state();
+        }
+
+        let mut cp: usize = self.c_buf_p;
+        #[allow(unused_assignments)]
+        let mut bp: usize = cp;
+        #[allow(unused_assignments)]
+        let mut current_state: State = self.start;
+        /* open scope of user declarationns */
+        {
+%% [4.0] user's declarations go here
+
+            loop { /* loops until end-of-file is reached */
+m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_dnl
+m4_ifdef([[M4_MODE_NO_YYTEXT_IS_ARRAY]], [[m4_dnl
+                self.more_len = if self.more_flag {
+                    self.c_buf_p - self.text
+                } else {
+                    0
+                };
+                self.more_flag = false;
+]])]])m4_dnl
+                cp = self.c_buf_p;
+                /* Support of text. */
+                self.set_ch(cp, self.hold_char);
+                // bp points to the position in ch_buf of the start of the current run.
+                bp = cp;
+
+M4_GEN_START_STATE
+
+                'matcher: loop {
+                    loop {
+                        /* Find the next match. */
+%# Conditional indirection through an equivalence map
+m4_ifdef([[M4_MODE_USEECS]], m4_define([[M4_EC]], [[tables::ec[$1 as usize] as usize]]))m4_dnl
+m4_ifdef([[M4_MODE_NO_USEECS]], [[m4_define([[M4_EC]], [[$1 as usize]])]])m4_dnl
+
+m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[m4_dnl
+                        while (current_state = tables::nxt[current_state*M4_HOOK_NXT_ROWS + M4_EC(self.ch(cp as usize))]) > 0 {//f
+M4_GEN_BACKING_UP
+                            cp += 1;
+                        }
+                        current_state = -current_state;
+]])m4_dnl
+m4_ifdef([[M4_MODE_FULLSPD]], [[md_dnl
+M4_GEN_NEXT_MATCH_FULLSPD(M4_EC(self.ch(cp)), M4_EC(self.ch(cp+1)))
+                        cp += 1;
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_FULLSPD_OR_FULLTBL]], [[m4_dnl
+                        loop {
+                            M4_GEN_NEXT_COMPRESSED_STATE(M4_EC(self.ch(cp)))
+
+                            m4_ifdef([[M4_MODE_USES_REJECT]], [[self.state_buf.push(current_state);]])m4_dnl
+                            cp += 1;
+                            m4_ifdef([[M4_MODE_INTERACTIVE]], [[if tables::base[current_state as usize] == YY_JAMBASE { break; }]])m4_dnl
+                            m4_ifdef([[M4_MODE_NO_INTERACTIVE]], [[if current_state == YY_JAMSTATE { break; }]])m4_dnl
+                        }
+
+m4_ifdef([[M4_MODE_NO_USES_REJECT]], [[m4_dnl
+m4_ifdef([[M4_MODE_NO_INTERACTIVE]], [[m4_dnl
+                        /* Do the guaranteed-needed backing up to figure out
+                         * the match.
+                         */
+                        cp = self.last_accepting_cpos;
+                        current_state = self.last_accepting_state;
+]])m4_dnl
+]])m4_dnl
+]])m4_dnl
+
+                        'find_action: loop {
+                            /* find the action number */
+                            #[allow(unused_assignments)]
+                            m4_ifdef([[M4_MODE_NO_FULLSPD]], [[let mut act: usize = tables::accept[current_state as usize] as usize;]])m4_dnl
+                            m4_ifdef([[M4_MODE_FULLSPD]], [[let mut act: usize = current_state.last().unwrap().nxt as usize;]])m4_dnl
+                            m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[let mut act: usize = tables::accept[current_state as usize] as usize;]])m4_dnl
+m4_ifdef([[M4_MODE_FIND_ACTION_REJECT]], [[m4_dnl
+                            current_state = self.state_buf.pop().unwrap();
+                            self.lp = tables::accept[current_state as usize] as usize;
+m4_ifdef([[M4_MODE_FIND_ACTION_REJECT_REALLY_USED]], [[m4_dnl
+                            'find_rule: /* we branch to this label when backing up */]])m4_dnl
+                            loop {
+                                loop { /* loop until we find out what rule we matched */
+                                    if self.lp != 0 && self.lp < tables::accept[current_state as usize + 1] as usize {
+                                        act = tables::acclist[self.lp] as usize;
+m4_ifdef([[M4_MODE_VARIABLE_TRAILING_CONTEXT_RULES]], [[m4_dnl
+                                        if (act & TRAILING_HEAD_MASK) != 0 || self.looking_for_trail_begin != 0 {
+                                            if act == self.looking_for_trail_begin {
+                                                self.looking_for_trail_begin = 0;
+                                                act &= !TRAILING_HEAD_MASK;
+                                                break;
+                                            }
+                                        } else if act & TRAILING_MASK != 0 {
+                                            self.looking_for_trail_begin = act & !TRAILING_MASK;
+                                            self.looking_for_trail_begin |= TRAILING_HEAD_MASK;
+m4_ifdef([[M4_MODE_REAL_REJECT]], [[m4_dnl
+                                            /* Remember matched text in case we back up
+                                             * due to REJECT.
+                                             */
+                                            self.full_match = cp;
+                                            self.full_state = self.state_buf.pop().unwrap() as usize;
+                                            self.full_lp = self.lp;
+]])m4_dnl
+                                        } else {
+                                            self.full_match = cp;
+                                            self.full_state = self.state_buf.pop().unwrap() as usize;
+                                            self.full_lp = self.lp;
+                                            break;
+                                        }
+                                        self.lp += 1;
+                                        continue 'find_rule;
+]])m4_dnl
+m4_ifdef([[M4_MODE_NO_VARIABLE_TRAILING_CONTEXT_RULES]], [[m4_dnl
+                                        /* Remember matched text in case we back up due to
+                                         * trailing context plus REJECT.
+                                         */
+                                        self.full_match = cp;
+                                        break;
+]])m4_dnl
+                                    }
+                                    cp -= 1;
+
+                                    /* We could consolidate the following two lines with those at
+                                     * the beginning, but at the cost of complaints that we're
+                                     * branching inside a loop.
+                                     */
+                                    current_state = self.state_buf.pop().unwrap();
+                                    self.lp = tables::accept[current_state as usize] as usize;
+                                } /* close inner 'find_rule loop */
+]])m4_dnl
+m4_ifdef([[M4_MODE_FIND_ACTION_COMPRESSED]], [[m4_dnl
+                                act = tables::accept[current_state as usize] as usize;
+                                if act == 0 { /* have to back up */
+                                    cp = self.last_accepting_cpos;
+                                    current_state = self.last_accepting_state;
+                                    act = tables::accept[current_state as usize] as usize;
+                                }
+]])m4_dnl
+                                self.do_before_action(cp, bp);
+
+m4_ifdef([[M4_MODE_YYLINENO]],[[m4_dnl
+                                if act != YY_END_OF_BUFFER as usize && tables::rule_can_match_eol[act as usize] != 0 {
+                                    let start = m4_ifdef([[M4_MODE_YYMORE_USED]], [[m4_ifdef([[M4_MODE_YYTEXT_IS_ARRAY]], [[self.prev_more_offset]], [[self.more_len]])]], [[0]]);
+                                    self.lineno_wind_to(self.text + start, self.text + self.leng.unwrap());
+                                }
+]])m4_dnl
+
+                                'do_action: loop { /* This label is used only to access EOF actions. */
+m4_ifdef([[M4_MODE_DEBUG]], [[m4_dnl
+                                    if self.debug {
+                                        if act == 0 {
+                                            eprintln!("--scanner backing up");
+                                        } else if act < YY_NUM_RULES {
+                                            eprintln!("--accepting rule at line {} (\"{:?}\")", tables::rule_linenum[act as usize], self.text);
+                                        } else if act == YY_NUM_RULES {
+                                            eprintln!("--accepting default rule (\"{:?}\")", self.text);
+                                        } else if act == YY_NUM_RULES + 1 {
+                                            eprintln!("--(end of buffer or a NUL)");
+                                        } else {
+                                            eprintln!("--EOF (start condition {})\n", self.start());
+                                        }
+                                    }
+]])m4_dnl
+
+                                    match act { /* beginning of action switch */
+m4_ifdef([[M4_MODE_NO_USES_REJECT]], [[m4_dnl
+m4_ifdef([[M4_MODE_HAS_BACKING_UP]], [[m4_dnl
+                                        0 => { /* must back up */
+                                            /* undo the effects of do_before_action() */
+                                            self.set_ch(cp, self.hold_char);
+
+                                            /* Backing-up info for compressed tables is taken \after/ */
+                                            /* yy_cp has been incremented for the next state. */
+                                            cp = self.last_accepting_cpos;
+                                            m4_ifdef([[M4_MODE_FULLSPD]], [[cp += 1;]])m4_dnl
+                                            m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[cp += 1;]])m4_dnl
+
+                                            current_state = self.last_accepting_state;
+                                            continue 'find_action;
+                                        }
+]])m4_dnl
+]])m4_dnl
+%% [5.0] user actions get inserted here
+                                        s if s == YY_END_OF_BUFFER as usize => {
+                                            /* Amount of text matched not including the EOB char. */
+                                            let amount_of_matched_text = cp.checked_sub(self.text + 1);
+
+                                            /* Undo the effects of yy_do_before_action(). */
+                                            self.set_ch(cp, self.hold_char);
+                                            self.restore_more_offset();
+
+                                            if self.current_buffer_unchecked().buffer_status == BufferStatus::New {
+                                                /* We're scanning a new file or input source.  It's
+                                                 * possible that this happened because the user
+                                                 * just pointed yyin at a new source and called
+                                                 * yylex().  If so, then we have to assure
+                                                 * consistency between yy_current_buffer(yyscanner) and our
+                                                 * globals.  Here is the right place to do so, because
+                                                 * this is the first action (other than possibly a
+                                                 * back-up) that will match for the new input source.
+                                                 */
+                                                self.n_chars = self.current_buffer_unchecked().n_chars;
+                                                self.current_buffer_unchecked_mut().input_file = self.input.clone();
+                                                self.current_buffer_unchecked_mut().buffer_status = BufferStatus::Normal;
+                                            }
+
+                                            /* Note that here we test for yy_c_buf_p "<=" to the position
+                                             * of the first EOB in the buffer, since yy_c_buf_p will
+                                             * already have been incremented past the NUL character
+                                             * (since all states make transitions on EOB to the
+                                             * end-of-buffer state).  Contrast this with the test
+                                             * in input().
+                                             */
+                                            if self.c_buf_p <= self.n_chars { /* This was really a NUL. */
+                                                self.c_buf_p = self.text + amount_of_matched_text.unwrap_or(0);
+
+                                                current_state = self.get_previous_state();
+
+                                                /* Okay, we're now positioned to make the NUL
+                                                 * transition.  We couldn't have
+                                                 * yy_get_previous_state() go ahead and do it
+                                                 * for us because it doesn't know how to deal
+                                                 * with the possibility of jamming (and we don't
+                                                 * want to build jamming into it because then it
+                                                 * will run more slowly).
+                                                 */
+
+                                                let next_state = self.try_NUL_trans(current_state);
+                                                bp = self.text + self.more_adj();
+
+                                                if next_state != 0 {
+                                                    /* Consume the NUL. */
+                                                    self.c_buf_p += 1;
+                                                    cp = self.c_buf_p;
+                                                    current_state = next_state;
+                                                    continue 'matcher;
+                                                } else {
+%# Disguised case statement on table modes
+                                                    m4_ifdef([[M4_MODE_FULLSPD]], [[cp = self.c_buf_p;]])m4_dnl
+                                                    m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[cp = self.c_buf_p;]])m4_dnl
+m4_ifdef([[M4_MODE_NO_FULLSPD_OR_FULLTBL]], [[m4_dnl
+m4_ifdef([[M4_MODE_NO_USES_REJECT]], [[m4_dnl
+m4_ifdef([[M4_NOT_MODE_INTERACTIVE]], [[m4_dnl
+                                                    /* Do the guaranteed-needed backing up to figure
+                                                     * out the match.
+                                                     */
+                                                    cp = self.last_accepting_cpos;
+                                                    current_state = self.last_accepting_state;
+]])m4_dnl
+]])m4_dnl
+%# Disguised case statement on table modes ends
+m4_ifdef([[M4_MODE_FIND_ACTION_REJECT_OR_INTERACTIVE]], [[m4_dnl
+                                                    /* Still need to initialize yy_cp, though
+                                                     * yy_current_state was set up by
+                                                     * yy_get_previous_state().
+                                                     */
+                                                    cp = self.c_buf_p;
+]])m4_dnl
+]])m4_dnl
+                                                    continue 'find_action;
+                                                }
+                                            } else { /* not a NUL */
+                                                match self.get_next_buffer()? {
+                                                    Some(EndOfBufferAction::EndOfFile) => {
+                                                        self.did_buffer_switch_on_eof = false;
+
+                                                        if self.wrap() {
+                                                            /* Note: because we've taken care in
+                                                             * yy_get_next_buffer() to have set up
+                                                             * yytext, we can now set up
+                                                             * yy_c_buf_p so that if some total
+                                                             * hoser (like flex itself) wants to
+                                                             * call the scanner after we return the
+                                                             * YY_NULL, it'll still work - another
+                                                             * YY_NULL will get returned.
+                                                             */
+                                                            self.c_buf_p = self.text + self.more_adj();
+
+                                                            act = YY_STATE_EOF(self.start());
+                                                            continue 'do_action;
+                                                        } else {
+                                                            if !self.did_buffer_switch_on_eof {
+                                                                self.restart(self.input.clone());
+                                                            }
+                                                        }
+                                                    }
+
+                                                    Some(EndOfBufferAction::ContinueScan) => {
+                                                        self.c_buf_p = self.text + amount_of_matched_text.unwrap();
+                                                        current_state = self.get_previous_state();
+                                                        cp = self.c_buf_p;
+                                                        bp = self.text + self.more_adj();
+                                                        continue 'matcher;
+                                                    }
+
+                                                    Some(EndOfBufferAction::LastMatch) => {
+                                                        self.c_buf_p = self.n_chars;
+                                                        current_state = self.get_previous_state();
+                                                        cp = self.c_buf_p;
+                                                        bp = self.text + self.more_adj();
+                                                        continue 'find_action;
+                                                    }
+
+                                                    None => {
+                                                        // take no action? get_next_buffer says that it
+                                                        // wants to "force" the EOB, but it's hard to see
+                                                        // what that means at the moment.
+                                                    }
+                                                } /* end EOB inner switch */
+                                            } /* end if */
+                                        } /* case YY_END_OF_BUFFER */
+
+                                        _ => {
+                                            return Err("fatal flex scanner internal error--no action found".to_owned());
+                                        }
+                                    }  /* end of action switch */
+                                    break;
+                                } /* end 'do_action loop */
+                                break;
+m4_ifdef([[M4_MODE_FIND_ACTION_REJECT]], [[m4_dnl
+m4_ifdef([[M4_MODE_FIND_ACTION_REJECT_REALLY_USED]], [[m4_dnl
+                            } /* end outer 'find_rule loop */
+                            break;
+]])]])m4_dnl
+                        } /* end 'find_action loop */
+                        break 'matcher;
+                    }
+                } /* end of 'matcher loop */
+            } /* end of scanning one token */
+        } /* end of user's declarations */
+    } /* end of yylex */
+
+    /** try to read in a new buffer */
+    fn get_next_buffer(&mut self) -> Result<Option<EndOfBufferAction>> {
+        if self.c_buf_p > self.n_chars + 1 {
+            Err("fatal flex scanner internal error--end of buffer missed".to_owned())
+        } else if !self.current_buffer_unchecked().fill_buffer {
+            // Don't try to fill the buffer, so this is an EOF.
+            if self.c_buf_p - self.text - self.more_adj() == 1 {
+                // We matched a single character, the EOB, so treat this as a final EOF.
+                Ok(Some(EndOfBufferAction::EndOfFile))
+            } else {
+                // We matched some text prior to the EOB, first process it.
+                Ok(Some(EndOfBufferAction::LastMatch))
+            }
+        } else {
+            // Try to read more data.
+            // First move last chars to start of buffer.
+            let number_to_move = self.c_buf_p - self.text - 1;
+            let range = self.text..self.c_buf_p-1;
+            self.current_buffer_unchecked_mut().ch_buf.copy_within(range, 0);
+            let number_read = if self.current_buffer_unchecked().buffer_status == BufferStatus::EOFPending {
+                // don't do the read, it's not guaranteed to return an EOF, just force an EOF
+                self.current_buffer_unchecked_mut().n_chars = 0;
+                self.n_chars = 0;
+                0
+            } else {
+                let mut number_to_read = self.current_buffer_unchecked().buf_size - number_to_move - 1;
+                if number_to_read > READ_BUF_SIZE {
+                    number_to_read = READ_BUF_SIZE;
+                }
+m4_ifdef([[M4_MODE_USES_REJECT]],
+[[m4_dnl
+                if number_to_read <= 0 {
+                    panic!("input buffer overflow, can't enlarge buffer because scanner uses reject");
+                }
+]])m4_dnl
+                // Include room in for 2 EOB chars.
+                self.current_buffer_unchecked_mut().ch_buf.reserve(number_to_read + 2);
+                let number_read = self.read(number_to_move, number_to_read)?;
+                self.n_chars = number_read + number_to_move;
+                self.current_buffer_unchecked_mut().n_chars = number_to_read;
+                number_read
+            };
+
+            self.current_buffer_unchecked_mut().ch_buf.extend_from_slice(&[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR]);
+            self.text = 0;
+
+            if number_read == 0 {
+                if number_to_move == self.more_adj() {
+                    let source = self.input.clone();
+                    self.restart(source);
+                    Ok(Some(EndOfBufferAction::EndOfFile))
+                } else {
+                    self.current_buffer_unchecked_mut().buffer_status = BufferStatus::EOFPending;
+                    Ok(Some(EndOfBufferAction::LastMatch))
+                }
+            } else {
+                Ok(Some(EndOfBufferAction::ContinueScan))
+            }
+        }
+    }
+
+    /** get the state just before the EOB char was reached */
+
+    fn get_previous_state(&mut self) -> State {
+        #[allow(unused_assignments)]
+        let mut current_state: State = self.start;
+        M4_GEN_START_STATE
+        for cp in self.text + self.more_adj()..self.c_buf_p {
+            /* Find the next state. */
+m4_ifdef([[M4_MODE_NO_NULTRANS]], [[m4_dnl
+            #[allow(unused_mut)]
+            let mut class: usize = if self.ch(cp) == 0 {
+                YY_NUL_EC as usize
+            } else {
+                tables::ec[self.ch(cp) as usize] as usize
+            };
+]])m4_dnl
+m4_ifdef([[M4_MODE_NULTRANS]], [[m4_dnl
+            #[allow(unused_mut)]
+            let mut class: usize = tables::ec[self.ch(cp as usize) as usize] as usize
+]])m4_dnl
+m4_ifdef([[M4_MODE_NULTRANS]], [[m4_dnl
+            /* Compressed tables back up *before* they match. */
+            if self.ch(cp as usize) != '\0' {
+]])m4_dnl
+m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[m4_dnl
+            current_state = tables::nxt[current_state*M4_HOOK_NXT_ROWS + class];
+]])m4_dnl
+            m4_ifdef([[M4_MODE_FULLSPD]], [[current_state += current_state[class].nxt;]])m4_dnl
+            m4_ifdef([[M4_MODE_NO_FULLSPD_OR_FULLTBL]], [[M4_GEN_NEXT_COMPRESSED_STATE(class)]])m4_dnl
+m4_ifdef([[M4_MODE_NO_NULTRANS]], [[m4_dnl
+        }
+]])m4_dnl
+m4_ifdef([[M4_MODE_NULTRANS]], [[m4_dnl
+        } else {
+            current_state = tables::NUL_trans[current_state as usize];
+        }
+]])m4_dnl
+        m4_ifdef([[M4_MODE_FIND_ACTION_FULLTBL]], [[M4_GEN_BACKING_UP]])m4_dnl
+        m4_ifdef([[M4_MODE_FULLSPD]], [[M4_GEN_BACKING_UP]])m4_dnl
+        m4_ifdef([[M4_MODE_USES_REJECT]], [[        self.state_buf.push(current_state);]])m4_dnl
+        current_state
+    }
+
+    /** try to make a transition on the NUL character */
+    fn try_NUL_trans(&mut self, current_state: State) -> State {
+        let mut current_state = current_state;
+        /* Handling NULs, if needed. */
+        /* First, deal with backing up and setting up yy_cp if the scanner
+         * finds that it should JAM on the NUL. */
+        #[allow(unused)]
+        let cp = self.c_buf_p;
+
+        #[allow(unused_mut)]
+        let mut class = YY_NUL_EC;
+%# Note that this statement block and the following three are
+%# not executed serially but are an if-then-else cascade
+%# for different table modes.
+m4_ifdef([[M4_MODE_NULTRANS]], [[m4_dnl
+        current_state = tables::NUL_trans[current_state];
+        let is_jam = current_state == 0;
+]])m4_dnl
+
+m4_ifdef([[M4_MODE_NO_NULTRANS]], [[m4_dnl
+m4_ifdef([[M4_MODE_NULTRANS_FULLTBL]], [[m4_dnl
+        current_state = tables::nxt[current_state*M4_HOOK_NXT_ROWS + YY_NUL_EC];]])m4_dnl
+        let is_jam = current_state <= 0;
+]])m4_dnl
+
+m4_ifdef([[M4_MODE_NO_NULTRANS_FULLTBL]], [[m4_dnl
+m4_ifdef([[M4_MODE_NULTRANS_FULLSPD]], [[m4_dnl
+        let trans_info: &TranslationInfo = &current_state[class as usize];
+        current_state += trans_info->nxt;
+        let is_jam = trans_info->verify != class;
+]])m4_dnl
+
+m4_ifdef([[M4_MODE_NO_NULTRANS_FULLSPD]], [[m4_dnl
+M4_GEN_NEXT_COMPRESSED_STATE(YY_NUL_EC)
+        let is_jam = current_state == YY_JAMSTATE;
+m4_ifdef([[M4_MODE_USES_REJECT]], [[m4_dnl
+        /* Only stack this state if it's a transition we
+         * actually make.  If we stack it on a jam, then
+         * the state stack and c_buf_p get out of sync.
+         */
+        if !is_jam {
+            self.state_buf.push(current_state);
+        }
+]])m4_dnl
+]])m4_dnl
+]])m4_dnl
+%# End of if-else cascade
+m4_ifdef([[M4_MODE_NULTRANS_WRAP]], [[m4_dnl
+        /* If we've entered an accepting state, back up; note that
+         * compressed tables have *already* done such backing up, so
+         * we needn't bother with it again.
+         */
+        if !is_jam {
+            M4_GEN_BACKING_UP
+        }
+]])m4_dnl
+
+        if is_jam { 0 } else { current_state }
+    }
+
+    /// Immediately switch to a different input stream.  This function does not reset the start condition
+    /// to @c INITIAL .
+    fn restart(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>) {
+        if self.current_buffer().is_none() {
+            self.push_new_buffer(self.input.clone(), BUF_SIZE);
+        }
+        self.current_buffer_unchecked_mut().init(source);
+        self.load_buffer_state();
+    }
+
+    /// Switch to a different input buffer.
+    fn switch_to_buffer(&mut self, new_buffer: BufferState) {
+        // TODO. We should be able to replace this entire function body with
+        //      pop_buffer_state();
+        //      push_buffer_state(new_buffer);
+        if ptr::eq(self.current_buffer_unchecked(), &new_buffer) {
+            if self.current_buffer().is_some() {
+                // Flush out information for old buffer.
+                let p = self.c_buf_p;
+                self.set_ch(p, self.hold_char);
+                self.current_buffer_unchecked_mut().buf_pos = self.c_buf_p;
+                self.current_buffer_unchecked_mut().n_chars = self.n_chars;
+            }
+            *self.current_buffer_unchecked_mut() = new_buffer;
+            self.load_buffer_state();
+
+            // We don't actually know whether we did this switch during EOF (wrap()) processing,
+            // but the only time this flag is looked at is after wrap() is called, so it's safe to
+            // go ahead and always set it.
+            self.did_buffer_switch_on_eof = true;
+        }
+    }
+
+    fn load_buffer_state(&mut self) {
+        self.n_chars = self.current_buffer_unchecked().n_chars;
+        self.text = self.current_buffer_unchecked().buf_pos;
+        self.c_buf_p = self.current_buffer_unchecked().buf_pos;
+        self.input = self.current_buffer_unchecked().input_file.clone();
+        self.hold_char = self.ch(self.c_buf_p);
+    }
+
+    fn push_new_buffer(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>, size: usize) {
+        let buf = BufferState::new(source, size);
+        self.push_buffer_state(buf)
+    }
+
+    /** Pushes the new state onto the stack. The new state becomes
+     *  the current state. This function will allocate the stack
+     *  if necessary.
+     */
+    fn push_buffer_state(&mut self, new_buffer: BufferState) {
+        if self.current_buffer().is_some() {
+            // Flush out information for old buffer.
+            let p = self.c_buf_p;
+            self.set_ch(p, self.hold_char);
+            self.current_buffer_unchecked_mut().buf_pos = self.c_buf_p;
+            self.current_buffer_unchecked_mut().n_chars = self.n_chars;
+        }
+
+        self.buffer_stack.push(new_buffer);
+        // copied from switch_to_buffer.
+        self.load_buffer_state();
+        self.did_buffer_switch_on_eof = true;
+    }
+
+    /** Removes and deletes the top of the stack, if present.
+     *  The next element becomes the new top.
+     */
+    fn pop_buffer_state(&mut self) {
+        self.buffer_stack.pop();
+        if !self.buffer_stack.is_empty() {
+            self.load_buffer_state();
+            self.did_buffer_switch_on_eof = true;
+        }
+    }
+
+m4_ifdef([[M4_MODE_NO_YYWRAP]], [[m4_dnl
+    fn wrap(&mut self) -> bool {
+        true
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_SCAN_BUFFER]],,m4_dnl
+[[m4_dnl
+    /** Setup the input buffer state to scan directly from a user-specified character buffer. */
+    pub fn scan_from_buffer(&mut self, input: Vec<u8>) -> Result<&BufferState> {
+        let size = input.len();
+        if size < 2 || &input[size-2..=size-1] != &[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR] {
+            Err("buffer does not end in two END_OF_BUFFER_CHARs.".to_owned())
+        } else {
+            let buffer = BufferState {
+                buf_size: size - 2,
+                buf_pos: 0,
+                ch_buf: input,
+                is_our_buffer: false,
+                input_file: None,
+                n_chars: size - 2,
+                is_interactive: false,
+                at_bol: true,
+                fill_buffer: false,
+                buffer_status: BufferStatus::New,
+                lineno: 1,
+                column: 0,
+            };
+            self.switch_to_buffer(buffer);
+            Ok(self.current_buffer_unchecked())
+        }
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_SCAN_STRING]],,
+[[m4_dnl
+    /// Setup the input buffer state to scan a string. The next call to lex() will scan from a @e
+    /// copy of @a str. Note: If you want to scan a buffer that may contain NUL values, then use
+    /// scan_bytes() instead.
+    pub fn scan_string(&mut self, input: String) -> Result<&BufferState> {
+        self.scan_bytes(input.as_bytes())
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_SCAN_BYTES]],,
+[[m4_dnl
+    /// Setup the input buffer state to scan the given bytes. The next call to lex() will scan
+    /// from a @e copy of @a bytes.
+    pub fn scan_bytes<B: AsRef<[u8]>>(&mut self, input: B) -> Result<&BufferState> {
+        let input: Vec<u8> = input.as_ref().iter().chain(&[END_OF_BUFFER_CHAR, END_OF_BUFFER_CHAR]).copied().collect();
+        let size = input.len();
+        let buffer = BufferState {
+            buf_size: size - 2,
+            buf_pos: 0,
+            ch_buf: input,
+            is_our_buffer: true,
+            input_file: None,
+            n_chars: size - 2,
+            is_interactive: false,
+            at_bol: true,
+            fill_buffer: false,
+            buffer_status: BufferStatus::New,
+            lineno: 1,
+            column: 0,
+        };
+        self.switch_to_buffer(buffer);
+        Ok(self.current_buffer_unchecked())
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_PUSH_STATE]],,[[m4_dnl
+    fn push_state(&mut self, new_state: Start) {
+        self.start_stack.push(self.start());
+        self.begin(new_state);
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_POP_STATE]],,
+[[m4_dnl
+    fn pop_state(&mut self) -> Start {
+        match self.start_stack.pop() {
+            None => panic!("start-condition stack underflow"),
+            Some(state) => { self.begin(state); state },
+        }
+    }
+]])m4_dnl
+
+m4_ifdef([[M4_YY_NO_TOP_STATE]],,
+[[m4_dnl
+    fn top_state(&self) -> Start {
+        match self.start_stack.last() {
+            None => self.start(),
+            Some(state) => *state,
+        }
+    }
+]])m4_dnl
+}
+
+pub struct BufferState {
+    input_file: Option<Rc<RefCell<dyn io::Read>>>,
+    /// input buffer
+    ch_buf: Vec<u8>,
+    /// current position in input buffer
+    buf_pos: usize,
+
+    /** Size of input buffer in bytes, not including room for EOB
+      * characters.
+      */
+    buf_size: usize,
+
+    /** Number of characters read into ch_buf, not including EOB
+      * characters.
+      */
+    n_chars: usize,
+
+    /** Whether we "own" the buffer - i.e., we know we created it,
+      * and can realloc() it to grow it, and should free() it to
+      * delete it.
+      */
+    is_our_buffer: bool,
+
+    /** Whether this is an "interactive" input source, if so, and
+      * if we're using stdio for input, then we want to use getc()
+      * instead of fread(), to make sure we stop fetching input after
+      * each newline.
+      */
+    is_interactive: bool,
+
+    /** Whether we're considered to be at the beginning of a line.
+      * If so, '^' rules will be active on the next match, otherwise
+      * not.
+      */
+    at_bol: bool,
+
+    /// The line count.
+    lineno: usize,
+    /// The column count.
+    column: usize,
+
+    /** Whether to try to fill the input buffer when we reach the
+      * end of it.
+      */
+    fill_buffer: bool,
+
+    buffer_status: BufferStatus,
+}
+
+impl BufferState {
+    /// Allocate and initialize an input buffer state.
+    fn new(source: Option<Rc<RefCell<dyn io::Read>>>, size: usize) -> BufferState {
+        let mut b = BufferState {
+            input_file: None,
+            ch_buf: Vec::with_capacity(size + 2),
+            buf_pos: 0,
+            buf_size: size + 2,
+            n_chars: 0,
+            is_our_buffer: true,
+            is_interactive: false,
+            at_bol: false,
+            lineno: 1,
+            column: 0,
+            fill_buffer: false,
+            buffer_status: BufferStatus::New
+        };
+        b.init(source);
+        b
+    }
+
+    // Initializes or reinitializes a buffer.  This function is sometimes called more than once on
+    // the same buffer, such as during a restart() or at EOF.
+    fn init(&mut self, source: Option<Rc<RefCell<dyn io::Read>>>) {
+        self.flush();
+        self.input_file = source;
+        self.fill_buffer = true;
+
+        /* If b is the current buffer, then init_buffer was _probably_
+         * called from restart() or through get_next_buffer.  In that
+         * case, we don't want to reset the lineno or column.
+         */
+        //self.current_buffer_unchecked_mut().lineno = 1;
+        //self.current_buffer_unchecked_mut().column = 0;
+    }
+
+    /// Discard all buffered characters. On the next scan, INPUT will be called.
+    fn flush(&mut self) {
+        self.n_chars = 0;
+
+        // We always need two end-of-buffer characters.  The first causes a transition to the
+        // end-of-buffer state.  The second causes a jam in that state.
+        self.ch_buf.clear();
+        self.ch_buf.push(END_OF_BUFFER_CHAR);
+        self.ch_buf.push(END_OF_BUFFER_CHAR);
+
+        self.buf_pos = 0;
+
+        self.at_bol = true;
+        self.buffer_status = BufferStatus::New;
+    }
+}
+
+fn read_interactive(buf: &mut BufferState, file: &Rc<RefCell<dyn io::Read>>, offset: usize, max_size: usize) -> Result<usize> {
+    let mut n: usize = 0;
+    let mut tmp: [u8; 1] = [0];
+    loop {
+        match file.borrow_mut().read(&mut tmp) {
+            Ok(v) => {
+                if v == 0 {
+                    break;
+                } else if v == 1 {
+                    buf.ch_buf[offset + n] = tmp[0];
+                    n += 1;
+                }
+            },
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            _ => return Result::Err("input in flex scanner failed".to_owned()),
+        };
+        if n >= max_size {
+            break;
+        }
+    }
+    Ok(n)
+}
+
+fn read_file(buf: &mut BufferState, file: &Rc<RefCell<dyn io::Read>>, offset: usize, max_size: usize) -> Result<usize> {
+    loop {
+        let result = file.borrow_mut().read(&mut buf.ch_buf[offset..]);
+        match result {
+            Ok(v) => break Ok(v),
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            _ => return Result::Err("input in flex scanner failed".to_owned()),
+        };
+    }
+}

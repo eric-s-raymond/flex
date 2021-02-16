@@ -107,6 +107,11 @@ c99-flex.h: c99-flex.skl mkskel.sh
 	$(SHELL) $(srcdir)/chkskel.sh $@.tmp
 	mv -f $@.tmp $@
 
+rust-flex.h: rust-flex.skl mkskel.sh
+	$(SHELL) $(srcdir)/mkskel.sh rust $(srcdir) $(m4) $(VERSION) > $@.tmp
+	$(SHELL) $(srcdir)/chkskel.sh $@.tmp
+	mv -f $@.tmp $@
+
 go-flex.h: go-flex.skl mkskel.sh
 	$(SHELL) $(srcdir)/mkskel.sh go $(srcdir) $(m4) $(VERSION) > $@.tmp
 	$(SHELL) $(srcdir)/chkskel.sh $@.tmp
